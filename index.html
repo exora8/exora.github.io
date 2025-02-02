@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll Snapping Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+    
+    
+        /* CSS Styling */
+        body, html {
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Menghilangkan scrollbar default */
+        }
+
+        .container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Scroll snapping vertical */
+            position: relative;
+        }
+
+        .step {
+            height: 100vh; /* Setiap section memenuhi tinggi layar */
+            scroll-snap-align: start; /* Snap ke awal section */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            background-color: none;
+            transition: background-color 0.5s ease;
+        }
+
+        #step1 {
+            background-color: #2f2f2f;
+        }
+
+        #step2 {
+            background-color: #1b1b1b;
+        }
+
+        #step3 {
+            background-color: #1b1b1b;
+        }
+
+        #step4 {
+            background-color: #1b1b1b;
+        }
+
+        #step5 {
+            background-color: black;
+        }
+
+        h1 {
+            font-size: 2vw;
+            margin: 0;
+            z-index: 2;
+            color: white;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            50% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        #dynamic-text {
+            font-size: 1.8vw;
+            text-align: center;
+            opacity: 0.8;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        .title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    color: white;
+    text-align: left; /* Teks di tengah horizontal */
+    width: 50%; /* Atur lebar sesuai kebutuhan */
+    transform: translate(-40%, -20%);
+    
+}
+
+        /* Custom Scroll Indicator (Progress Bar) */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%; /* Lebar progress bar */
+            max-width: 400px; /* Maksimum lebar */
+            height: 4px; /* Tinggi progress bar */
+            background-color: rgba(255, 255, 255, 0.3); /* Warna background bar (putih transparan) */
+            border-radius: 2px; /* Sudut melengkung */
+            overflow: hidden; /* Agar progress tidak keluar dari bar */
+            z-index: 1000;
+        }
+
+        .scroll-indicator .progress-bar {
+            width: 100%;
+            height: 100%;
+        }
+
+        .scroll-indicator .progress {
+            height: 100%;
+            width: 0; /* Awalnya progress 0% */
+            background-color: #007BFF; /* Warna progress bar (biru) */
+            border-radius: 2px; /* Sudut melengkung */
+            transition: width 0.3s ease; /* Animasi perubahan width */
+        }
+
+        /* Hide default scrollbar */
+        .container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: white;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            filter: blur(2px);
+        }
+
+        .mainLogo {
+            top: 0;
+            left: 0;
+            position: center;
+            width: 27vw;
+            height: 6vw;
+            opacity: 0.8;
+        }
+        .exoraInfo{
+          font-family: 'Roboto Mono', monospace; /* Gunakan font monospace */
+          color: white;
+        }
+        .whitepapperInfo {
+          font-size: 15px;
+    font-family: 'Roboto Mono', monospace; /* Gunakan font monospace */
+    text-align: left; /* Teks rata kiri */
+    color: white; /* Warna teks putih */
+    margin: 0; /* Hilangkan margin default */
+    padding: 0; /* Hilangkan padding default */
+    width: 100%; /* Lebar penuh */
+    box-sizing: border-box; /* Pastikan padding dan border termasuk dalam lebar */
+}
+        .whitepapper{
+          
+          font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    color: white;
+    text-align: left; /* Teks di tengah horizontal */
+    width: 50%; /* Atur lebar sesuai kebutuhan */
+    transform: translate(-50%, -20%);
+          
+        }
+        
+        .exoraImage {
+    width: 600px; /* Atur ukuran sesuai kebutuhan */
+    height: auto; /* Biarkan tinggi menyesuaikan rasio */
+    max-width: 100%; /* Biar responsif */
+    display: block; /* Biar tidak ada space ekstra */
+    margin: 0 auto; /* Pusatkan gambar */
+    object-fit: cover; /* Pastikan gambar tetap proporsional */
+    border-radius: 8px; /* Opsional, buat sudut lebih smooth */
+}
+
+.button {
+            position: relative;
+            font-family: 'Roboto Mono', monospace;
+            background-color: black;
+            color: white;
+            border-style: solid;
+            border-color: blue;
+            border-width: 1px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s;
+            transform: translate(0%, 120%);
+            box-shadow: 0px 0px 5px blue;
+            
+        }
+        .button:hover {
+          font-family: 'Roboto Mono', monospace;
+            content: '';
+            position: relative;
+            background-color: black;
+            color: white;
+            border-width: 1px;
+            border-style: solid;
+            border-color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s;
+            transform: translate(0%, 120%);
+            transition: 0.3s;
+            box-shadow: 0px 0px 15px white;
+        }
+        
+
+
+
+
+    </style>
+</head>
+<body>
+    <!-- Struktur HTML -->
+    <div class="container">
+        <canvas class="candlebackground" id="candleCanvas"></canvas>
+        <section class="step" id="step1">
+            <img src="https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/text-1738486901277.png" class="mainLogo">
+            <h1 id="dynamic-text">Less Stress, More Success.</h1>
+        </section>
+        
+        
+        <section class="step" id="step2">
+          
+            <p class="title" >what is exora?</p>
+<p class="exoraInfo">Exora AI is an artificial intelligence system designed for high-speed market analysis.<br>
+This technology can combine various technical and fundamental indicators, then compare the results in seconds.<br>
+Exora AI helps traders make more accurate decisions based on comprehensive data analysis.</p>
+
+            
+        </section>
+        
+        
+        <section class="step" id="step3">
+            <p class="whitepapper">Whitepapper</p>
+            <p class="whitepapperInfo">Overview<br>Exora Ai leverages AI to predict cryptocurrency market trends, providing traders with accurate insights to make better-informed decisions.<br><br>Problem<br>The cryptocurrency market is highly volatile and unpredictable. Traditional methods for market analysis are wasting too much time, inaccurate and fail to adapt to rapid market changes.<br><br>Solutions<br>Exora Ai uses advanced machine learning algorithms to analyze and predict market movements in real-time, offering highly accurate forecasts that help users mitigate risks and optimize their trades faster.<br><br>Roadmap<br>Q1 2024 : Develop the AI foundation and infrastructure for training.<br>Q2 2024 : Train the AI to understand and adapt to the crypto market<br>Q3 2024 : Fine-tune and evaluate the AI for improved accuracy.<br>Q4 2025 : Refine the AI and begin developing the User Interface (UI).<br>January 2025 :  Launch the website, forum, and $VXE token.</p>
+            
+        </section>
+        
+        
+        <section class="step" id="step4">
+            <video width="90%" height="90%" controls>
+               <source src="https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250203012024.mp4" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+            </video>
+        </section>
+        
+        
+        <section class="step" id="step5">
+            <img class="exoraImage" src="https://github.com/exora8/exora_ai_web/blob/main/1000118614.png?raw=true">
+       <button class="button" onclick="window.location.href='https://yourwebsite.com'">
+    Analyze with Exora AI
+</button>
+        </section>
+        
+    </div>
+
+    <!-- Custom Scroll Indicator (Progress Bar) -->
+    <div class="scroll-indicator">
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+
+    <script>
+        // Update Progress Bar on Scroll
+        const container = document.querySelector('.container');
+        const progressBar = document.querySelector('.scroll-indicator .progress');
+
+        container.addEventListener('scroll', () => {
+            const scrollPosition = container.scrollTop;
+            const totalHeight = container.scrollHeight - window.innerHeight;
+            const progress = (scrollPosition / totalHeight) * 100; // Hitung persentase scroll
+
+            progressBar.style.width = `${progress}%`; // Update width progress bar
+        });
+
+        // Dynamic Text Animation
+        const texts = [
+            "Don’t Overthink, Let AI Sync.",
+            "Stop Guessing, Start Winning.",
+            "Data In, Wins Out.",
+            "AI-Powered, Stress-Free.",
+            "Work Smart, Not Hard.",
+            "Trade Smart, Stay Chill.",
+            "Chill, AI’s Got It."
+        ];
+        let index = 0;
+        const h1Element = document.getElementById("dynamic-text");
+
+        function changeText() {
+            h1Element.textContent = texts[index];
+            index = (index + 1) % texts.length;
+        }
+
+        setInterval(changeText, 2000);
+
+        // Canvas Animation
+        const canvas = document.getElementById("candleCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let candles = [];
+        let candleWidth = 10;
+        let gap = 5;
+        let numCandles = Math.floor(canvas.width / (candleWidth + gap));
+        let currentPrice = canvas.height / 2;
+        let highestPrice = currentPrice;
+        let lowestPrice = currentPrice;
+        let isInitializing = true;
+
+        // Grid Settings
+        const gridSpacing = 50; // distance between grid lines
+        const gridOpacity = 0.1; // make the grid lines semi-transparent
+
+        class Candle {
+            constructor(prevClose, withNoise) {
+                this.w = candleWidth;
+                this.open = prevClose;
+                this.close = this.open + (Math.random() * 40 - 20);
+                this.high = Math.max(this.open, this.close) + 10; // Wick di atas
+                this.low = Math.min(this.open, this.close) - 10; // Wick di bawah
+                this.age = 0;
+                this.withNoise = withNoise;
+            }
+
+            update() {
+                if (this.withNoise && this.age < 180) { // 3 detik (60fps * 3)
+                    let noise = Math.random() * 10 - 5;
+                    this.close += noise;
+                    this.high = Math.max(this.high, this.close + Math.random() * 5);
+                    this.low = Math.min(this.low, this.close - Math.random() * 5);
+                    this.age++;
+                }
+
+                // Menentukan warna candle setelah proses noise
+                this.isBullish = this.close > this.open;
+                this.color = this.isBullish ? "#0000ff" : "#ffffff";
+
+                // Update highest and lowest prices
+                highestPrice = Math.max(highestPrice, this.high);
+                lowestPrice = Math.min(lowestPrice, this.low);
+            }
+
+            draw(x) {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(x, Math.min(this.open, this.close), this.w, Math.abs(this.close - this.open));
+
+                // Gambar wick (garis vertikal)
+                ctx.fillStyle = this.color;
+                ctx.fillRect(x + this.w / 2 - 1, this.low, 2, this.high - this.low);
+            }
+        }
+
+        function generateCandle(withNoise = true) {
+            let prevClose = candles.length > 0 ? candles[candles.length - 1].close : currentPrice;
+            let newCandle = new Candle(prevClose, withNoise);
+            candles.push(newCandle);
+            if (candles.length > numCandles) {
+                candles.shift();
+            }
+        }
+
+        function initializeCandles() {
+            for (let i = 0; i < numCandles; i++) {
+                generateCandle(false); // Candle pertama tanpa noise
+            }
+            isInitializing = false;
+        }
+
+        function drawGrid() {
+            // Set background to dark grey
+            ctx.fillStyle = '#2f2f2f'; // Dark grey background
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set grid line color and opacity
+            ctx.strokeStyle = `rgba(255, 255, 255, ${gridOpacity})`;
+
+            // Draw vertical grid lines
+            for (let x = 0; x < canvas.width; x += gridSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // Draw horizontal grid lines
+            for (let y = 0; y < canvas.height; y += gridSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            drawGrid(); // Draw the grid and background
+
+            candles.forEach((candle, index) => {
+                candle.update();
+                candle.draw(index * (candleWidth + gap));
+            });
+
+            if (lowestPrice < 0) {
+                canvas.height = canvas.height + (lowestPrice * -1);
+                // Shift the entire canvas view downward
+                ctx.translate(0, -lowestPrice);
+                lowestPrice = 0;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        initializeCandles();
+        setInterval(() => generateCandle(true), 3000);
+        animate();
+
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            numCandles = Math.floor(canvas.width / (candleWidth + gap));
+            candles = [];
+            initializeCandles();
+        });
+
+        // Responsive canvas
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
