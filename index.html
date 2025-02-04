@@ -41,20 +41,47 @@
             background-color: #2f2f2f;
         }
 
-        #step2 {
-            background-color: #1b1b1b;
-        }
+       #step2 {
+         background-image: url("https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/webwallpeper-pc.jpg");
+         background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+}
+
+/* Media query untuk perangkat mobile */
+@media only screen and (max-width: 768px) {
+    #step2 {
+        background-image: url("https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/output.jpg");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+}
 
         #step3 {
-            background-color: #1b1b1b;
-        }
+          
+         background-color: black;
+         background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+}
+
+/* Media query untuk perangkat mobile */
+@media only screen and (max-width: 768px) {
+    #step3 {
+        background-color: black;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+}
 
         #step4 {
             background-color: #1b1b1b;
         }
 
         #step5 {
-            background-color: black;
+            background-image: url("https://github.com/exora8/exora_ai_web/blob/main/1000118614.png?raw=true");
         }
 
         h1 {
@@ -84,9 +111,9 @@
     font-family: 'Orbitron', sans-serif;
     font-size: 20px;
     color: white;
-    text-align: left; /* Teks di tengah horizontal */
+    text-align: center; /* Teks di tengah horizontal */
     width: 50%; /* Atur lebar sesuai kebutuhan */
-    transform: translate(-40%, -20%);
+    transform: translate(0, 60%);
     
 }
 
@@ -149,10 +176,44 @@
             height: 6vw;
             opacity: 0.8;
         }
-        .exoraInfo{
-          font-family: 'Roboto Mono', monospace; /* Gunakan font monospace */
-          color: white;
-        }
+        .exoraInfo {
+    font-family: 'Roboto Mono', monospace;
+    width: 90%;
+    height:cover;
+    color: white;
+    background-color: black;
+    background-size: 90%, auto;
+    text-align: left;
+    border-style: solid;
+    border-width: 13px;
+    border-color: black;
+    border-radius: 10px;
+    overflow: hidden; /* Agar teks tidak terlihat sebelum efek dimulai */
+    margin: 0;
+    padding: 10px;
+    opacity: 0; /* Sembunyikan teks awal */
+    transition: opacity 0.5s ease; /* Animasi fade-in */;
+    animation: exInfo 6s ease 0s 1 normal forwards;
+}
+
+.exoraInfo.visible {
+    opacity: 1; /* Munculkan teks saat efek dimulai */
+
+}
+}
+@keyframes exInfo {
+	0% {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+
         .whitepapperInfo {
           font-size: 15px;
     font-family: 'Roboto Mono', monospace; /* Gunakan font monospace */
@@ -175,6 +236,7 @@
         }
         
         .exoraImage {
+          background-image: url("https://github.com/exora8/exora_ai_web/blob/main/1000118614.png?raw=true");
     width: 600px; /* Atur ukuran sesuai kebutuhan */
     height: auto; /* Biarkan tinggi menyesuaikan rasio */
     max-width: 100%; /* Biar responsif */
@@ -182,6 +244,19 @@
     margin: 0 auto; /* Pusatkan gambar */
     object-fit: cover; /* Pastikan gambar tetap proporsional */
     border-radius: 8px; /* Opsional, buat sudut lebih smooth */
+}
+/* Media query untuk perangkat mobile */
+@media only screen and (max-width: 768px) {
+    .exoraImage {
+        width: 600px; /* Atur ukuran sesuai kebutuhan */
+        background-image: none;
+    height: auto; /* Biarkan tinggi menyesuaikan rasio */
+    max-width: 100%; /* Biar responsif */
+    display: block; /* Biar tidak ada space ekstra */
+    margin: 0 auto; /* Pusatkan gambar */
+    object-fit: cover; /* Pastikan gambar tetap proporsional */
+    border-radius: 8px; /* Opsional, buat sudut lebih smooth */
+    }
 }
 
 .button {
@@ -221,7 +296,87 @@
             transition: 0.3s;
             box-shadow: 0px 0px 15px white;
         }
-        
+        .whatIsExoraTitle {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4vh;
+    color: white;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+
+
+.whatIsExoraTitle.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.whatIsExoraTitle3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4vh;
+    color: white;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20000px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+.whatIsExoraTitle3.visible {
+    opacity: 0;
+    transform: translateY(0);
+}
+
+.floating-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+}
+
+.floating-tabs.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tab {
+    font-family: 'Roboto Mono', monospace;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 3s ease, transform 0.5s ease;
+    box-shadow: 0px 0px 2px 1px white;
+}
+
+@keyframes runningbacklight {
+	0%,
+	50%,
+	100% {
+		box-shadow: 0px 0px 2px 1px black;
+	}
+
+	25%,
+	75% {
+		box-shadow: 0px 0px 10px 1px #494cbc;
+	}
+}
+
+.tab.visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: runningbacklight 2s ease 0s 1 normal forwards;
+}
 
 
 
@@ -240,23 +395,39 @@
         
         <section class="step" id="step2">
           
-            <p class="title" >what is exora?</p>
-<p class="exoraInfo">Exora AI is an artificial intelligence system designed for high-speed market analysis.<br>
-This technology can combine various technical and fundamental indicators, then compare the results in seconds.<br>
-Exora AI helps traders make more accurate decisions based on comprehensive data analysis.</p>
+    <h1 id="whatIsExoraTitle" class="whatIsExoraTitle">What is Exora?</h1>
+    <div class="floating-tabs">
+        <div class="tab">Exora AI is an artificial intelligence system designed for high-speed market analysis.</div>
+        <div class="tab">This technology can combine various technical and fundamental indicators, then compare the results in seconds.</div>
+        <div class="tab">Exora AI helps traders make more accurate decisions based on comprehensive data analysis.</div>
+    </div>
+</section>
 
             
         </section>
         
-        
-        <section class="step" id="step3">
-            <p class="whitepapper">Whitepapper</p>
-            <p class="whitepapperInfo">Overview<br>Exora Ai leverages AI to predict cryptocurrency market trends, providing traders with accurate insights to make better-informed decisions.<br><br>Problem<br>The cryptocurrency market is highly volatile and unpredictable. Traditional methods for market analysis are wasting too much time, inaccurate and fail to adapt to rapid market changes.<br><br>Solutions<br>Exora Ai uses advanced machine learning algorithms to analyze and predict market movements in real-time, offering highly accurate forecasts that help users mitigate risks and optimize their trades faster.<br><br>Roadmap<br>Q1 2024 : Develop the AI foundation and infrastructure for training.<br>Q2 2024 : Train the AI to understand and adapt to the crypto market<br>Q3 2024 : Fine-tune and evaluate the AI for improved accuracy.<br>Q4 2025 : Refine the AI and begin developing the User Interface (UI).<br>January 2025 :  Launch the website, forum, and $VXE token.</p>
-            
-        </section>
-        
-        
-        <section class="step" id="step4">
+       
+
+<section class="step" id="step3">
+   
+    <div class="floating-tabs">
+        <div class="tab">Overview.
+Exora Ai leverages AI to predict cryptocurrency market trends, providing traders with accurate insights to make better-informed decisions..</div>
+        <div class="tab">Problem.
+The cryptocurrency market is highly volatile and unpredictable. Traditional methods for market analysis are wasting too much time, inaccurate and fail to adapt to rapid market changes.</div>
+        <div class="tab">Solutions.
+Exora Ai uses advanced machine learning algorithms to analyze and predict market movements in real-time, offering highly accurate forecasts that help users mitigate risks and optimize their trades faster.</div>
+    </div>
+    <div class="tab">
+Q1: Build AI infrastructure for training.<br>
+Q2: Train AI to analyze the crypto market.<br>
+Q3: Optimize AI for accuracy.<br>
+Q4: Refine AI & develop UI.<br>
+Jan 2025: Launch website, forum & $VXE token.</div>
+    
+</section>
+
+<section class="step" id="step4">
             <video width="90%" height="90%" controls>
                <source src="https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250203012024.mp4" type="video/mp4">
                 Video wasn't supprted on your browser
@@ -265,10 +436,10 @@ Exora AI helps traders make more accurate decisions based on comprehensive data 
         
         
         <section class="step" id="step5">
-            <img class="exoraImage" src="https://github.com/exora8/exora_ai_web/blob/main/1000118614.png?raw=true">
-            <button class="button" onclick="window.location.href='https://exora8.github.io/exora.github.io/chat.html'">
-                Analyze with Exora AI
-            </button>
+            <canvas class="exoraImage"></canvas>
+       <button class="button" onclick="window.location.href='https://exora8.github.io/exora.github.io/chat.html">
+    Analyze with Exora AI
+</button>
         </section>
         
     </div>
@@ -281,6 +452,73 @@ Exora AI helps traders make more accurate decisions based on comprehensive data 
     </div>
 
     <script>
+      
+      function startAnimationOnScroll() {
+    const section2 = document.getElementById('step2');
+    const title = document.getElementById('whatIsExoraTitle');
+    const floatingTabs = document.querySelector('.floating-tabs');
+    const tabs = document.querySelectorAll('.tab');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                title.classList.add('visible');
+
+                setTimeout(() => {
+                    floatingTabs.classList.add('visible');
+
+                    tabs.forEach((tab, index) => {
+                        setTimeout(() => {
+                            tab.classList.add('visible');
+                        }, index * 500);
+                    });
+                }, 500);
+
+                observer.unobserve(section2);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    observer.observe(section2);
+}
+function startAnimationForStep3() {
+    const step3 = document.getElementById('step3');
+    
+    const floatingTabsStep3 = step3.querySelector('.floating-tabs');
+    const tabsStep3 = step3.querySelectorAll('.tab');
+
+    const observerStep3 = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                
+
+                setTimeout(() => {
+                    floatingTabsStep3.classList.add('visible');
+
+                    tabsStep3.forEach((tab, index) => {
+                        setTimeout(() => {
+                            tab.classList.add('visible');
+                        }, index * 500);
+                    });
+                }, 500);
+
+                observerStep3.unobserve(step3);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    observerStep3.observe(step3);
+}
+
+// Jalankan fungsi saat halaman dimuat
+window.addEventListener('load', () => {
+    startAnimationOnScroll();
+    startAnimationForStep3();
+});
+
+
+window.addEventListener('load', startAnimationOnScroll);
+
         // Update Progress Bar on Scroll
         const container = document.querySelector('.container');
         const progressBar = document.querySelector('.scroll-indicator .progress');
@@ -390,7 +628,7 @@ Exora AI helps traders make more accurate decisions based on comprehensive data 
 
         function drawGrid() {
             // Set background to dark grey
-            ctx.fillStyle = '#2f2f2f'; // Dark grey background
+            ctx.fillStyle = 'black'; // Dark grey background
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Set grid line color and opacity
@@ -447,6 +685,26 @@ Exora AI helps traders make more accurate decisions based on comprehensive data 
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
+        // Fungsi untuk efek mengetik
+function typeWriter(element, text, speed = 1) {
+    let i = 0;
+    element.innerHTML = ""; // Kosongkan teks awal
+    element.style.opacity = 1; // Munculkan elemen
+
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i); // Tambahkan satu karakter
+            i++;
+            setTimeout(type, speed); // Tunggu sebelum menambahkan karakter berikutnya
+        }
+    }
+
+    type(); // Mulai efek mengetik
+}
+
+
+
+
     </script>
 </body>
 </html>
