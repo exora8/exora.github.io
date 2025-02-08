@@ -19,6 +19,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            display: none; 
         }
         .navbar {
             width: 100%;
@@ -205,6 +206,14 @@
         <a href="#">Community</a>
     </div>
     <script>
+      const backgroundImage = new Image();
+        backgroundImage.src = "https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/6003fbd9-2005-4bf5-aed5-a7a96012568a.png";
+        
+        backgroundImage.onload = function() {
+            document.body.style.display = "block"; // Tampilkan konten setelah gambar dimuat
+        };
+      
+      
       function detectDevice() {
             // Menggunakan regular expression untuk mendeteksi perangkat mobile
             const isMobile = /Mobi|Android/i.test(navigator.userAgent);
