@@ -386,16 +386,26 @@
 </div>
 
     <script>
-     
+     getApiKey();
       
       
-     fetch('/api/getApiKey')
-    .then(respon => respon.json())
-    .then(datas => {
-        const API_KEY = datas.apiKey;
-        console.log('Pakai API Key:', API_KEY);
-    })
-    .catch(error => console.error('Gagal ambil API Key:', error));
+     async function getApiKey() {
+      try {
+          const response = await fetch('/api/getApiKey');
+          const data = await response.json();
+          const API_KEY = data.apiKey;
+          console.log('Pakai API Key:', API_KEY);
+
+          // Call AI API pakai API_KEY setelah sukses dapet dari backend
+          callAI(API_KEY);
+      } catch (error) {
+          console.error('Gagal ambil API Key:', error);
+      }
+  }
+
+  
+
+  getApiKey(); // Panggil pas halaman dimuat
         // Mendapatkan elemen input dan tombol
         
          const messageInput = document.getElementById('user-input');
