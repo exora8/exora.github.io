@@ -388,15 +388,14 @@
     <script>
      
       
+      
      fetch('/api/getApiKey')
-    .then(response => response.json())
-    .then(data => {
-        const API_KEY = data.apiKey;
+    .then(respon => respon.json())
+    .then(datas => {
+        const API_KEY = datas.apiKey;
         console.log('Pakai API Key:', API_KEY);
     })
     .catch(error => console.error('Gagal ambil API Key:', error));
-    
-      let API_KEY = API_KEYS[Math.floor(Math.random() * API_KEYS.length)]; // Pilih API Key secara random
         // Mendapatkan elemen input dan tombol
         
          const messageInput = document.getElementById('user-input');
