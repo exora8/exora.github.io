@@ -388,19 +388,14 @@
     <script>
      
       
-      const API_KEYS = [
-    '4eb3afd18344fdf6c699280f9e5e2f08ba5d4c2cc9989b55e7c5c14910af9706',
-    'cf887a3d000a64a1686d2bb8e392a64b7f46fe131aff4685e5199510106b8608',
-    '9fa71bf023b928a32cad2959fcf5fee36bb9fbb3732ed6ba659892c079da57e0',
-    '401925c1ac6e2e33847169014115e9344dcaf32d1c1fe386c8fc92768d7b15ad',
-    '215c434d7361a2799557f151ab3b3b80c710a09111339e712a82579f8790f7f2',
-    '34211673816c9ef4729e0259c042ebe3d762fb90ff16c36b42ddfb1c0f9e10e6',
-    '1ea461952d729c0e3dccadd919ee5d121a8125bc7bd5924192495528e24e2afb',
-    '40f561d9befc36d117412f9003d81a2306790e536cec5c36ce540833885f6bd5',
-    'f8eb6808a6c585445cd0db8cb5d048b9cb2d35262fe67f9b512ebc17eb4937b2',
-    'f19df6a1c0a9dccb696764e091d8990734acdff7b39f811a873f7ddf580f92ff',
+     fetch('/api/getApiKey')
+    .then(response => response.json())
+    .then(data => {
+        const API_KEY = data.apiKey;
+        console.log('Pakai API Key:', API_KEY);
+    })
+    .catch(error => console.error('Gagal ambil API Key:', error));
     
-];
       let API_KEY = API_KEYS[Math.floor(Math.random() * API_KEYS.length)]; // Pilih API Key secara random
         // Mendapatkan elemen input dan tombol
         
