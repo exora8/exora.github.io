@@ -386,12 +386,7 @@
 </div>
 
     <script>
-     getApiKey();
-      
-      
-     async function getApiKey() {
-      try {
-          const response = await fetch('/api/getApiKey');
+     const response = await fetch('/api/getApiKey');
           const data = await response.json();
           const API_KEY = data.apiKey;
           console.log('Pakai API Key:', API_KEY);
@@ -403,7 +398,20 @@
       }
   }
 
-  
+  function callAI(apiKey) {
+      // Contoh request ke AI API
+      fetch('https://api.ai-service.com/chat', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}` // Pastikan API Key dipakai bener
+          },
+          body: JSON.stringify({ message: "Halo AI!" })
+      })
+      .then(response => response.json())
+      .then(data => console.log('Respon AI:', data))
+      .catch(error => console.error('Gagal fetch AI:', error));
+  }
 
   getApiKey(); // Panggil pas halaman dimuat
         // Mendapatkan elemen input dan tombol
