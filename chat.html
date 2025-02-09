@@ -387,9 +387,21 @@
 
     <script>
      
+     const API_KEYS = "ABC123"; 
       
-      const API_KEYS = '4eb3afd18344fdf6c699280f9e5e2f08ba5d4c2cc9989b55e7c5c14910af9706';
-        // Mendapatkan elemen input dan tombol
+      async function getApiKey() {
+      try {
+          const response = await fetch('/api/getApiKey');
+          const data = await response.json();
+          const API_KEY = data.apiKey;
+          console.log('Pakai API Key:', API_KEY);
+
+          // Call AI API pakai API_KEY setelah sukses dapet dari backend
+          callAI(API_KEY);
+      } catch (error) {
+          console.error('Gagal ambil API Key:', error);
+      }
+  }
         
          const messageInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('sendButton');
