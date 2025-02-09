@@ -529,6 +529,7 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
         // Load previous chat from localStorage
         window.onload = function() {
           // Jalankan sekali saat pertama kali load
+          getApiKey();
           refreshPersona();
           checkMessage();
           
