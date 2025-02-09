@@ -389,19 +389,22 @@
      
      
       
-      async function getApiKey() {
-      try {
-          const response = await fetch('/api/getApiKey');
-          const data = await response.json();
-          const API_KEY = data.apiKey;
-          console.log('Pakai API Key:', API_KEY);
+     let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
 
-          
-          
-      } catch (error) {
-          console.error('Gagal ambil API Key:', error);
-      }
-  }
+async function getApiKey() {
+    try {
+        const response = await fetch('/api/getApiKey');
+        const data = await response.json();
+        API_KEY = data.apiKey; // Simpan API key ke variabel global
+        console.log('Pakai API Key:', API_KEY);
+    } catch (error) {
+        console.error('Gagal ambil API Key:', error);
+    }
+}
+
+// Panggil fungsi agar API key terambil
+getApiKey();
+
         
          const messageInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('sendButton');
