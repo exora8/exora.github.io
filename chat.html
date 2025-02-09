@@ -510,7 +510,7 @@ function selectCoin(coinId) {
     saveCryptoId(coinId);
     cryptoId = coinId;
     alert(`Coin selected: ${coinId}`);
-    location.reload()
+    location.reload();
     closeModal();
 }
 
@@ -641,7 +641,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         return cleanText(data.choices[0].message.content);
     } catch (error) {
         console.error('Error:', error);
-        location.reload();
+        
         return "Could not get AI response, switching server...";
     }
 }
