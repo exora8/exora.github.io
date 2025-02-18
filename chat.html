@@ -637,6 +637,9 @@ async function getAIResponse(prompt) {
         chatHistory = [chatHistory[0], ...chatHistory.slice(-4)];
     }
 
+    // Debug log untuk melihat chat history yang dikirim
+    console.log("Sending messages:", chatHistory);
+
     try {
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',  // Pastikan ini POST
@@ -650,7 +653,6 @@ async function getAIResponse(prompt) {
             })
         });
 
-        // Cek status response
         if (!response.ok) {
             console.error(`Error: ${response.statusText} (HTTP ${response.status})`);
             return "Could not get AI response, switching server...";
@@ -658,18 +660,21 @@ async function getAIResponse(prompt) {
 
         const data = await response.json();
 
-        // Cek apakah data yang diterima sesuai dengan yang diharapkan
+        // Debug log untuk melihat respons yang diterima
+        console.log("API response:", data);
+
         if (!data || !data.choices || !data.choices[0]) {
             console.error('API response is missing expected data:', data);
             return "API response error.";
         }
 
-        const aiMessage = cleanHTML(data.choices[0].message.content);
+        // Mengambil hasil respons dari AI, pastikan tidak ada HTML
+        let aiMessage = cleanHTML(data.choices[0].message.content);
 
         // Menyimpan respons AI ke history
         chatHistory.push({ role: "assistant", content: aiMessage });
 
-        // Mengembalikan jawaban AI
+        // Mengembalikan jawaban AI yang sudah dibersihkan dari HTML
         return aiMessage;
     } catch (error) {
         console.error('Error:', error);
@@ -679,11 +684,13 @@ async function getAIResponse(prompt) {
 
 // Fungsi untuk membersihkan elemen HTML dan mengambil teks saja
 function cleanHTML(text) {
-    // Membuat elemen sementara untuk menghapus HTML
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = text;  // Mengatur innerHTML dengan teks yang mengandung HTML
-    return tempDiv.innerText || tempDiv.textContent;  // Mengambil teks yang bersih
+    tempDiv.innerHTML = text;
+
+    // Mengambil teks tanpa HTML
+    return tempDiv.innerText || tempDiv.textContent;
 }
+
 
 
 
