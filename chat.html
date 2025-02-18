@@ -648,6 +648,7 @@ async function getAIResponse(prompt) {
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
+                method: 'POST'
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
                 messages: messages // Kirim seluruh riwayat percakapan
             })
