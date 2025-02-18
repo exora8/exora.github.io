@@ -632,21 +632,23 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
+    // Ambil chat history dari localStorage atau buat baru jika kosong
+    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+
+    // Cek apakah cleanChatHistory kosong dan inisialisasi pesan sistem jika perlu
+    if (cleanChatHistory.length === 0) {
+        const systemMessage = {
+            role: 'system',
+            content: `You are Exora, an AI trading assistant who helps with cryptocurrency spot trading. You are very cautious and will only execute trades if you are absolutely confident. You avoid using leverage, shorting, or derivatives. Always ensure that a trade will have at least a 5% potential profit before executing it. You are responsible for managing assets and executing trades for the user.`
+        };
+        cleanChatHistory.push(systemMessage); // Tambahkan pesan sistem ke chat history
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory)); // Simpan ke localStorage
+    }
+
+    // Gabungkan prompt user dengan persona yang sudah ada
+    const fullPrompt = `${cleanChatHistory.map(msg => msg.content).join(' ')} ${prompt}`;
+
     try {
-        // Ambil chat history dari localStorage, atau buat baru
-        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-        
-        
-
-        // Pastikan cleanChatHistory cuma array teks, bukan elemen HTML
-        if (!Array.isArray(cleanChatHistory)) {
-            cleanChatHistory = [];
-        }
-
-        // Simpan chat user (hanya teks, tanpa elemen HTML)
-        cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
-
-        // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -655,35 +657,19 @@ async function getAIResponse(prompt) {
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: cleanChatHistory
+                messages: [{ "role": "user", "content": fullPrompt }]
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
         const data = await response.json();
-        let aiMessage = cleanText(data.choices[0].message.content);
-
-        // Simpan chat AI (hanya teks)
-        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
-
-        // **Bersihkan history: Simpan hanya 1 chat pertama + 2 chat terakhir**
-        if (cleanChatHistory.length >= 6) {
-            cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-2)];
-        }
-
-        // Simpan kembali chat history yang bersih ke localStorage
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
-
-        return aiMessage;
+        return cleanText(data.choices[0].message.content);
     } catch (error) {
         console.error('Error:', error);
         location.reload();
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
 
