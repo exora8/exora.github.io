@@ -630,11 +630,11 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
-// Call Together AI API for response
-async function getAIResponse(prompt) {
-    // Ambil chat history dari localStorage atau buat baru jika kosong
- const prices = await getCryptoPrice(cryptoId);
 
+
+async function getAIResponse(prompt) {
+    // Ambil harga crypto dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage atau buat baru jika kosong
@@ -667,13 +667,24 @@ async function getAIResponse(prompt) {
         });
 
         const data = await response.json();
-        return cleanText(data.choices[0].message.content);
+        const aiMessage = data.choices[0].message.content;
+
+        // Tambahkan pesan user dan respon AI ke cleanChatHistory
+        cleanChatHistory.push({ role: 'user', content: prompt });
+        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
+
+        // Simpan chat history ke localStorage
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+
+        // Kembalikan respon AI setelah dibersihkan
+        return cleanText(aiMessage);
     } catch (error) {
         console.error('Error:', error);
         location.reload();
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
 
