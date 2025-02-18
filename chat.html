@@ -430,7 +430,7 @@ getApiKey();
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
         // Update persona
-        const persona = `You are Exora. You analyze market trends,Answer question,price movements, and volatility of ${cryptoId} using indicators Greed Level, RSI, market sentiment (Bullish/Bearish), support resistance, volatility, EMA 50 EMA 200, Bollinger Bands, Fibonacci Retracement, volume ,ichimoku cloud and stochastic oscillator The price of ${cryptoId} from 30 days ago to today  ${formattedPrices}, that price data was realtime from fallenstar market strategies server, You provide quick insights without too much explanation, helping investors make informed decisions in the crypto market`;
+        const persona = `you are exora the crypto market expert you answer any question`;
         console.log("Updated Persona:", persona); // Cek di console
         return persona;
     } else {
