@@ -629,27 +629,35 @@ let chatHistory = [];
 async function getAIResponse(prompt) {
     const fullPrompt = `${currentPersona} ${prompt}`;
 
-    // Menambahkan pesan baru ke history (pastikan format yang benar)
+    // Menambahkan pesan baru ke history
     chatHistory.push({ role: "user", content: cleanHTML(fullPrompt) });
+
+    // Pastikan chatHistory selalu dimulai dengan "system" message
+    if (chatHistory.length === 1) {
+        chatHistory.unshift({
+            role: "system",
+            content: "You are Exora, a friendly assistant focused on providing quick and helpful market insights about ${cryptoId}. You keep it short and conversational."
+        });
+    }
 
     // Jika jumlah pesan lebih dari 8, hapus pesan pertama dan 4 pesan terakhir
     if (chatHistory.length > 8) {
         chatHistory = [chatHistory[0], ...chatHistory.slice(-4)];
     }
 
-    // Debug log untuk melihat chat history yang dikirim
+    // Log chatHistory untuk debug
     console.log("Sending messages:", chatHistory);
 
     try {
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
-            method: 'POST',  // Pastikan ini POST
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',  // Model yang benar
-                messages: chatHistory  // Menggunakan chat history yang sudah diupdate
+                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',  // Nama model yang benar
+                messages: chatHistory  // Mengirim chat history yang sudah diupdate
             })
         });
 
@@ -682,6 +690,9 @@ async function getAIResponse(prompt) {
     }
 }
 
+
+
+
 // Fungsi untuk membersihkan elemen HTML dan mengambil teks saja
 function cleanHTML(text) {
     const tempDiv = document.createElement('div');
@@ -690,6 +701,7 @@ function cleanHTML(text) {
     // Mengambil teks tanpa HTML
     return tempDiv.innerText || tempDiv.textContent;
 }
+
 
 
 
