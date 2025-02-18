@@ -621,8 +621,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             document.getElementById('user-input').disabled = false;
             document.querySelector('button').disabled = false;
         }
-        
-
+  
 
 
         // Call Together AI API for response
@@ -638,14 +637,10 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: chatHistory // Mengirim seluruh chat history
+                messages: [{ "role": "user", "content": fullPrompt }]
             })
         });
-         // **LIMIT: Kalau total chat >= 6, simpan 1 chat pertama + 2 chat terakhir**
-        if (chatHistory.length >= 6) {
-       chatHistory = [chatHistory[0], ...chatHistory.slice(-2)];
-       }
-       
+
         const data = await response.json();
         return cleanText(data.choices[0].message.content);
     } catch (error) {
