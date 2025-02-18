@@ -632,25 +632,18 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-  
-   // Ambil chat history dari localStorage atau buat baru jika kosong
-    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-
-    // Cek apakah cleanChatHistory kosong dan inisialisasi pesan sistem jika perlu
-    if (cleanChatHistory.length === 0) {
+    try {
+        // Ambil chat history dari localStorage, atau buat baru
+        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+        
+        if (cleanChatHistory.length === 0) {
         const systemMessage = {
             role: 'system',
-            content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`
+            content: `You are Exora, an AI trading assistant who helps with cryptocurrency spot trading. You are very cautious and will only execute trades if you are absolutely confident. You avoid using leverage, shorting, or derivatives. Always ensure that a trade will have at least a 5% potential profit before executing it. You are responsible for managing assets and executing trades for the user.`
         };
         cleanChatHistory.push(systemMessage); // Tambahkan pesan sistem ke chat history
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory)); // Simpan ke localStorage
     }
-
-    // Gabungkan prompt user dengan persona yang sudah ada
-    const fullPrompt = `${cleanChatHistory.map(msg => msg.content).join(' ')} ${prompt}`;
-    
-    try {
-       
 
         // Pastikan cleanChatHistory cuma array teks, bukan elemen HTML
         if (!Array.isArray(cleanChatHistory)) {
