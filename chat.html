@@ -636,14 +636,7 @@ async function getAIResponse(prompt) {
         // Ambil chat history dari localStorage, atau buat baru
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
         
-        if (cleanChatHistory.length === 0) {
-        const systemMessage = {
-            role: 'system',
-            content: `You are Exora, an AI trading assistant who helps with cryptocurrency spot trading. You are very cautious and will only execute trades if you are absolutely confident. You avoid using leverage, shorting, or derivatives. Always ensure that a trade will have at least a 5% potential profit before executing it. You are responsible for managing assets and executing trades for the user.`
-        };
-        cleanChatHistory.push(systemMessage); // Tambahkan pesan sistem ke chat history
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory)); // Simpan ke localStorage
-    }
+        
 
         // Pastikan cleanChatHistory cuma array teks, bukan elemen HTML
         if (!Array.isArray(cleanChatHistory)) {
@@ -769,7 +762,7 @@ function appendMessage(message, className) {
         function deleteChatHistory() {
     const confirmDelete = confirm("Are you sure you want to delete the chat history?");
     if (confirmDelete) {
-       localStorage.removeItem('cleanChatHistory');
+       
         localStorage.removeItem('chatHistory');
         document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
         location.reload();
