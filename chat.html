@@ -750,6 +750,7 @@ function appendMessage(message, className) {
     if (confirmDelete) {
        
         localStorage.removeItem('chatHistory');
+        localStorage.removeItem('cleanChatHistory');
         document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
         location.reload();
     }
