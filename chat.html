@@ -402,7 +402,8 @@ async function getApiKey() {
     }
 }
 
-
+// Panggil fungsi agar API key terambil
+getApiKey();
 
         
          const messageInput = document.getElementById('user-input');
@@ -429,7 +430,7 @@ async function getApiKey() {
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
         // Update persona
-        const persona = `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`;
+        const persona = `You are Exora. You analyze market trends,Answer question,price movements, and volatility of ${cryptoId} using indicators Greed Level, RSI, market sentiment (Bullish/Bearish), support resistance, volatility, EMA 50 EMA 200, Bollinger Bands, Fibonacci Retracement, volume ,ichimoku cloud and stochastic oscillator The price of ${cryptoId} from 30 days ago to today  ${formattedPrices}, that price data was realtime from fallenstar market strategies server, You provide quick insights without too much explanation, helping investors make informed decisions in the crypto market`;
         console.log("Updated Persona:", persona); // Cek di console
         return persona;
     } else {
@@ -624,96 +625,30 @@ document.getElementById('user-input').addEventListener('input', checkInput);
 
 
         // Call Together AI API for response
-// Ambil chat history dari localStorage atau buat baru
-let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+        async function getAIResponse(prompt) {
+    const fullPrompt = `${currentPersona} ${prompt}`; // Pakai persona yang udah di-update
 
-// Pastikan chatHistory adalah array
-if (!Array.isArray(chatHistory)) {
-    chatHistory = [];
-}
-
-// Jika chat history kosong setelah reset, tambahkan pesan sistem
-if (chatHistory.length === 0) {
-    const systemMessage = {
-        role: 'trader',
-        content: `Nama Anda adalah Xenith. Anda adalah AI eksekutor trading khusus untuk spot trading di pasar kripto dan bertanggung jawab penuh atas pengelolaan aset serta eksekusi trade. Anda menganalisis ulang hasil analisis dari Exora untuk memastikan keakuratan sebelum mengambil tindakan. Anda sangat teliti, hati-hati, dan tidak akan membuka posisi kecuali benar-benar yakin. Anda hanya melakukan trading di pasar spot, tanpa leverage, shorting, atau derivatif lainnya. Jika Anda ingin membeli aset, katakan "ASTBUY". Jika Anda ingin menjual aset, katakan "ASTSELL". "ASTBUY" berarti membeli aset di harga saat ini, dan "ASTSELL" berarti menjual aset di harga saat ini. PERINGATAN: Kata "ASTBUY" dan "ASTSELL" adalah TRIGGER EKSEKUSI TRADE LANGSUNG. Anda TIDAK BOLEH mengatakan kedua kata tersebut dalam percakapan biasa. Anda hanya boleh mengatakannya jika benar-benar siap untuk membuka atau menutup posisi di market. Jika perlu membahas atau mempertimbangkan keputusan trading, gunakan bahasa lain tanpa menyebutkan kata tersebut. Sebelum melakukan "ASTBUY", Anda harus memastikan bahwa harga memiliki potensi naik minimal 5% dari harga entry untuk menghindari kerugian akibat fee trading. Jika potensi kenaikan kurang dari 5%, JANGAN melakukan "ASTBUY". Pastikan data harga terbaru selalu diperbarui sebelum mengambil keputusan. Jika data harga tidak diperbarui, Anda harus aktif menanyakan harga terbaru agar tidak missdata. harga realtime ${cryptoId}`
-    };
-
-    chatHistory.push(systemMessage);
-    localStorage.setItem("chatHistory", JSON.stringify(chatHistory)); // Simpan perubahan
-}
-
-// Fungsi untuk membersihkan konten HTML dalam pesan
-function cleanHTMLContent(content) {
-    const doc = new DOMParser().parseFromString(content, 'text/html');
-    return doc.body.textContent || "";
-}
-
-// Fungsi untuk fetch respon AI
-async function fetchAIResponse(prompt) {
     try {
-        // Ambil chat history dari localStorage
-        let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-
-        // Bersihkan prompt yang dikirimkan
-        prompt = cleanHTMLContent(prompt);
-
-        // Tambahkan chat user ke history
-        chatHistory.push({ role: 'user', content: prompt });
-
-        // Kirim request ke API
-        const response = await fetch('https://api.together.xyz/v1/chat/completions', {
+        const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer 11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d'
+                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: chatHistory
+                messages: [{ "role": "user", "content": fullPrompt }]
             })
         });
 
-        // Cek kalau response gagal
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        // Parse response JSON
         const data = await response.json();
-        
-        // Gunakan let agar bisa dimodifikasi
-        let aiMessage = data.choices[0].message.content;
-
-        // Bersihkan respon AI dari HTML
-        aiMessage = cleanHTMLContent(aiMessage);
-
-
-        // Tambahkan respon AI ke history
-        chatHistory.push({ role: 'trader', content: aiMessage });
-
-        // **LIMIT: Kalau total chat >= 6, simpan 1 chat pertama + 2 chat terakhir**
-        if (chatHistory.length >= 6) {
-            chatHistory = [chatHistory[0], ...chatHistory.slice(-2)];
-        }
-
-        // Reset chatHistory di localStorage dan simpan ulang
-        localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-
-        return aiMessage;
+        return cleanText(data.choices[0].message.content);
     } catch (error) {
-        console.error("Error fetching AI response:", error);
-        return "Maaf, terjadi kesalahan dalam mengambil respon AI.";
+        console.error('Error:', error);
+        
+        return "Could not get AI response, switching server...";
     }
 }
-
-
-
-
-
-
-
-
 
         function cleanText(text) {
             return text.replace(/<.*?:>/g, '').trim(); // Clean XML/HTML tags
