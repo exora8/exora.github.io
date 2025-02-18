@@ -402,8 +402,6 @@ async function getApiKey() {
     }
 }
 
-// Panggil fungsi agar API key terambil
-getApiKey();
 
         
          const messageInput = document.getElementById('user-input');
@@ -624,11 +622,33 @@ document.getElementById('user-input').addEventListener('input', checkInput);
   
 
 
-        // Call Together AI API for response
-        async function getAIResponse(prompt) {
-    const fullPrompt = `${currentPersona} ${prompt}`; // Pakai persona yang udah di-update
 
+// Fungsi buat bersihin teks dari HTML atau karakter aneh
+function cleanText(text) {
+    // Hapus tag HTML jika ada
+    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, "");
+
+    // Hapus karakter aneh yang sering muncul
+    cleanedText = cleanedText.replace(/[*_~`]/g, "");
+
+    return cleanedText.trim();
+}
+
+// Call Together AI API for response
+async function getAIResponse(prompt) {
     try {
+        // Ambil chat history dari localStorage atau buat baru
+        let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+        // Pastikan chatHistory adalah array
+        if (!Array.isArray(chatHistory)) {
+            chatHistory = [];
+        }
+
+        // Tambahkan chat user ke history
+        chatHistory.push({ role: 'user', content: prompt });
+
+        // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -637,18 +657,38 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: [{ "role": "user", "content": fullPrompt }]
+                messages: chatHistory
             })
         });
 
+        // Cek kalau response gagal
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Parse response JSON
         const data = await response.json();
-        return cleanText(data.choices[0].message.content);
+        let aiMessage = cleanText(data.choices[0].message.content);
+
+        // Tambahkan respon AI ke history
+        chatHistory.push({ role: 'assistant', content: aiMessage });
+
+        // **Bersihkan chat history: Simpan hanya 1 chat pertama + 2 chat terakhir**
+        if (chatHistory.length >= 6) {
+            chatHistory = [chatHistory[0], ...chatHistory.slice(-2)];
+        }
+
+        // Simpan kembali chat history ke localStorage
+        localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+
+        return aiMessage;
     } catch (error) {
         console.error('Error:', error);
-        
+        location.reload();
         return "Could not get AI response, switching server...";
     }
 }
+
 
         function cleanText(text) {
             return text.replace(/<.*?:>/g, '').trim(); // Clean XML/HTML tags
@@ -727,6 +767,7 @@ function appendMessage(message, className) {
     if (confirmDelete) {
         localStorage.removeItem('chatHistory');
         document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
+        location.reload();
     }
     closeOptionsPopup();
 }
