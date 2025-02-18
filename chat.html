@@ -760,6 +760,7 @@ function appendMessage(message, className) {
         function deleteChatHistory() {
     const confirmDelete = confirm("Are you sure you want to delete the chat history?");
     if (confirmDelete) {
+       localStorage.removeItem('cleanChatHistory');
         localStorage.removeItem('chatHistory');
         document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
         location.reload();
