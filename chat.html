@@ -623,12 +623,12 @@ document.getElementById('user-input').addEventListener('input', checkInput);
 
 
 
-// Fungsi buat bersihin teks dari HTML atau karakter aneh
+// Bersihin teks dari HTML & karakter Markdown
 function cleanText(text) {
-    // Hapus tag HTML jika ada
+    // Hapus tag HTML biar cuma teks aja yang tersimpan
     let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, "");
 
-    // Hapus karakter aneh yang sering muncul
+    // Hapus karakter aneh seperti *, _, ~, `
     cleanedText = cleanedText.replace(/[*_~`]/g, "");
 
     return cleanedText.trim();
@@ -640,13 +640,13 @@ async function getAIResponse(prompt) {
         // Ambil chat history dari localStorage atau buat baru
         let chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
 
-        // Pastikan chatHistory adalah array
+        // Pastikan chatHistory cuma array teks, bukan elemen HTML
         if (!Array.isArray(chatHistory)) {
             chatHistory = [];
         }
 
-        // Tambahkan chat user ke history
-        chatHistory.push({ role: 'user', content: prompt });
+        // Simpan chat user (hanya teks, tanpa elemen HTML)
+        chatHistory.push({ role: 'user', content: cleanText(prompt) });
 
         // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
@@ -661,7 +661,7 @@ async function getAIResponse(prompt) {
             })
         });
 
-        // Cek kalau response gagal
+        // Cek jika response gagal
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -670,7 +670,7 @@ async function getAIResponse(prompt) {
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // Tambahkan respon AI ke history
+        // Simpan chat AI (hanya teks, tanpa elemen HTML)
         chatHistory.push({ role: 'assistant', content: aiMessage });
 
         // **Bersihkan chat history: Simpan hanya 1 chat pertama + 2 chat terakhir**
@@ -678,7 +678,7 @@ async function getAIResponse(prompt) {
             chatHistory = [chatHistory[0], ...chatHistory.slice(-2)];
         }
 
-        // Simpan kembali chat history ke localStorage
+        // Simpan kembali chat history ke localStorage sebagai JSON teks
         localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 
         return aiMessage;
