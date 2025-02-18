@@ -650,7 +650,20 @@ async function getAIResponse(prompt) {
             })
         });
 
+        // Cek status response
+        if (!response.ok) {
+            console.error(`Error: ${response.statusText} (HTTP ${response.status})`);
+            return "Could not get AI response, switching server...";
+        }
+
         const data = await response.json();
+
+        // Cek apakah data yang diterima sesuai dengan yang diharapkan
+        if (!data || !data.choices || !data.choices[0]) {
+            console.error('API response is missing expected data:', data);
+            return "API response error.";
+        }
+
         const aiMessage = cleanHTML(data.choices[0].message.content);
 
         // Menyimpan respons AI ke history
@@ -671,6 +684,7 @@ function cleanHTML(text) {
     tempDiv.innerHTML = text;  // Mengatur innerHTML dengan teks yang mengandung HTML
     return tempDiv.innerText || tempDiv.textContent;  // Mengambil teks yang bersih
 }
+
 
 
 
