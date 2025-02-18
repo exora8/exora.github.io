@@ -632,6 +632,7 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
     // Ambil chat history dari localStorage atau buat baru jika kosong
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
