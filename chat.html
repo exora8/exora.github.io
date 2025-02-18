@@ -629,7 +629,7 @@ let chatHistory = [];
 async function getAIResponse(prompt) {
     const fullPrompt = `${currentPersona} ${prompt}`;
 
-    // Menambahkan pesan baru ke history (ambil teks saja, tanpa HTML)
+    // Menambahkan pesan baru ke history (pastikan format yang benar)
     chatHistory.push({ role: "user", content: cleanHTML(fullPrompt) });
 
     // Jika jumlah pesan lebih dari 8, hapus pesan pertama dan 4 pesan terakhir
@@ -648,7 +648,7 @@ async function getAIResponse(prompt) {
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',  // Model yang benar
                 messages: chatHistory  // Menggunakan chat history yang sudah diupdate
             })
         });
@@ -690,6 +690,8 @@ function cleanHTML(text) {
     // Mengambil teks tanpa HTML
     return tempDiv.innerText || tempDiv.textContent;
 }
+
+
 
 
 
