@@ -625,53 +625,54 @@ document.getElementById('user-input').addEventListener('input', checkInput);
 
 
         // Call Together AI API for response
-let messages = []; // Array untuk menyimpan percakapan
-const MAX_MESSAGES = 8; // Batas jumlah pesan yang disimpan
+let chatHistory = [];
 
 async function getAIResponse(prompt) {
-    const fullPrompt = `${currentPersona} ${prompt}`; // Pakai persona yang sudah di-update
+    const fullPrompt = `${currentPersona} ${prompt}`;
+
+    // Menambahkan pesan baru ke history (ambil teks saja, tanpa HTML)
+    chatHistory.push({ role: "user", content: cleanHTML(fullPrompt) });
+
+    // Jika jumlah pesan lebih dari 8, hapus pesan pertama dan 4 pesan terakhir
+    if (chatHistory.length > 8) {
+        chatHistory = [chatHistory[0], ...chatHistory.slice(-4)];
+    }
 
     try {
-        // Menambahkan pesan baru dari pengguna
-        messages.push({ role: "user", content: fullPrompt });
-
-        // Jika jumlah pesan melebihi batas, lakukan pemangkasan sesuai aturan
-        if (messages.length > MAX_MESSAGES) {
-            // Hapus semua pesan kecuali pesan pertama dan 3 pesan terakhir
-            messages = [messages[0], ...messages.slice(-3)];
-        }
-
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
-            method: 'POST',
+            method: 'POST',  // Pastikan ini POST
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: messages // Kirim seluruh riwayat percakapan
+                messages: chatHistory  // Menggunakan chat history yang sudah diupdate
             })
         });
 
         const data = await response.json();
+        const aiMessage = cleanHTML(data.choices[0].message.content);
 
-        // Ambil respon dari AI dan tambahkan ke riwayat percakapan
-        const aiResponse = cleanText(data.choices[0].message.content);
-        messages.push({ role: "assistant", content: aiResponse });
+        // Menyimpan respons AI ke history
+        chatHistory.push({ role: "assistant", content: aiMessage });
 
-        // Pastikan juga memotong array jika melebihi batas
-        if (messages.length > MAX_MESSAGES) {
-            // Hapus semua pesan kecuali pesan pertama dan 3 pesan terakhir
-            messages = [messages[0], ...messages.slice(-3)];
-        }
-
-        return aiResponse;
-
+        // Mengembalikan jawaban AI
+        return aiMessage;
     } catch (error) {
         console.error('Error:', error);
         return "Could not get AI response, switching server...";
     }
 }
+
+// Fungsi untuk membersihkan elemen HTML dan mengambil teks saja
+function cleanHTML(text) {
+    // Membuat elemen sementara untuk menghapus HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = text;  // Mengatur innerHTML dengan teks yang mengandung HTML
+    return tempDiv.innerText || tempDiv.textContent;  // Mengambil teks yang bersih
+}
+
 
 
         function cleanText(text) {
