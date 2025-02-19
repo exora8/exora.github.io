@@ -642,35 +642,37 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-    // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+   // Ambil harga crypto terbaru dan formatkan
+const prices = await getCryptoPrice(cryptoId);
+const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
-    // Ambil chat history dari localStorage atau buat baru jika kosong
-    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+// Ambil chat history dari localStorage
+let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Selalu perbarui sistem message biar cryptoId & harga terbaru**
+// **Cek apakah system message sudah ada di history**
+const existingSystemMessage = cleanChatHistory.find(msg => msg.role === 'system');
+
+if (!existingSystemMessage) {
+    // **Kalau belum ada system message (inisialisasi pertama kali)**
     const systemMessage = {
         role: 'system',
         content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`
     };
 
-    // **Selalu pastikan system message ada di awal history**
-    cleanChatHistory = [systemMessage, ...cleanChatHistory.filter(msg => msg.role !== 'system')];
+    // Simpan system message pertama kali
+    cleanChatHistory = [systemMessage, ...cleanChatHistory];
+} else {
+  const prices = await getCryptoPrice(cryptoId);
+const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+    // **Kalau system message sudah ada, cukup update harga aja**
+    existingSystemMessage.content = `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`;
+}
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
 
     try {
-      const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    
-    const systemMessage = {
-        role: 'system',
-        content: `Updated data of ${cryptoId} 30 days ago to todays : ${formattedPrices}, ` 
-    };
-
-    
+      
         // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
