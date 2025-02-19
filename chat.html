@@ -697,7 +697,7 @@ async function getAIResponse(prompt) {
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
         // **Bersihkan history: Simpan hanya system messages + 2 chat terakhir**
-        if (cleanChatHistory.length >= 50) {
+        if (cleanChatHistory.length >= 8) {
             cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
         }
 
