@@ -660,7 +660,7 @@ async function getAIResponse(prompt) {
         systemPriceMessage = {
             role: 'system',
             type: 'price',
-            content: `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+            content: `Coingecko Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
         };
 
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
