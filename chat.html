@@ -632,22 +632,33 @@ function cleanText(text) {
 
 
 
+// Bersihin teks dari HTML & karakter Markdown
+function cleanText(text) {
+    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Hapus tag HTML
+    cleanedText = cleanedText.replace(/[*_~`]/g, ""); // Hapus karakter aneh
+    return cleanedText.trim();
+}
+
+
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-    // Ambil harga crypto terbaru
+    // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage atau buat baru jika kosong
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Tambahkan harga terbaru ke chat history**
-    cleanChatHistory.push({
+    // **Selalu perbarui sistem message biar cryptoId & harga terbaru**
+    const systemMessage = {
         role: 'system',
-        content: `Latest price update for ${cryptoId}: ${formattedPrices}`
-    });
+        content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`
+    };
 
-    // Simpan chat user (hanya teks)
+    // **Selalu pastikan system message ada di awal history**
+    cleanChatHistory = [systemMessage, ...cleanChatHistory.filter(msg => msg.role !== 'system')];
+
+    // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
 
     try {
@@ -674,7 +685,7 @@ async function getAIResponse(prompt) {
         // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya 1 pesan sistem + 2 chat terakhir**
+        // **Bersihkan history: Simpan hanya 1 chat pertama + 2 chat terakhir**
         if (cleanChatHistory.length >= 6) {
             cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-2)];
         }
