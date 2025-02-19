@@ -639,40 +639,29 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
+
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-      // Ambil harga crypto dan formatkan
+    // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage atau buat baru jika kosong
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // Cek apakah cleanChatHistory kosong dan inisialisasi pesan sistem jika perlu
-    if (cleanChatHistory.length === 0) {
-        const systemMessage = {
-            role: 'system',
-            content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`
-        };
-        cleanChatHistory.push(systemMessage); // Tambahkan pesan sistem ke chat history
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory)); // Simpan ke localStorage
-    }
+    // **Selalu perbarui sistem message biar cryptoId & harga terbaru**
+    const systemMessage = {
+        role: 'system',
+        content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market`
+    };
 
-    // Gabungkan prompt user dengan persona yang sudah ada
-    const fullPrompt = `${cleanChatHistory.map(msg => msg.content).join(' ')} ${prompt}`;
+    // **Selalu pastikan system message ada di awal history**
+    cleanChatHistory = [systemMessage, ...cleanChatHistory.filter(msg => msg.role !== 'system')];
+
+    // Simpan chat user (hanya teks, tanpa elemen HTML)
+    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
 
     try {
-        // Ambil chat history dari localStorage, atau buat baru
-        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-
-        // Pastikan cleanChatHistory cuma array teks, bukan elemen HTML
-        if (!Array.isArray(cleanChatHistory)) {
-            cleanChatHistory = [];
-        }
-
-        // Simpan chat user (hanya teks, tanpa elemen HTML)
-        cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
-
         // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
@@ -711,7 +700,6 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
-
 
 
 
