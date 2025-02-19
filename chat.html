@@ -640,21 +640,33 @@ async function getAIResponse(prompt) {
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Cek apakah system message sudah ada di history**
-    const existingSystemMessage = cleanChatHistory.find(msg => msg.role === 'system');
+    // **Cari system message utama dan system harga**
+    let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
+    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'price');
 
-    if (!existingSystemMessage) {
-        // **Kalau belum ada system message (inisialisasi pertama kali)**
-        const systemMessage = {
+    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
+    if (!systemMessage) {
+        systemMessage = {
             role: 'system',
-            content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. The price of ${cryptoId} from 30 days ago to today is ${formattedPrices}, and that data comes straight from the Fallenstar market strategies server. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market.`
+            type: 'init',
+            content: `You are Exora. You’re here to chat about the crypto market, share price movements, and give insights about ${cryptoId} when asked. You use indicators like Greed Level, RSI, market sentiment (Bullish/Bearish), support/resistance, volatility, EMA 50, EMA 200, Bollinger Bands, Fibonacci Retracement, volume, Ichimoku Cloud, and Stochastic Oscillator. You engage in conversations about crypto, and you only provide detailed analysis when someone asks. If someone talks about a different crypto than ${cryptoId}, you’ll let them know they can choose that coin by pressing and holding in the background chat and clicking 'Select Coin'. You also don’t have data for any other coin except ${cryptoId}. To see data for another coin, simply press and hold the background chat and select 'Select Coin' to pick your crypto. You keep it fun and friendly, always ready to discuss anything about the crypto market.`
         };
 
-        // Simpan system message pertama kali
         cleanChatHistory.unshift(systemMessage);
+    }
+
+    // **Jika system harga belum ada, buat baru**
+    if (!systemPriceMessage) {
+        systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
     } else {
-        // **Kalau system message sudah ada, cukup update harga aja**
-        existingSystemMessage.content = `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`;
+        // **Kalau sudah ada, cukup update harga**
+        systemPriceMessage.content = `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`;
     }
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
@@ -684,9 +696,9 @@ async function getAIResponse(prompt) {
         // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya 1 chat pertama + 2 chat terakhir**
+        // **Bersihkan history: Simpan hanya system messages + 2 chat terakhir**
         if (cleanChatHistory.length >= 6) {
-            cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-2)];
+            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
         }
 
         // Simpan kembali chat history yang bersih ke localStorage
@@ -699,6 +711,7 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
 
