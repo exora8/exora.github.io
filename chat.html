@@ -662,11 +662,22 @@ async function getAIResponse(prompt) {
             type: 'price',
             content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
         };
-        cleanChatHistory.push({ role: 'assistant', content: systemPriceMessage });
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
     } else {
-        // **Kalau sudah ada, cukup update harga**
-        systemPriceMessage.content = `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`;
-    }
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+
+    // **Buat pesan harga baru**
+    systemPriceMessage = {
+        role: 'system',
+        type: 'price',
+        content: `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+    };
+
+    // **Push ke chat terbaru**
+    cleanChatHistory.push(systemPriceMessage);
+}
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
