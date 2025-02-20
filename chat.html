@@ -711,7 +711,7 @@ async function getAIResponse(prompt) {
 
         // **Bersihkan history: Simpan hanya system messages + 3 chat terakhir**
         if (cleanChatHistory.length >= 9) {
-            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-3)];
+            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
         }
 
         // Simpan kembali chat history yang bersih ke localStorage
