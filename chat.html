@@ -662,8 +662,7 @@ async function getAIResponse(prompt) {
             type: 'price',
             content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
         };
-
-        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+        cleanChatHistory.push({ role: 'assistant', content: systemPriceMessage });
     } else {
         // **Kalau sudah ada, cukup update harga**
         systemPriceMessage.content = `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`;
