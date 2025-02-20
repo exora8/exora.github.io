@@ -657,6 +657,7 @@ async function getAIResponse(prompt) {
 
     // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
+      
         systemPriceMessage = {
             role: 'system',
             type: 'price',
@@ -665,6 +666,9 @@ async function getAIResponse(prompt) {
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
     } else {
+      // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // **Buat pesan harga baru**
     systemPriceMessage = {
