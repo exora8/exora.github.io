@@ -633,42 +633,48 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
     // **Cari system message utama dan system harga**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'price');
+    let systemPriceMessageIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'price');
 
-    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
+    // **Jika belum ada system utama, buat baru (tetap di atas & tidak berubah)**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
             content: `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are designed to analyze market conditions, but you are not a source of real-time prices. All price data you use is sent in real-time from CoinGecko_R1. You only perform analysis based on the data you receive. If the user requests data or analysis for a different crypto than what is provided by CoinGecko_R1, guide them to long-press on the background and select ‘Select Crypto’ to choose the desired asset`
         };
-
         cleanChatHistory.unshift(systemMessage);
     }
 
-      // Ambil harga crypto terbaru dan formatkan
+    // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // **Buat pesan harga baru**
-    systemPriceMessage = {
+    let systemPriceMessage = {
         role: 'system',
         type: 'price',
         content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
-    // **Push ke chat terbaru**
-    cleanChatHistory.push(systemPriceMessage);
-
-
+    // **Hapus systemPriceMessage lama (jika ada) & tambahkan yang baru**
+    if (systemPriceMessageIndex !== -1) {
+        cleanChatHistory.splice(systemPriceMessageIndex, 1);
+    }
+    
     // Simpan chat user (hanya teks, tanpa elemen HTML)
-    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+    let userMessage = { role: 'user', content: cleanText(prompt) };
+
+    // **Reorganisasi chat history dengan urutan yang sesuai**
+    cleanChatHistory = [
+        systemMessage,      // System utama harus tetap di atas
+        userMessage,        // Chat user masuk setelah system utama
+        systemPriceMessage  // System price message setelah user
+    ];
 
     try {
         // Kirim request ke API
@@ -691,12 +697,12 @@ async function getAIResponse(prompt) {
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // Simpan chat AI (hanya teks)
+        // **Tambahkan respons AI setelah systemPriceMessage**
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya system messages + 3 chat terakhir**
+        // **Bersihkan history: Simpan system messages + 3 chat terakhir**
         if (cleanChatHistory.length >= 6) {
-            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-3)];
+            cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-3)];
         }
 
         // Simpan kembali chat history yang bersih ke localStorage
@@ -709,6 +715,7 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
 
