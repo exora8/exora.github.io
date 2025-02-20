@@ -633,35 +633,54 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
+    // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Cari system message utama (harus tetap di atas)**
+    // **Cari system message utama dan system harga**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
+    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'price');
 
-    // **Jika belum ada system utama, buat baru dan tetap di atas**
+    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
             content: `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are designed to analyze market conditions, but you are not a source of real-time prices. All price data you use is sent in real-time from CoinGecko_R1. You only perform analysis based on the data you receive. If the user requests data or analysis for a different crypto than what is provided by CoinGecko_R1, guide them to long-press on the background and select ‘Select Crypto’ to choose the desired asset`
         };
+
         cleanChatHistory.unshift(systemMessage);
     }
 
-    // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+    // **Jika system harga belum ada, buat baru**
+    if (!systemPriceMessage) {
+        systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+    } else {
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
     // **Buat pesan harga baru**
-    let systemPriceMessage = {
+    systemPriceMessage = {
         role: 'system',
         type: 'price',
         content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
+    // **Push ke chat terbaru**
+    cleanChatHistory.push(systemPriceMessage);
+}
+
     // Simpan chat user (hanya teks, tanpa elemen HTML)
-    let userMessage = { role: 'user', content: cleanText(prompt) };
+    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
 
     try {
         // Kirim request ke API
@@ -673,7 +692,7 @@ async function getAIResponse(prompt) {
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: [...cleanChatHistory, userMessage, systemPriceMessage] // Kirim dengan urutan yang benar
+                messages: cleanChatHistory
             })
         });
 
@@ -684,13 +703,15 @@ async function getAIResponse(prompt) {
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // **Tambahkan chat baru dengan urutan yang tetap**
-        cleanChatHistory.push(userMessage, systemPriceMessage, { role: 'assistant', content: aiMessage });
+        // Simpan chat AI (hanya teks)
+        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Pastikan system init tetap di paling atas**
-        cleanChatHistory = [systemMessage, ...cleanChatHistory.filter(msg => msg !== systemMessage)];
+        // **Bersihkan history: Simpan hanya system messages + 3 chat terakhir**
+        if (cleanChatHistory.length >= 8) {
+            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-3)];
+        }
 
-        // Simpan kembali chat history ke localStorage
+        // Simpan kembali chat history yang bersih ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return aiMessage;
@@ -700,7 +721,6 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
-
 
 
 
