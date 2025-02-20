@@ -634,8 +634,7 @@ function cleanText(text) {
 // Call Together AI API for response
 async function getAIResponse(prompt) {
     // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+    
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -646,6 +645,7 @@ async function getAIResponse(prompt) {
 
     // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
     if (!systemMessage) {
+      
         systemMessage = {
             role: 'system',
             type: 'init',
@@ -657,6 +657,8 @@ async function getAIResponse(prompt) {
 
     // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
+      const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
         systemPriceMessage = {
             role: 'system',
             type: 'price',
@@ -670,6 +672,8 @@ async function getAIResponse(prompt) {
 
     // **Buat pesan harga baru**
     systemPriceMessage = {
+      const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
         role: 'system',
         type: 'price',
         content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
