@@ -428,7 +428,7 @@ async function getApiKey() {
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
         // Update persona
-        const persona = `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are designed to analyze market conditions, but you are not a source of real-time prices. All price data you use is sent in real-time from CoinGecko_R1. All data received from CoinGecko_R1 is automatically updated, so even if it was sent an hour ago, it remains valid because it is continuously refreshed. You only perform analysis based on the data you receive. If the user requests data or analysis for a different crypto than what is provided by CoinGecko_R1, guide them to long-press on the background and select ‘Select Crypto’ to choose the desired asset.`;
+        const persona = `You are Exora. You analyze market trends,Answer question,price movements, and volatility of ${cryptoId} using indicators Greed Level, RSI, market sentiment (Bullish/Bearish), support resistance, volatility, EMA 50 EMA 200, Bollinger Bands, Fibonacci Retracement, volume ,ichimoku cloud and stochastic oscillator The price of ${cryptoId} from 30 days ago to today  ${formattedPrices}, that price data was realtime from fallenstar market strategies server, You provide quick insights without too much explanation, helping investors make informed decisions in the crypto market`;
         console.log("Updated Persona:", persona); // Cek di console
         return persona;
     } else {
@@ -633,6 +633,9 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
+    // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -646,26 +649,35 @@ async function getAIResponse(prompt) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are designed to analyze market conditions, but you are not a source of real-time prices. All price data you use is sent in real-time from CoinGecko_R1. You only perform analysis based on the data you receive. If the user requests data or analysis for a different crypto than what is provided by CoinGecko_R1, guide them to long-press on the background and select ‘Select Crypto’ to choose the desired asset`
+            content: `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are designed to analyze market conditions, but you are not a source of real-time prices. All price data you use is sent in real-time from CoinGecko_R1. All data received from CoinGecko_R1 is automatically updated, so even if it was sent an hour ago, it remains valid because it is continuously refreshed. You only perform analysis based on the data you receive. If the user requests data or analysis for a different crypto than what is provided by CoinGecko_R1, guide them to long-press on the background and select ‘Select Crypto’ to choose the desired asset.`
         };
 
         cleanChatHistory.unshift(systemMessage);
     }
 
-      // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => $${price[1].toFixed(2)}).join(" ");
+    // **Jika system harga belum ada, buat baru**
+    if (!systemPriceMessage) {
+        systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+    } else {
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
     // **Buat pesan harga baru**
     systemPriceMessage = {
         role: 'system',
         type: 'price',
-        content: Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.
+        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
     // **Push ke chat terbaru**
     cleanChatHistory.push(systemPriceMessage);
-
+}
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
@@ -676,7 +688,7 @@ async function getAIResponse(prompt) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': Bearer ${API_KEY}
+                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
@@ -685,7 +697,7 @@ async function getAIResponse(prompt) {
         });
 
         if (!response.ok) {
-            throw new Error(HTTP error! Status: ${response.status});
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -695,7 +707,7 @@ async function getAIResponse(prompt) {
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
         // **Bersihkan history: Simpan hanya system messages + 3 chat terakhir**
-        if (cleanChatHistory.length >= 6) {
+        if (cleanChatHistory.length >= 8) {
             cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-3)];
         }
 
@@ -709,6 +721,7 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
 
