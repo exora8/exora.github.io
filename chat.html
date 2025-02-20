@@ -636,11 +636,10 @@ async function getAIResponse(prompt) {
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Cari system message utama dan system harga**
+    // **Cari system message utama (harus tetap di atas)**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-    let systemPriceMessageIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'price');
 
-    // **Jika belum ada system utama, buat baru (tetap di atas & tidak berubah)**
+    // **Jika belum ada system utama, buat baru dan tetap di atas**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
@@ -661,20 +660,8 @@ async function getAIResponse(prompt) {
         content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
-    // **Hapus systemPriceMessage lama (jika ada) & tambahkan yang baru**
-    if (systemPriceMessageIndex !== -1) {
-        cleanChatHistory.splice(systemPriceMessageIndex, 1);
-    }
-    
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     let userMessage = { role: 'user', content: cleanText(prompt) };
-
-    // **Reorganisasi chat history dengan urutan yang sesuai**
-    cleanChatHistory = [
-        systemMessage,      // System utama harus tetap di atas
-        userMessage,        // Chat user masuk setelah system utama
-        systemPriceMessage  // System price message setelah user
-    ];
 
     try {
         // Kirim request ke API
@@ -686,7 +673,7 @@ async function getAIResponse(prompt) {
             },
             body: JSON.stringify({
                 model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: cleanChatHistory
+                messages: [...cleanChatHistory, userMessage, systemPriceMessage] // Kirim dengan urutan yang benar
             })
         });
 
@@ -697,15 +684,13 @@ async function getAIResponse(prompt) {
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // **Tambahkan respons AI setelah systemPriceMessage**
-        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
+        // **Tambahkan chat baru dengan urutan yang tetap**
+        cleanChatHistory.push(userMessage, systemPriceMessage, { role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan system messages + 3 chat terakhir**
-        if (cleanChatHistory.length >= 6) {
-            cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-3)];
-        }
+        // **Pastikan system init tetap di paling atas**
+        cleanChatHistory = [systemMessage, ...cleanChatHistory.filter(msg => msg !== systemMessage)];
 
-        // Simpan kembali chat history yang bersih ke localStorage
+        // Simpan kembali chat history ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return aiMessage;
