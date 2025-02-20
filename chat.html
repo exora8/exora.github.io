@@ -652,20 +652,6 @@ async function getAIResponse(prompt) {
         cleanChatHistory.unshift(systemMessage);
     }
 
-    // **Jika system harga belum ada, buat baru**
-    if (!systemPriceMessage) {
-         // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-      
-        systemPriceMessage = {
-            role: 'system',
-            type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
-        };
-        
-        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
-    } else {
       // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
@@ -679,7 +665,7 @@ async function getAIResponse(prompt) {
 
     // **Push ke chat terbaru**
     cleanChatHistory.push(systemPriceMessage);
-}
+
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
