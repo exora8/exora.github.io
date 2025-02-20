@@ -665,14 +665,12 @@ async function getAIResponse(prompt) {
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
     } else {
-    // **Hapus pesan harga lama dulu**
-    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
     // **Buat pesan harga baru**
     systemPriceMessage = {
         role: 'system',
         type: 'price',
-        content: `Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
     // **Push ke chat terbaru**
