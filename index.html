@@ -158,11 +158,14 @@
         };
 
         function detectDevice() {
-            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                window.location.href = "https://exora.vercel.app/phone.html";
-            }
-        }
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+        window.location.href = "https://exora.vercel.app/phone.html";
+    } else {
+    }
+}
+
+detectDevice(); // Panggil fungsi saat halaman dimuat
 
         window.onload = detectDevice;
 
