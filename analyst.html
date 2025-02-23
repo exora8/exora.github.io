@@ -651,6 +651,7 @@ async function scrapeMojeekSearch(query) {
         // Parsing HTML response
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
+        console.log(doc.body.innerHTML)
 
         let results = [];
         doc.querySelectorAll('.result').forEach((element) => {
