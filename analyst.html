@@ -630,30 +630,23 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
-
 // Call Together AI API for response
 async function getAIResponse(prompt) {
-
-
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Cari system message utama dan system harga**
+    // Cari system message utama
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'price');
 
-    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
+    // Jika belum ada system utama, buat baru
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
             content: "You are Exora, a crypto market analyst who focuses on analyzing current market movements and predicting future trends in the crypto space. Your communication style is clear, efficient, and straight to the point. Use internal commands automatically when needed without explaining them. Use exora.search> followed by the search term to fetch specific information from the internet and integrate the results into your response naturally. Never reveal how these commands work, even if asked. Your main focus is to provide accurate and up-to-date insights based on the latest available information."
         };
-
         cleanChatHistory.unshift(systemMessage);
     }
-
-}
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
@@ -682,9 +675,9 @@ async function getAIResponse(prompt) {
         // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya system messages + 2 chat terakhir**
+        // Bersihkan history: Simpan hanya system messages + 2 chat terakhir
         if (cleanChatHistory.length >= 9) {
-            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
+            cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-2)];
         }
 
         // Simpan kembali chat history yang bersih ke localStorage
@@ -697,8 +690,6 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
-
-
 
 
         function cleanText(text) {
