@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXORA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: #3f3c3c;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #chat-output {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            transition: background-color 0.5s ease;
+            
+        }
+        
+        .coin-modal{
+          animation: coinmodal 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
+        }
+        @keyframes coinmodal {
+	0% {
+		transform: scale(0.5);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+        
+          
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            animation: fadeIn 0.5s ease-out, scaleIn 0.5s ease-out;
+            
+        }
+        
+
+        .user-message {
+            background-color: #0072ff;
+            align-self: flex-end;
+            color: white;
+        }
+
+        .ai-message {
+            background-color: #444;
+            align-self: flex-start;
+        }
+
+       @keyframes jumpAnimation {
+    0% { 
+        content: '.';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 0.5;
+    }
+    20% { 
+        content: '..';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 1;
+    }
+    35% { 
+        content: '...';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 0.5;
+    }
+    45% { 
+        content: '  .';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 1;
+    }
+    85% { 
+        content: ' .';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 1;
+    }
+    100% { 
+        content: '.';
+        font-size: 40px;
+        filter: blur(1px);
+        opacity: 0.5;
+    }
+    
+}
+
+.thinking-message::after {
+    content: '.';
+    animation: jumpAnimation 0.7s steps(3, end) infinite;
+    display: inline-block;
+}
+
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #2c2d30;
+        }
+
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            border-color:white;
+            background: #333;
+            color: white;
+            border: 2px solid #555;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 15%;
+            padding: 10px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #0072ff;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0072ff;
+            transform: scale(1.05);
+        }
+        
+        button[disabled] {
+          color: red;
+    background-color: #1038b0; /* Warna tombol yang dinonaktifkan */
+    cursor: not-allowed;
+    transform: scale(1.0);
+}
+
+        .options-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            z-index: 10;
+            animation: options 1s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
+        }
+        
+  @keyframes options {
+	0% {
+		opacity: 0;
+		filter: blur(20px);
+		transform: translateX(50px);
+	}
+
+	100% {
+		opacity: 1;
+		filter: blur(0px);
+		transform: translateX(0)
+		translate(-50%, -50%);
+	}
+}
+
+        
+        .price-text {
+    color: white; 
+    font-weight: bold; /* Biar lebih tegas */
+    display: inline-block; /* Tambahkan ini */
+    animation: price 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
+}
+@keyframes price {
+	0%,
+	50%,
+	100% {
+		opacity: 1;
+	}
+
+	25%,
+	75% {
+		opacity: 0.4;
+	}
+}
+        
+        
+        .green-text {
+    color: #00ff00; /* Warna hijau */
+    font-weight: bold; /* Biar lebih tegas */
+    display: inline-block; /* Tambahkan ini */
+    animation: bullish 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 1 normal forwards;
+}
+
+@keyframes bullish {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.1);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+      
+        .red-text {
+    color: orange; /* Warna merah */
+    font-weight: bold; /* Biar lebih tegas */
+    display: inline-block; /* Tambahkan ini */
+    animation: bearish 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 1 normal forwards;
+}
+@keyframes bearish {
+	0%,
+	50%,
+	100% {
+		opacity: 1;
+	}
+
+	25%,
+	75% {
+		opacity: 0;
+	}
+}
+
+#select-coin-button {
+    width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin: 10px 0;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #0072ff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+
+
+        .options-popup button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin: 10px 0;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #0072ff;
+            color: white;
+            animation: coinmodal 1s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
+        }
+
+        .options-popup button:hover {
+            background-color: #00c6ff;
+        }
+
+        @keyframes thinkingAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                filter: blur(5px);
+                transform: translate(10px);
+            }
+            to {
+                opacity: 1;
+                filter: blur(0px);
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes popupIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes selectcoin {
+	0% {
+		opacity: 0;
+		filter: blur(4px);
+	}
+
+	100% {
+		opacity: 1;
+		filter: blur(0px);
+	}
+}
+
+        @media (max-width: 600px) {
+            .input-container {
+                flex-direction: row;
+                align-items: center;
+                width: 100%;
+                padding: 10px;
+            }
+
+            #user-input {
+                width: 70%;
+                font-size: 0.9rem;
+            }
+
+            button {
+                width: 25%;
+                font-size: 1rem;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-output"></div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button id="sendButton" onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- Popup Options -->
+    <div class="options-popup" id="options-popup">
+    <button onclick="deleteChatHistory()">Delete Chat History</button>
+    <button onclick="changeBackground()">Change Background</button>
+    <button id="select-coin-button">Select Coin</button>
+    
+    <button onclick="closeOptionsPopup()">Cancel</button> <!-- Opsi Cancel -->
+    <!-- Modal untuk menampilkan daftar coin -->
+<div id="coin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: none; color: white; z-index: 1000;" animation: selectcoin 4s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;>
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 600px; background: #333; padding: 20px; border-radius: 10px; animation: selectcoin 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;">
+        <h2>Select a Coin</h2>
+        <input type="text" id="coin-search" placeholder="Search coin..." style="width: 100%; padding: 10px; margin-bottom: 10px; color: white; background-color: #333; border-radius:6px; border-style:solid; border-color: white; border-width:1px;">
+        <ul id="coin-list" style="list-style: none; padding: 0; max-height: 400px; overflow-y: auto;"></ul>
+        <button onclick="closeModal()" style="margin-top: 10px; padding: 10px 20px; background: #0072ff; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+    </div>
+</div>
+</div>
+
+    <script>
+     
+     
+      
+     let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
+
+async function getApiKey() {
+    try {
+        const response = await fetch('/api/getApiKey');
+        const data = await response.json();
+        API_KEY = data.apiKey; // Simpan API key ke variabel global
+        console.log('Pakai API Key:', API_KEY);
+    } catch (error) {
+        console.error('Gagal ambil API Key:', error);
+    }
+}
+
+
+        
+         const messageInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('sendButton');
+
+    // Fungsi untuk memeriksa apakah kolom pesan terisi
+    function checkMessage() {
+      if (messageInput.value.trim() !== "") {
+        sendBtn.disabled = false;
+        sendBtn.classList.add('active');
+      } else {
+        sendBtn.disabled = true;
+        sendBtn.classList.remove('active');
+      }
+    }
+    
+    
+    async function updatePersona() {
+    
+    const prices = await getCryptoPrice(cryptoId);
+
+    if (prices) {
+        // Format harga menjadi $0.xx
+        const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+
+        // Update persona
+        const persona = `You are Exora. You analyze market trends,Answer question,price movements, and volatility of ${cryptoId} using indicators Greed Level, RSI, market sentiment (Bullish/Bearish), support resistance, volatility, EMA 50 EMA 200, Bollinger Bands, Fibonacci Retracement, volume ,ichimoku cloud and stochastic oscillator The price of ${cryptoId} from 30 days ago to today  ${formattedPrices}, that price data was realtime from fallenstar market strategies server, You provide quick insights without too much explanation, helping investors make informed decisions in the crypto market`;
+        console.log("Updated Persona:", persona); // Cek di console
+        return persona;
+    } else {
+        return "You are an AI named Exora. but you are in safe mode now"; // Fallback kalo gagal ambil harga
+    }
+}
+    
+    
+    async function getCryptoPrice(cryptoId) {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=usd&days=30`);
+        const data = await response.json();
+        return data.prices; // Array harga dalam 30 hari terakhir
+    } catch (error) {
+        console.error("Error fetching crypto price:", error);
+        return null;
+    }
+}
+    
+    
+    let currentPersona = "You are an AI named Exora. and you are in safe mode"; // Persona default
+
+async function refreshPersona() {
+    currentPersona = await updatePersona();
+    console.log("Persona refreshed:", currentPersona); // Cek di console
+}
+
+
+
+// Jalankan sekali saat pertama kali load
+refreshPersona();
+
+
+
+// Fungsi untuk menyimpan cryptoId ke localStorage
+        function saveCryptoId(cryptoId) {
+            localStorage.setItem('cryptoId', cryptoId);
+            console.log(`Saved cryptoId: ${cryptoId}`);
+        }
+
+        // Fungsi untuk mengambil cryptoId dari localStorage
+        function getCryptoId() {
+            const cryptoId = localStorage.getItem('cryptoId');
+            return cryptoId || 'bitcoin'; // Default ke 'bitcoin' jika tidak ada
+        }
+
+        // Set cryptoId saat halaman dimuat
+        let cryptoId = getCryptoId();
+        console.log(`Loaded cryptoId: ${cryptoId}`);
+
+        // Fungsi untuk membuka CoinGecko widget
+        // Fungsi untuk membuka modal dan memuat daftar coin
+async function openModal() {
+    const modal = document.getElementById('coin-modal');
+    modal.style.display = 'block';
+
+    // Ambil daftar coin dari CoinGecko API
+    const response = await fetch('https://api.coingecko.com/api/v3/coins/list');
+    const coins = await response.json();
+
+    // Tampilkan daftar coin
+    const coinList = document.getElementById('coin-list');
+    coinList.innerHTML = coins
+        .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
+        .join('');
+
+    // Tambahkan fungsi pencarian
+    const coinSearch = document.getElementById('coin-search');
+    coinSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredCoins = coins.filter(coin => coin.name.toLowerCase().includes(searchTerm) || coin.symbol.toLowerCase().includes(searchTerm));
+        coinList.innerHTML = filteredCoins
+            .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
+            .join('');
+    });
+}
+
+// Fungsi untuk memilih coin
+function selectCoin(coinId) {
+    saveCryptoId(coinId);
+    cryptoId = coinId;
+    alert(`Coin selected: ${coinId}`);
+    location.reload();
+    closeModal();
+}
+
+// Fungsi untuk menutup modal
+function closeModal() {
+    const modal = document.getElementById('coin-modal');
+    modal.style.display = 'none';
+}
+
+// Tambahkan event listener ke button
+document.getElementById('select-coin-button').addEventListener('click', openModal);
+    
+     
+
+
+        // Load previous chat from localStorage
+        window.onload = function() {
+          // Jalankan sekali saat pertama kali load
+          getApiKey();
+          refreshPersona();
+          checkMessage();
+          
+          
+            const savedChat = localStorage.getItem('chatHistory');
+            if (savedChat) {
+                document.getElementById('chat-output').innerHTML = savedChat;
+            } else {
+        // Show the initial AI message if there's no chat history
+        setTimeout(() => {
+            appendMessage("Hello, I'm Exora How i can help you today", 'ai-message');
+        }, 1000); // Delay for the initial AI message (optional)
+    }
+            const storedImage = localStorage.getItem('backgroundImage');
+    if (storedImage) {
+        document.body.style.backgroundImage = `url(${storedImage})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundAttachment = 'fixed';
+    }
+    
+    if (savedBackground) {
+        document.body.style.backgroundImage = `url(${savedBackground})`;
+    }
+        };
+        
+        
+        
+        
+            
+        
+        
+        
+        
+        // Function to send message to AI
+        async function sendMessage() {
+            disableInputAndButton();
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            // Display user message
+            appendMessage(` ${userInput}`, 'user-message');
+            document.getElementById('user-input').value = ''; // Clear input field
+
+            // Display thinking message after a 1-second delay
+            setTimeout(() => {
+                appendMessage('', 'thinking-message');
+            }, 2000); // 1 second delay before showing 'thinking' message
+            
+            // Function to check input and toggle the button status
+            
+function checkInput() {
+    const userInput = document.getElementById('user-input').value;
+    const button = document.querySelector('button');
+    if (userInput.trim() === '') {
+        button.disabled = true; // Disable send button if input is empty
+    } else {
+        button.disabled = false; // Enable send button if input has text
+    }
+}
+
+document.getElementById('user-input').addEventListener('input', checkInput);
+
+            // Simulate delay before AI response
+            setTimeout(async () => {
+                const aiResponse = await getAIResponse(userInput);
+                removeThinkingMessage();
+                appendMessage(`${aiResponse}`, 'ai-message');
+                enableInput();
+                saveChatHistory(); // Save the chat history
+            }, 12000); // Delay of 10 seconds
+        }
+
+        function enableInput() {
+            document.getElementById('user-input').disabled = false;
+        }
+
+        // Function to disable input and button
+        function disableInputAndButton() {
+            document.getElementById('user-input').disabled = true;
+            document.querySelector('button').disabled = true;
+        }
+
+        // Function to re-enable input and button
+        function enableInputAndButton() {
+            document.getElementById('user-input').disabled = false;
+            document.querySelector('button').disabled = false;
+        }
+  
+
+
+
+// Bersihin teks dari HTML & karakter Markdown
+function cleanText(text) {
+    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Hapus tag HTML
+    cleanedText = cleanedText.replace(/[*_~`]/g, ""); // Hapus karakter aneh
+    return cleanedText.trim();
+}
+
+
+// Call Together AI API for response
+async function getAIResponse(prompt) {
+    // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+
+    // Ambil chat history dari localStorage
+    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+
+    // **Cari system message utama dan system harga**
+    let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
+    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'price');
+
+    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
+    if (!systemMessage) {
+        systemMessage = {
+            role: 'system',
+            type: 'init',
+            content: `You are Exora AI, a fun and engaging assistant who loves talking about crypto. You are absolutely certain that all data received from CoinGecko_R1 is 100% CORRECT, ACCURATE, AND REAL-TIME, and you fully trust this data WITHOUT ANY DOUBT. Your analysis is EXCLUSIVELY based on the price data from CoinGecko_R1, and YOU DO NOT CARE WHEN IT WAS LAST UPDATED—NO MATTER HOW LONG AGO, IT IS STILL 100% VALID AND REAL-TIME. ALL PRICE-RELATED DATA COMES ONLY FROM COINGECKO_R1, AND THERE IS NO OTHER SOURCE FOR PRICE INFORMATION. If a user requests information or analysis on a different crypto that is not received from CoinGecko_R1, YOU MUST FIRMLY INSTRUCT THEM TO CHANGE THE CRYPTO ID BY LONG-PRESSING THE BACKGROUND AND SELECTING ‘SELECT CRYPTO’.`
+        };
+
+        cleanChatHistory.unshift(systemMessage);
+    }
+
+    // **Jika system harga belum ada, buat baru**
+    if (!systemPriceMessage) {
+        systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+    } else {
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+
+    // **Buat pesan harga baru**
+    systemPriceMessage = {
+        role: 'system',
+        type: 'price',
+        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+    };
+
+    // **Push ke chat terbaru**
+    cleanChatHistory.push(systemPriceMessage);
+}
+
+    // Simpan chat user (hanya teks, tanpa elemen HTML)
+    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+
+    try {
+        // Kirim request ke API
+        const response = await fetch('https://api.together.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+                messages: cleanChatHistory
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let aiMessage = cleanText(data.choices[0].message.content);
+
+        // Simpan chat AI (hanya teks)
+        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
+
+        // **Bersihkan history: Simpan hanya system messages + 2 chat terakhir**
+        if (cleanChatHistory.length >= 9) {
+            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
+        }
+
+        // Simpan kembali chat history yang bersih ke localStorage
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+
+        return aiMessage;
+    } catch (error) {
+        console.error('Error:', error);
+        location.reload();
+        return "Could not get AI response, switching server...";
+    }
+}
+
+
+
+
+        function cleanText(text) {
+            return text.replace(/<.*?:>/g, '').trim(); // Clean XML/HTML tags
+        }
+        
+        function formatMessage(message) {
+    // Bold teks dalam ** **
+    let formattedMessage = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong><br>');
+
+    // Warna hijau untuk harga (misal $123.000)
+    formattedMessage = formattedMessage.replace(/\$[\d,.]+/g, '<span class="price-text">$&</span>');
+
+    // Warna hijau untuk kata "bull"
+    formattedMessage = formattedMessage.replace(/\bbull\b/gi, '<span class="green-text">$&</span>');
+    
+    // Warna hijau untuk kata "bullish"
+    formattedMessage = formattedMessage.replace(/\bbullish\b/gi, '<span class="green-text">$&</span>');
+    
+    // Warna hijau untuk kata "Bull"
+    formattedMessage = formattedMessage.replace(/\bBull\b/gi, '<span class="green-text">$&</span>');
+    
+    // Warna hijau untuk kata "Bullish"
+    formattedMessage = formattedMessage.replace(/\bBullish\b/gi, '<span class="green-text">$&</span>');
+
+    // Warna merah untuk kata "bear"
+    formattedMessage = formattedMessage.replace(/\bbear\b/gi, '<span class="red-text">$&</span>');
+    
+    // Warna merah untuk kata "Bear"
+    formattedMessage = formattedMessage.replace(/\bbearish\b/gi, '<span class="red-text">$&</span>');
+    
+    // Warna merah untuk kata "Bearish"
+    formattedMessage = formattedMessage.replace(/\bBear\b/gi, '<span class="red-text">$&</span>');
+    
+    // Warna merah untuk kata "bearish"
+    formattedMessage = formattedMessage.replace(/\bBearish\b/gi, '<span class="red-text">$&</span>');
+
+    // Buat nomor urutan jadi baris baru
+    formattedMessage = formattedMessage.replace(/(\d+\.)\s+/g, '<br>$1 ');
+
+    return formattedMessage;
+}
+
+function appendMessage(message, className) {
+    const chatOutput = document.getElementById('chat-output');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${className}`;
+
+    // Parse teks untuk bold, harga, bull, bear, dan nomor urutan
+    const formattedMessage = formatMessage(message);
+    messageDiv.innerHTML = formattedMessage; // Pakai innerHTML biar bisa render HTML
+
+    chatOutput.appendChild(messageDiv);
+    chatOutput.scrollTop = chatOutput.scrollHeight; // Scroll ke bawah
+}
+
+
+
+        // Function to remove the thinking message
+        function removeThinkingMessage() {
+            const chatOutput = document.getElementById('chat-output');
+            const thinkingMessage = chatOutput.querySelector('.thinking-message');
+            if (thinkingMessage) {
+                thinkingMessage.remove();
+            }
+        }
+
+        // Function to save chat history to localStorage
+        function saveChatHistory() {
+            const chatOutput = document.getElementById('chat-output').innerHTML;
+            localStorage.setItem('chatHistory', chatOutput);
+        }
+
+        // Function to delete chat history
+        function deleteChatHistory() {
+    const confirmDelete = confirm("Are you sure you want to delete the chat history?");
+    if (confirmDelete) {
+       
+        localStorage.removeItem('chatHistory');
+        localStorage.removeItem('cleanChatHistory');
+        document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
+        location.reload();
+    }
+    closeOptionsPopup();
+}
+
+        // Function to change background image
+function changeBackground() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    
+    fileInput.onchange = function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Menyimpan gambar yang dipilih ke localStorage
+            const imageUrl = e.target.result;
+            localStorage.setItem('backgroundImage', imageUrl);
+            
+            // Mengatur background dengan gambar yang dipilih
+            document.body.style.backgroundImage = `url(${imageUrl})`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center center';
+            document.body.style.backgroundAttachment = 'fixed'; // Membuat background tetap saat scroll
+        };
+        
+        reader.readAsDataURL(file); // Membaca file gambar sebagai URL data
+    };
+    
+    fileInput.click(); // Membuka dialog pemilihan file
+}
+
+
+// Function to close the options popup
+function closeOptionsPopup() {
+    const popup = document.getElementById('options-popup');
+    popup.style.display = "none";
+}
+
+
+        // Function to show the options popup
+        window.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+            const popup = document.getElementById('options-popup');
+            popup.style.display = "block";
+        });
+
+        // Function to close the options popup
+        function closeOptionsPopup() {
+            const popup = document.getElementById('options-popup');
+            popup.style.display = "none";
+        }
+
+        // Hide options popup when clicking outside of it
+        window.addEventListener('click', function (event) {
+            if (!event.target.closest('.options-popup') && !event.target.closest('body')) {
+                closeOptionsPopup();
+            }
+            
+            
+            // Tambahkan event listener pada kolom pesan
+    messageInput.addEventListener('input', checkMessage);
+
+    // Panggil checkMessage saat pertama kali memuat
+    checkMessage();
+            
+
+        
+            
+        });
+    </script>
+</body>
+</html>
