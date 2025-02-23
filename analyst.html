@@ -629,7 +629,6 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
-// Scrape dari Mojeek dengan Log Detail dan Bypass CORS
 async function scrapeMojeekSearch(query) {
     try {
         console.log(`🔍 [Scraping Mojeek] Query yang dikirim: ${query}`);
@@ -654,17 +653,28 @@ async function scrapeMojeekSearch(query) {
         console.log(doc.body.innerHTML)
 
         let results = [];
+        
+        // Mencari setiap hasil pencarian
         doc.querySelectorAll('.result').forEach((element) => {
-            let title = element.querySelector('h2')?.innerText;
-            let link = element.querySelector('a')?.href;
-            let snippet = element.querySelector('p')?.innerText;
-            if (title && link && link.startsWith('http')) {
+            let title = element.querySelector('h2')?.innerText || "No title found";
+            let link = element.querySelector('a')?.href || "";
+            let snippet = element.querySelector('p')?.innerText || "No snippet found";
+
+            // Validasi link dan simpan hasilnya
+            if (link && link.startsWith('http')) {
                 results.push(`- **${title}**\n  ${snippet}\n  [Read more](${link})`);
             }
         });
 
-        console.log(`✅ [Scraping Mojeek] Hasil scraping:\n`, results);
-        return results.length ? results.join('\n\n') : "No relevant results found.";
+        // Jika ada hasil, gabungkan menjadi string yang siap ditampilkan
+        if (results.length > 0) {
+            console.log(`✅ [Scraping Mojeek] Hasil scraping:\n`, results);
+            return results.join('\n\n');
+        } else {
+            console.log('⚠️ [Scraping Mojeek] Tidak ada hasil yang relevan.');
+            return "No relevant results found.";
+        }
+
     } catch (error) {
         console.error('❌ [Scraping Error]:', error);
         return "Scraping failed.";
