@@ -454,57 +454,6 @@ refreshPersona();
 
 
 
-// Fungsi untuk menyimpan cryptoId ke localStorage
-        function saveCryptoId(cryptoId) {
-            localStorage.setItem('cryptoId', cryptoId);
-            console.log(`Saved cryptoId: ${cryptoId}`);
-        }
-
-        // Fungsi untuk mengambil cryptoId dari localStorage
-        function getCryptoId() {
-            const cryptoId = localStorage.getItem('cryptoId');
-            return cryptoId || 'bitcoin'; // Default ke 'bitcoin' jika tidak ada
-        }
-
-        // Set cryptoId saat halaman dimuat
-        let cryptoId = getCryptoId();
-        console.log(`Loaded cryptoId: ${cryptoId}`);
-
-        // Fungsi untuk membuka CoinGecko widget
-        // Fungsi untuk membuka modal dan memuat daftar coin
-async function openModal() {
-    const modal = document.getElementById('coin-modal');
-    modal.style.display = 'block';
-
-    // Ambil daftar coin dari CoinGecko API
-    const response = await fetch('https://api.coingecko.com/api/v3/coins/list');
-    const coins = await response.json();
-
-    // Tampilkan daftar coin
-    const coinList = document.getElementById('coin-list');
-    coinList.innerHTML = coins
-        .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
-        .join('');
-
-    // Tambahkan fungsi pencarian
-    const coinSearch = document.getElementById('coin-search');
-    coinSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const filteredCoins = coins.filter(coin => coin.name.toLowerCase().includes(searchTerm) || coin.symbol.toLowerCase().includes(searchTerm));
-        coinList.innerHTML = filteredCoins
-            .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
-            .join('');
-    });
-}
-
-// Fungsi untuk memilih coin
-function selectCoin(coinId) {
-    saveCryptoId(coinId);
-    cryptoId = coinId;
-    alert(`Coin selected: ${coinId}`);
-    location.reload();
-    closeModal();
-}
 
 // Fungsi untuk menutup modal
 function closeModal() {
