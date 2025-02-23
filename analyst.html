@@ -629,18 +629,26 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
-// Scrape dari Mojeek dengan Log Detail
+// Scrape dari Mojeek dengan Log Detail dan Bypass CORS
 async function scrapeMojeekSearch(query) {
     try {
         console.log(`🔍 [Scraping Mojeek] Query yang dikirim: ${query}`);
-        const response = await fetch(`https://www.mojeek.com/search?q=${encodeURIComponent(query)}`, {
-            method: 'GET'
-        });
 
+        // Bypass CORS menggunakan proxy allorigins
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const encodedUrl = encodeURIComponent(`https://www.mojeek.com/search?q=${encodeURIComponent(query)}`);
+
+        const response = await fetch(`${proxyUrl}${encodedUrl}`);
         console.log(`📥 [Scraping Mojeek] Response status: ${response.status}`);
-        const text = await response.text();
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        const text = data.contents; // Ambil konten dari hasil proxy
+
         console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 500)}...`); // Nge-print sebagian biar gak kebanyakan
 
+        // Parsing HTML response
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
 
@@ -661,6 +669,7 @@ async function scrapeMojeekSearch(query) {
         return "Scraping failed.";
     }
 }
+
 
 // Call Together AI API for response dengan Log Detail
 async function getAIResponse(prompt) {
