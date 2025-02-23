@@ -629,12 +629,18 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
+// Scrape dari Mojeek dengan Log Detail
 async function scrapeMojeekSearch(query) {
     try {
+        console.log(`🔍 [Scraping Mojeek] Query yang dikirim: ${query}`);
         const response = await fetch(`https://www.mojeek.com/search?q=${encodeURIComponent(query)}`, {
             method: 'GET'
         });
+
+        console.log(`📥 [Scraping Mojeek] Response status: ${response.status}`);
         const text = await response.text();
+        console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 500)}...`); // Nge-print sebagian biar gak kebanyakan
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
 
@@ -643,19 +649,20 @@ async function scrapeMojeekSearch(query) {
             let title = element.querySelector('h2')?.innerText;
             let link = element.querySelector('a')?.href;
             let snippet = element.querySelector('p')?.innerText;
-            if (title && link) {
-                results.push({ title, link, snippet });
+            if (title && link && link.startsWith('http')) {
+                results.push(`- **${title}**\n  ${snippet}\n  [Read more](${link})`);
             }
         });
 
-        return results.length ? results : "No relevant results found.";
+        console.log(`✅ [Scraping Mojeek] Hasil scraping:\n`, results);
+        return results.length ? results.join('\n\n') : "No relevant results found.";
     } catch (error) {
-        console.error('Scraping Error:', error);
+        console.error('❌ [Scraping Error]:', error);
         return "Scraping failed.";
     }
 }
 
-// Call Together AI API for response
+// Call Together AI API for response dengan Log Detail
 async function getAIResponse(prompt) {
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
@@ -670,8 +677,14 @@ async function getAIResponse(prompt) {
     }
 
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
-
     try {
+        if (typeof API_KEY === 'undefined') throw new Error("API_KEY is not defined.");
+
+        console.log(`🚀 [Sending Request to Together AI]:`, {
+            model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+            messages: cleanChatHistory
+        });
+
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -684,17 +697,20 @@ async function getAIResponse(prompt) {
             })
         });
 
+        console.log(`📥 [API Response Status]: ${response.status}`);
+
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
+        console.log(`📥 [API Response Data]:`, data);
+
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // Deteksi perintah exora.search>
         if (aiMessage.includes('exora.search>')) {
             const searchQuery = aiMessage.split('exora.search>')[1].trim();
+            console.log(`🔎 [Detected Search Command]: ${searchQuery}`);
             const searchResult = await scrapeMojeekSearch(searchQuery);
 
-            // Tambahkan hasil search ke chat history
             cleanChatHistory.push({ role: 'assistant', content: `Search result for "${searchQuery}": ${searchResult}` });
             aiMessage += `\n\n[Search result]: ${searchResult}`;
         } else {
@@ -709,11 +725,12 @@ async function getAIResponse(prompt) {
 
         return aiMessage;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ [API Error]:', error);
         location.reload();
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
         function cleanText(text) {
