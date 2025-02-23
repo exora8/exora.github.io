@@ -656,9 +656,9 @@ async function scrapeMojeekSearch(query) {
         
         // Mencari setiap hasil pencarian
         doc.querySelectorAll('.result').forEach((element) => {
-            let title = element.querySelector('h2')?.innerText || "No title found";
+            let title = element.querySelector('a')?.innerText || "No title found";
             let link = element.querySelector('a')?.href || "";
-            let snippet = element.querySelector('p')?.innerText || "No snippet found";
+            let snippet = element.querySelector('strong')?.innerText || "No snippet found";
 
             // Validasi link dan simpan hasilnya
             if (link && link.startsWith('http')) {
