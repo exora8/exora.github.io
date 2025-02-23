@@ -645,22 +645,34 @@ async function scrapeMojeekSearch(query) {
         const data = await response.json();
         const text = data.contents; // Ambil konten dari hasil proxy
 
-        console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 500)}...`);
+        console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 1000)}...`); // Tampilkan sebagian untuk debug
 
         // Parsing HTML response
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
-        
+
+        // Debugging untuk memastikan HTML yang didapat
+        console.log(`📥 [Scraping Mojeek] Parsed HTML:\n${doc.body.innerHTML.substring(0, 1000)}...`);
+
         let results = [];
 
-        // Mencari setiap hasil pencarian
-        doc.querySelectorAll('.result').forEach((element) => {
-            let title = element.querySelector('a')?.innerText || "No title found";
-            let link = element.querySelector('a')?.href || "";
-            let snippet = element.querySelector('strong')?.innerText || "No snippet found";
+        // Debugging: cek elemen hasil pencarian
+        const resultElements = doc.querySelectorAll('.result');
+        console.log(`📥 [Scraping Mojeek] Jumlah hasil yang ditemukan: ${resultElements.length}`);
 
-            // Validasi link dan simpan hasilnya
+        // Mencari setiap hasil pencarian
+        resultElements.forEach((element) => {
+            let title = element.querySelector('a')?.innerText.trim() || "No title found";
+            let link = element.querySelector('a')?.href.trim() || "";
+            let snippet = element.querySelector('strong')?.innerText.trim() || "No snippet found";
+
+            // Validasi dan filter link yang valid
             if (link && link.startsWith('http')) {
+                // Clean up snippet and title from unwanted characters or extra spaces
+                title = title.replace(/\s+/g, ' ').trim();
+                snippet = snippet.replace(/\s+/g, ' ').trim();
+
+                // Menambahkan hasil yang sudah diformat
                 results.push(`- **${title}**\n  ${snippet}\n  [Read more](${link})`);
             }
         });
