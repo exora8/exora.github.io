@@ -629,9 +629,12 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
+// Ganti proxy
+const corsProxy = 'https://api.allorigins.win/raw?url='; 
+const SERPER_API_KEY = '0e3185cbdfc97c7e18ecd69d94bee4d8e0fb8cd5'; // Tambahkan API key Serper.dev
+
 // Fungsi search dari internet (scraping Google + fallback Serper.dev)
 async function searchFromInternet(query) {
-    const corsProxy = 'https://corsproxy.io/?';
     const searchURL = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
 
     try {
@@ -676,6 +679,7 @@ async function searchFromInternet(query) {
         }
     }
 }
+
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
