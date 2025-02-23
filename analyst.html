@@ -622,7 +622,6 @@ document.getElementById('user-input').addEventListener('input', checkInput);
   
 
 
-
 // Bersihin teks dari HTML & karakter Markdown
 function cleanText(text) {
     let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Hapus tag HTML
@@ -690,6 +689,7 @@ async function getAIResponse(prompt) {
         return "Could not get AI response, switching server...";
     }
 }
+
 
 
         function cleanText(text) {
