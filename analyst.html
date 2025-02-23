@@ -371,13 +371,13 @@
     <div class="options-popup" id="options-popup">
     <button onclick="deleteChatHistory()">Delete Chat History</button>
     <button onclick="changeBackground()">Change Background</button>
-    
+    <button id="select-coin-button">Select Coin</button>
     
     <button onclick="closeOptionsPopup()">Cancel</button> <!-- Opsi Cancel -->
     <!-- Modal untuk menampilkan daftar coin -->
 <div id="coin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: none; color: white; z-index: 1000;" animation: selectcoin 4s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;>
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 600px; background: #333; padding: 20px; border-radius: 10px; animation: selectcoin 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;">
-        <h2>Select a Coinzzz</h2>
+        <h2>Select a Coin</h2>
         <input type="text" id="coin-search" placeholder="Search coin..." style="width: 100%; padding: 10px; margin-bottom: 10px; color: white; background-color: #333; border-radius:6px; border-style:solid; border-color: white; border-width:1px;">
         <ul id="coin-list" style="list-style: none; padding: 0; max-height: 400px; overflow-y: auto;"></ul>
         <button onclick="closeModal()" style="margin-top: 10px; padding: 10px 20px; background: #0072ff; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
