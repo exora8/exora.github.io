@@ -622,14 +622,13 @@ document.getElementById('user-input').addEventListener('input', checkInput);
   
 
 
-
-
 // Bersihin teks dari HTML & karakter Markdown
 function cleanText(text) {
-    let cleanedText = text.replace(/</?[^>]+(>|$)/g, ""); // Hapus tag HTML
+    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Hapus tag HTML
     cleanedText = cleanedText.replace(/[*_~`]/g, ""); // Hapus karakter aneh
     return cleanedText.trim();
 }
+
 
 // Fungsi search dari internet (dummy fetch untuk awal)
 async function searchFromInternet(query) {
