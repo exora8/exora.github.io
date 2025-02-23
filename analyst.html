@@ -645,10 +645,13 @@ async function searchFromInternet(query) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        const result = doc.querySelector('div.g a');
+        // Selector alternatif yang lebih fleksibel
+        const result = doc.querySelector('a h3')?.parentElement;
         if (result) {
             const title = result.querySelector('h3')?.textContent || "No Title";
-            const link = result.href;
+            const link = result.href.startsWith('/url?q=') 
+                ? result.href.split('/url?q=')[1].split('&')[0] 
+                : result.href;
             return `${title}: ${link}`;
         } else {
             throw new Error("No results found from Google");
@@ -679,7 +682,6 @@ async function searchFromInternet(query) {
         }
     }
 }
-
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
