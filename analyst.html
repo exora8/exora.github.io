@@ -707,15 +707,19 @@ async function getAIResponse(prompt) {
         let aiMessage = cleanText(data.choices[0].message.content);
 
         if (aiMessage.includes('exora.search>')) {
-            const searchQuery = aiMessage.split('exora.search>')[1].trim();
-            console.log(`🔎 [Detected Search Command]: ${searchQuery}`);
-            const searchResult = await scrapeMojeekSearch(searchQuery);
+    // Ambil query setelah 'exora.search>' dan potong di koma pertama
+    let searchQuery = aiMessage.split('exora.search>')[1].trim();
+    searchQuery = searchQuery.split(',')[0].trim(); // Ambil sebelum koma pertama
 
-            cleanChatHistory.push({ role: 'assistant', content: `Search result for "${searchQuery}": ${searchResult}` });
-            aiMessage += `\n\n[Search result]: ${searchResult}`;
-        } else {
-            cleanChatHistory.push({ role: 'assistant', content: aiMessage });
-        }
+    console.log(`🔎 [Detected Search Command]: ${searchQuery}`);
+    const searchResult = await scrapeMojeekSearch(searchQuery);
+
+    cleanChatHistory.push({ role: 'assistant', content: `Search result for "${searchQuery}": ${searchResult}` });
+    aiMessage += `\n\n[Search result]: ${searchResult}`;
+} else {
+    cleanChatHistory.push({ role: 'assistant', content: aiMessage });
+}
+
 
         if (cleanChatHistory.length >= 9) {
             cleanChatHistory = [cleanChatHistory[0], ...cleanChatHistory.slice(-2)];
