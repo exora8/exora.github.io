@@ -648,32 +648,7 @@ async function getAIResponse(prompt) {
         cleanChatHistory.unshift(systemMessage);
     }
 
-    // **Jika system harga belum ada, buat baru**
-    if (!systemPriceMessage) {
-        systemPriceMessage = {
-            role: 'system',
-            type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
-        };
-        
-        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
-    } else {
-    // **Hapus pesan harga lama dulu**
-    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
-
-    // **Buat pesan harga baru**
-    systemPriceMessage = {
-        role: 'system',
-        type: 'price',
-        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
-    };
-
-    // **Push ke chat terbaru**
-    cleanChatHistory.push(systemPriceMessage);
-}
-
-    // Simpan chat user (hanya teks, tanpa elemen HTML)
-    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+    
 
     try {
         // Kirim request ke API
