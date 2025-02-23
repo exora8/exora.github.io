@@ -645,15 +645,14 @@ async function scrapeMojeekSearch(query) {
         const data = await response.json();
         const text = data.contents; // Ambil konten dari hasil proxy
 
-        console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 500)}...`); // Nge-print sebagian biar gak kebanyakan
+        console.log(`📥 [Scraping Mojeek] Response body:\n${text.substring(0, 500)}...`);
 
         // Parsing HTML response
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
-        console.log(doc.body.innerHTML)
-
-        let results = [];
         
+        let results = [];
+
         // Mencari setiap hasil pencarian
         doc.querySelectorAll('.result').forEach((element) => {
             let title = element.querySelector('a')?.innerText || "No title found";
@@ -677,7 +676,7 @@ async function scrapeMojeekSearch(query) {
 
     } catch (error) {
         console.error('❌ [Scraping Error]:', error);
-        return "Scraping failed.";
+        return `Error: ${error.message}`;
     }
 }
 
