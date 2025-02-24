@@ -387,7 +387,9 @@
 
     <script>
       
-
+        let userInput = document.getElementById("user-input");
+     
+        
         document.addEventListener("DOMContentLoaded", function() {
         let userInput = document.getElementById("user-input");
         let sendButton = document.getElementById("sendButton");
@@ -620,6 +622,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
                 appendMessage(`${aiResponse}`, 'ai-message');
                 enableInput();
                 saveChatHistory(); // Save the chat history
+                userInput.focus();
             }, 12000); // Delay of 10 seconds
         }
 
