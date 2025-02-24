@@ -622,12 +622,13 @@ document.getElementById('user-input').addEventListener('input', checkInput);
                 appendMessage(`${aiResponse}`, 'ai-message');
                 enableInput();
                 saveChatHistory(); // Save the chat history
-                userInput.focus();
+                
             }, 12000); // Delay of 10 seconds
         }
 
         function enableInput() {
             document.getElementById('user-input').disabled = false;
+            userInput.focus();
         }
 
         // Function to disable input and button
