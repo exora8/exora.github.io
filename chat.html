@@ -566,18 +566,10 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
         
         
         // Function to send message to AI
-        function checkInput() {
-        const userInput = document.getElementById('user-input').value;
-        const button = document.getElementById('send-button');
-        button.disabled = userInput.trim() === '';
-    }
-
-            document.getElementById("user-input").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Biar gak nge-refresh form
-            sendMessage();
-        }
-    });
+        async function sendMessage() {
+            disableInputAndButton();
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
 
             // Display user message
             appendMessage(` ${userInput}`, 'user-message');
@@ -601,6 +593,12 @@ function checkInput() {
 }
 
 document.getElementById('user-input').addEventListener('input', checkInput);
+document.getElementById("user-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Biar gak nge-refresh form
+            sendMessage();
+        }
+    });
 
             // Simulate delay before AI response
             setTimeout(async () => {
