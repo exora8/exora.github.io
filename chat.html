@@ -573,60 +573,55 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
         
         
         // Function to send message to AI
-        async function sendMessage() {
-            disableInputAndButton();
-            const userInput = document.getElementById('user-input').value;
-            if (!userInput) return;
-
-            // Display user message
-            appendMessage(` ${userInput}`, 'user-message');
-            document.getElementById('user-input').value = ''; // Clear input field
-
-            // Display thinking message after a 1-second delay
-            setTimeout(() => {
-                appendMessage('', 'thinking-message');
-            }, 2000); // 1 second delay before showing 'thinking' message
-            
-            // Function to check input and toggle the button status
-            
-function checkInput() {
-    const userInput = document.getElementById('user-input').value;
-    const button = document.querySelector('button');
-    if (userInput.trim() === '') {
-        button.disabled = true; // Disable send button if input is empty
-    } else {
-        button.disabled = false; // Enable send button if input has text
+       function checkInput() {
+        const userInput = document.getElementById('user-input').value;
+        const button = document.getElementById('send-button');
+        button.disabled = userInput.trim() === '';
     }
-}
 
-document.getElementById('user-input').addEventListener('input', checkInput);
-
-            // Simulate delay before AI response
-            setTimeout(async () => {
-                const aiResponse = await getAIResponse(userInput);
-                removeThinkingMessage();
-                appendMessage(`${aiResponse}`, 'ai-message');
-                enableInput();
-                saveChatHistory(); // Save the chat history
-            }, 12000); // Delay of 10 seconds
+    document.getElementById("user-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Biar gak refresh
+            if (!document.getElementById("send-button").disabled) { 
+                sendMessage(); 
+            }
         }
+    });
 
-        function enableInput() {
-            document.getElementById('user-input').disabled = false;
-        }
+    async function sendMessage() {
+        disableInputAndButton();
+        const inputField = document.getElementById('user-input');
+        const message = inputField.value.trim();
 
-        // Function to disable input and button
-        function disableInputAndButton() {
-            document.getElementById('user-input').disabled = true;
-            document.querySelector('button').disabled = true;
-        }
+        if (message === "") return;
 
-        // Function to re-enable input and button
-        function enableInputAndButton() {
-            document.getElementById('user-input').disabled = false;
-            document.querySelector('button').disabled = false;
-        }
-  
+        appendMessage(`${message}`, 'user-message'); // Tampilin pesan user
+        inputField.value = ""; // Clear input setelah kirim
+        checkInput(); // Update tombol send
+
+        // Tampilkan pesan "Thinking..." setelah 1 detik
+        setTimeout(() => {
+            appendMessage('', 'thinking-message');
+        }, 1000);
+
+        setTimeout(async () => {
+            const aiResponse = await getAIResponse(message);
+            removeThinkingMessage();
+            appendMessage(`${aiResponse}`, 'ai-message');
+            enableInputAndButton();
+            saveChatHistory();
+        }, 12000); // Delay 12 detik
+    }
+
+    function disableInputAndButton() {
+        document.getElementById('user-input').disabled = true;
+        document.getElementById('send-button').disabled = true;
+    }
+
+    function enableInputAndButton() {
+        document.getElementById('user-input').disabled = false;
+        checkInput(); // Pastikan tombol send tetap sesuai kondisi input
+    }
 
 
 
