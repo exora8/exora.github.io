@@ -574,7 +574,6 @@ function checkInput() {
 
     document.getElementById("user-input").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // Biar gak nge-refresh form
             sendMessage();
         }
     });
