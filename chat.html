@@ -725,8 +725,6 @@ async function getAIResponse(prompt) {
 
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
-        
-        console.log("respon ai" aiMessage);
 
         // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
