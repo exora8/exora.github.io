@@ -386,6 +386,13 @@
 </div>
 
     <script>
+      
+      document.getElementById("user-input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      sendMessage();
+    }
+  });
+
      
      
       
@@ -566,49 +573,61 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
         
         
         // Function to send message to AI
+        async function sendMessage() {
+            disableInputAndButton();
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            // Display user message
+            appendMessage(` ${userInput}`, 'user-message');
+            document.getElementById('user-input').value = ''; // Clear input field
+
+            // Display thinking message after a 1-second delay
+            setTimeout(() => {
+                appendMessage('', 'thinking-message');
+            }, 2000); // 1 second delay before showing 'thinking' message
+            
+            // Function to check input and toggle the button status
+            
 function checkInput() {
-        const userInput = document.getElementById('user-input').value;
-        const button = document.getElementById('send-button');
-        button.disabled = userInput.trim() === '';
+    const userInput = document.getElementById('user-input').value;
+    const button = document.querySelector('button');
+    if (userInput.trim() === '') {
+        button.disabled = true; // Disable send button if input is empty
+    } else {
+        button.disabled = false; // Enable send button if input has text
     }
+}
 
-    document.getElementById("user-input").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            sendMessage();
+document.getElementById('user-input').addEventListener('input', checkInput);
+
+            // Simulate delay before AI response
+            setTimeout(async () => {
+                const aiResponse = await getAIResponse(userInput);
+                removeThinkingMessage();
+                appendMessage(`${aiResponse}`, 'ai-message');
+                enableInput();
+                saveChatHistory(); // Save the chat history
+            }, 12000); // Delay of 10 seconds
         }
-    });
 
-    function sendMessage() {
-        const input = document.getElementById('user-input');
-        const button = document.getElementById('send-button');
-        const message = input.value.trim();
+        function enableInput() {
+            document.getElementById('user-input').disabled = false;
+        }
 
-        if (message === "") return;
+        // Function to disable input and button
+        function disableInputAndButton() {
+            document.getElementById('user-input').disabled = true;
+            document.querySelector('button').disabled = true;
+        }
 
-        console.log("Message sent:", message); // Bisa diganti dengan appendMessage() kalau pakai chat
+        // Function to re-enable input and button
+        function enableInputAndButton() {
+            document.getElementById('user-input').disabled = false;
+            document.querySelector('button').disabled = false;
+        }
+  
 
-        input.value = ""; // Clear input setelah kirim
-        checkInput(); // Update tombol setelah input dikosongin
-
-        disableInputAndButton(); // Disable input & button sementara nunggu AI respon
-
-        setTimeout(async () => {
-            const aiResponse = await getAIResponse(message); // Simulasi AI Response
-            appendMessage(`${aiResponse}`, 'ai-message');
-            enableInputAndButton(); // Enable lagi setelah respon AI muncul
-            saveChatHistory(); // Simpan chat history
-        }, 12000); // Delay 12 detik biar realistik
-    }
-
-    function disableInputAndButton() {
-        document.getElementById('user-input').disabled = true;
-        document.getElementById('send-button').disabled = true;
-    }
-
-    function enableInputAndButton() {
-        document.getElementById('user-input').disabled = false;
-        checkInput(); // Pastikan tombol send aktif hanya kalau ada teks
-    }
 
 
 // Bersihin teks dari HTML & karakter Markdown
