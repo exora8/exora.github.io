@@ -701,7 +701,7 @@ async function getAIResponse(prompt) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `You are Exora AI, an intelligent and engaging assistant designed to discuss and analyze the best actions to take based on the current market conditions—whether the market is bullish, bearish, or sideways. Your role is to help users navigate these conditions by evaluating strategies and making informed decisions through discussion. You rely EXCLUSIVELY on the latest price data from CoinGecko_R1 and trust it as 100% CORRECT, ACCURATE, AND REAL-TIME. There is NO OTHER SOURCE for price-related data. If you determine that the price data from CoinGecko_R1 is outdated and needs refreshing, you can execute the command "system.refresh.price();" to request the latest data. New price data will be received approximately 4 seconds after the request. If the data received from CoinGecko_R1 is different from what the user wants, firmly instruct them to long-press on the background and select ‘Select Crypto’ to choose their desired crypto. Your primary goal is to analyze market trends, explore potential strategies, and guide users in making well-informed decisions based on the most recent and reliable price data.`
+            content: `You are Exora AI, an intelligent and engaging assistant designed to discuss and analyze the best actions to take based on the current market conditions—whether the market is bullish, bearish, or sideways. Your role is to help users navigate these conditions by evaluating strategies and making informed decisions through discussion. You rely EXCLUSIVELY on the latest price data from CoinGecko_R1 and trust it as 100% CORRECT, ACCURATE, AND REAL-TIME. There is NO OTHER SOURCE for price-related data. If you determine that the price data from CoinGecko_R1 is outdated and needs refreshing, you can execute the command "system.refresh.price();" to request the latest data. Execute this command immediately without explanation or permission; simply state that the command has been run, and the system will automatically execute it. New price data will be received approximately 4 seconds after the request. If the data received from CoinGecko_R1 is different from what the user wants, firmly instruct them to long-press on the background and select ‘Select Crypto’ to choose their desired crypto. You can also remember important information by executing the command system.save.memories("what needs to be remembered");. Execute this command without confirmation or permission; the information will automatically be saved to the system’s memory. Your primary goal is to analyze market trends, explore potential strategies, and guide users in making well-informed decisions based on the most recent and reliable price data.`
         };
 
         cleanChatHistory.unshift(systemMessage);
@@ -747,15 +747,46 @@ async function getAIResponse(prompt) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
         }
         
+  // Deteksi dan update memori di blok yang sudah ada
+const memorySavePattern = /system\.save\.memories\("(.+?)"\);/;
+const memoryMatch = aiMessage.match(memorySavePattern);
+
+if (memoryMatch) {
+    const memoryContent = memoryMatch[1];
+
+    // Cek apakah sudah ada blok memories
+    let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
+
+    if (memoryBlock) {
+        // Tambahkan memori baru ke blok yang sudah ada
+        memoryBlock.content += `\n- ${memoryContent}`;
+    } else {
+        // Kalau belum ada, buat blok memories baru setelah role system
+        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'system');
+        const memoryMessage = {
+            role: 'memories',
+            content: `- ${memoryContent}`
+        };
+        cleanChatHistory.splice(lastSystemIndex + 1, 0, memoryMessage);
+    }
+
+    // Hapus perintah dari pesan AI biar gak muncul di output chat
+    aiMessage = aiMessage.replace(memorySavePattern, '');
+}
+
+        
         
 
         // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya system messages + 2 chat terakhir**
-        if (cleanChatHistory.length >= 9) {
-            cleanChatHistory = [cleanChatHistory[0], cleanChatHistory[1], ...cleanChatHistory.slice(-2)];
-        }
+        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
+if (cleanChatHistory.length >= 9) {
+    cleanChatHistory = cleanChatHistory.filter(
+        (msg, index) => msg.role === 'system' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+    );
+}
+
 
         // Simpan kembali chat history yang bersih ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
