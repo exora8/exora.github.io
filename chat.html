@@ -747,7 +747,7 @@ async function getAIResponse(prompt) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
         }
         
-  // Deteksi dan update memori di blok yang sudah ada
+// Deteksi dan update memori dengan kemampuan overwrite
 const memorySavePattern = /system\.save\.memories\("(.+?)"\);/;
 const memoryMatch = aiMessage.match(memorySavePattern);
 
@@ -758,10 +758,30 @@ if (memoryMatch) {
     let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
 
     if (memoryBlock) {
-        // Tambahkan memori baru ke blok yang sudah ada
-        memoryBlock.content += `\n- ${memoryContent}`;
+        // Pisahkan setiap memori dalam bentuk array
+        let memories = memoryBlock.content.split('\n');
+
+        // Cek apakah ada memori dengan kategori yang sama (misal: 'current crypto')
+        const categoryPattern = memoryContent.split(':')[0].trim(); // Ambil kategori sebelum ':'
+        let categoryExists = false;
+
+        memories = memories.map(mem => {
+            if (mem.includes(categoryPattern)) {
+                categoryExists = true;
+                return `- ${memoryContent}`; // Overwrite memori yang sama
+            }
+            return mem; // Biarkan yang lain tetap
+        });
+
+        // Kalau kategori belum ada, tambahkan baru
+        if (!categoryExists) {
+            memories.push(`- ${memoryContent}`);
+        }
+
+        // Gabungkan lagi semua memori dalam satu blok
+        memoryBlock.content = memories.join('\n');
     } else {
-        // Kalau belum ada, buat blok memories baru setelah role system
+        // Kalau belum ada blok memories, buat blok baru setelah system
         let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'system');
         const memoryMessage = {
             role: 'memories',
@@ -770,7 +790,7 @@ if (memoryMatch) {
         cleanChatHistory.splice(lastSystemIndex + 1, 0, memoryMessage);
     }
 
-    // Hapus perintah dari pesan AI biar gak muncul di output chat
+    // Hapus command dari aiMessage biar gak muncul di output
     aiMessage = aiMessage.replace(memorySavePattern, '');
 }
 
