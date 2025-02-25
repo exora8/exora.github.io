@@ -662,25 +662,21 @@ async function refreshCryptoPrice(cryptoId) {
 
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-        console.log("[DEBUG] Current chat history:", cleanChatHistory);
+        console.log("[DEBUG] Current chat history before overwrite:", cleanChatHistory);
 
-        // **Cari system message utama dan system harga**
-        let systemPriceIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'price');
-
-        
-        const systemPriceMessage = {
-            role: 'system',
-            type: 'price',
-            content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time Updated price data from 30 days ago to today: ${formattedPrices}.`
-        };
-
-        if (systemPriceIndex !== -1) {
-            cleanChatHistory[systemPriceIndex] = systemPriceMessage; // Overwrite langsung
+        // **Cek apakah indeks ke-1 valid untuk di-overwrite**
+        if (cleanChatHistory[1] && cleanChatHistory[1].role === 'system' && cleanChatHistory[1].type === 'price') {
+            cleanChatHistory[1] = {
+                role: 'system',
+                type: 'price',
+                content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time Updated price data from 30 days ago to today: ${formattedPrices}.`
+            };
+            console.log("[DEBUG] Overwritten system price message at index 1.");
         } else {
-            cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+            console.log("[DEBUG] Index 1 is not a system price message. No changes made.");
         }
 
-        // Simpan perubahan ke localStorage
+        // **Simpan ke localStorage hanya jika ada perubahan**
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
         console.log("[DEBUG] Updated chat history saved:", localStorage.getItem("cleanChatHistory"));
 
