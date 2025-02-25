@@ -662,22 +662,21 @@ async function refreshCryptoPrice(cryptoId) {
 
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-        console.log("[DEBUG] Current chat history before overwrite:", cleanChatHistory);
+        console.log("[DEBUG] Current chat history before modification:", cleanChatHistory);
 
-        // **Pastikan ada elemen di indeks ke-1 sebelum dicek**
-        if (!cleanChatHistory[1]) {
-            console.log("[DEBUG] Index 1 is empty. Creating new system price message.");
-            cleanChatHistory[1] = {}; // Buat objek kosong biar tidak undefined
-        }
+        // **Hapus pesan harga lama (dengan role: 'system' & type: 'price')**
+        cleanChatHistory = cleanChatHistory.filter(msg => !(msg.role === 'system' && msg.type === 'price'));
+        console.log("[DEBUG] Removed old system price message.");
 
-        // **Paksa overwrite indeks 1 dengan pesan baru**
-        cleanChatHistory[1] = {
+        // **Tambahkan pesan baru di indeks ke-1**
+        const systemPriceMessage = {
             role: 'system',
             type: 'price',
             content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time Updated price data from 30 days ago to today: ${formattedPrices}.`
         };
 
-        console.log("[DEBUG] System price message at index 1 updated.");
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah pesan pertama
+        console.log("[DEBUG] Inserted new system price message at index 1.");
 
         // **Simpan ke localStorage**
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
@@ -687,6 +686,7 @@ async function refreshCryptoPrice(cryptoId) {
         console.error("❌ Error refreshing crypto price:", error.message);
     }
 }
+
 
 
 
