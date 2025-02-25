@@ -759,7 +759,7 @@ async function getAIResponse(prompt) {
         
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-        refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
