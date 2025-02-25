@@ -642,37 +642,52 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             document.getElementById('user-input').disabled = false;
             document.querySelector('button').disabled = false;
         }
+        
+        
   
+async function refreshCryptoPrice(cryptoId) {
+    try {
+        // Cek apakah cryptoId valid
+        if (!cryptoId) throw new Error("cryptoId is required.");
 
-async function refreshCryptoPrice() {
-    // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+        // Ambil harga crypto terbaru dan formatkan
+        const prices = await getCryptoPrice(cryptoId);
+        if (!prices || !Array.isArray(prices)) throw new Error("Invalid price data.");
 
-    // Ambil chat history dari localStorage
-    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+        const formattedPrices = prices
+            .map(price => {
+                if (Array.isArray(price) && typeof price[1] === 'number') {
+                    return `$${price[1].toFixed(2)}`;
+                }
+                return null;
+            })
+            .filter(price => price !== null)
+            .join(" ");
 
-    // **Hapus pesan harga lama dulu**
-    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+        // Ambil chat history dari localStorage
+        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Buat pesan harga baru**
-    const systemPriceMessage = {
-        role: 'system',
-        type: 'price',
-        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
-    };
+        // Hapus pesan harga lama
+        cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
-    // **Tempatkan pesan harga setelah pesan terakhir dari user**
-    let lastUserIndex = cleanChatHistory.map(msg => msg.role).lastIndexOf('user');
-    if (lastUserIndex !== -1) {
-        cleanChatHistory.splice(lastUserIndex + 1, 0, systemPriceMessage);
-    } else {
-        cleanChatHistory.push(systemPriceMessage);
+        // Buat pesan harga baru
+        const systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+
+        // Overwrite pesan lama, masukkan setelah pesan system utama
+        cleanChatHistory.splice(1, 0, systemPriceMessage);
+
+        // Simpan ke localStorage
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+
+    } catch (error) {
+        console.error("Error refreshing crypto price:", error.message);
     }
-
-    // **Simpan ke localStorage**
-    localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
+
 
 
 // Bersihin teks dari HTML & karakter Markdown
