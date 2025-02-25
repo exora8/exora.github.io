@@ -647,28 +647,32 @@ document.getElementById('user-input').addEventListener('input', checkInput);
   
 async function refreshCryptoPrice(cryptoId) {
     try {
+        console.log(`[DEBUG] Refreshing price for: ${cryptoId}`);
+
         // Cek apakah cryptoId valid
         if (!cryptoId) throw new Error("cryptoId is required.");
 
-        // Ambil harga crypto terbaru dan formatkan
+        // Ambil harga crypto terbaru
         const prices = await getCryptoPrice(cryptoId);
+        console.log("[DEBUG] Fetched prices:", prices);
+
         if (!prices || !Array.isArray(prices)) throw new Error("Invalid price data.");
 
+        // Format harga crypto
         const formattedPrices = prices
-            .map(price => {
-                if (Array.isArray(price) && typeof price[1] === 'number') {
-                    return `$${price[1].toFixed(2)}`;
-                }
-                return null;
-            })
-            .filter(price => price !== null)
+            .filter(price => Array.isArray(price) && typeof price[1] === 'number') // Validasi
+            .map(price => `$${price[1].toFixed(2)}`)
             .join(" ");
+        
+        console.log("[DEBUG] Formatted prices:", formattedPrices);
 
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+        console.log("[DEBUG] Current chat history:", cleanChatHistory);
 
         // Hapus pesan harga lama
         cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+        console.log("[DEBUG] Chat history after removing old prices:", cleanChatHistory);
 
         // Buat pesan harga baru
         const systemPriceMessage = {
@@ -678,16 +682,22 @@ async function refreshCryptoPrice(cryptoId) {
         };
 
         // Overwrite pesan lama, masukkan setelah pesan system utama
-        cleanChatHistory.splice(1, 0, systemPriceMessage);
+        if (cleanChatHistory.length > 1 && cleanChatHistory[1].type === 'price') {
+            cleanChatHistory[1] = systemPriceMessage;
+            console.log("[DEBUG] Overwriting existing price message.");
+        } else {
+            cleanChatHistory.splice(1, 0, systemPriceMessage);
+            console.log("[DEBUG] Inserting new price message.");
+        }
 
         // Simpan ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+        console.log("[DEBUG] Updated chat history saved.");
 
     } catch (error) {
-        console.error("Error refreshing crypto price:", error.message);
+        console.error("❌ Error refreshing crypto price:", error.message);
     }
 }
-
 
 
 // Bersihin teks dari HTML & karakter Markdown
@@ -759,7 +769,7 @@ async function getAIResponse(prompt) {
         
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-          console.log("UpdatePriceTR");
+          console.log("Price Updated");
         await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
         }
         
