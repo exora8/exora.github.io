@@ -646,32 +646,32 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         
   
 async function refreshCryptoPrice(cryptoId) {
-    
     try {
-      
-        // Ambil harga crypto terbaru dan formatkan
-    const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-      
-     // Cari indeks pesan harga lama
-const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
+        // Ambil harga crypto terbaru
+        const prices = await getCryptoPrice(cryptoId);
+        const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
-// Kalau ada, hapus pesan harga lama
-if (priceIndex !== -1) {
-    cleanChatHistory.splice(priceIndex, 1);
-}
+        // Cari indeks pesan harga lama
+        const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
 
-// Tambahkan pesan harga baru
-systemPriceMessage = {
-    role: 'system',
-    type: 'price',
-    content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
-};
+        // Kalau ada, hapus pesan harga lama
+        if (priceIndex !== -1) {
+            cleanChatHistory.splice(priceIndex, 1);
+        }
 
-// Masukkan di indeks 1
-cleanChatHistory.splice(1, 0, systemPriceMessage);
+        // Tambahkan pesan harga baru
+        const systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time updated price data from 30 days ago to today: ${formattedPrices}.`
+        };
 
+        // Masukkan di indeks 1
+        cleanChatHistory.splice(1, 0, systemPriceMessage);
 
+        return systemPriceMessage; // (Opsional)
+    } catch (error) {
+        console.error("Error refreshing crypto price:", error);
     }
 }
 
