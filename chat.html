@@ -646,46 +646,32 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         
   
 async function refreshCryptoPrice(cryptoId) {
+    
     try {
-        console.log(`[DEBUG] Refreshing price for: ${cryptoId}`);
+      
+        // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+      
+     // Cari indeks pesan harga lama
+const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
 
-        // Ambil harga crypto terbaru
-        const prices = await getCryptoPrice(cryptoId);
-        if (!prices || !Array.isArray(prices)) throw new Error("Invalid price data.");
+// Kalau ada, hapus pesan harga lama
+if (priceIndex !== -1) {
+    cleanChatHistory.splice(priceIndex, 1);
+}
 
-        const formattedPrices = prices
-            .filter(price => Array.isArray(price) && typeof price[1] === 'number')
-            .map(price => `$${price[1].toFixed(2)}`)
-            .join(" ");
+// Tambahkan pesan harga baru
+systemPriceMessage = {
+    role: 'system',
+    type: 'price',
+    content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+};
 
-        console.log("[DEBUG] Formatted prices:", formattedPrices);
+// Masukkan di indeks 1
+cleanChatHistory.splice(1, 0, systemPriceMessage);
 
-        // Ambil chat history dari localStorage
-        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-        console.log("[DEBUG] Current chat history before modification:", cleanChatHistory);
 
-        // **Cek jika indeks ke-1 memiliki role 'system' dan type 'price', maka hapus**
-        if (cleanChatHistory[1] && cleanChatHistory[1].role === 'system' && cleanChatHistory[1].type === 'price') {
-            console.log("[DEBUG] Deleting system price message at index 1.");
-            cleanChatHistory.splice(1, 1); // Hapus indeks ke-1
-        }
-
-        // **Tambahkan pesan baru di indeks ke-1**
-        const systemPriceMessage = {
-            role: 'system',
-            type: 'price',
-            content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time Updated price data from 30 days ago to today: ${formattedPrices}.`
-        };
-
-        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan kembali di indeks ke-1
-        console.log("[DEBUG] Inserted new system price message at index 1.");
-
-        // **Simpan ke localStorage**
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
-        console.log("[DEBUG] Updated chat history saved:", localStorage.getItem("cleanChatHistory"));
-
-    } catch (error) {
-        console.error("❌ Error refreshing crypto price:", error.message);
     }
 }
 
