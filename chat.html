@@ -650,12 +650,15 @@ async function refreshCryptoPrice(cryptoId) {
         // Ambil harga crypto terbaru
         const prices = await getCryptoPrice(cryptoId);
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-
+        
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-        // Hapus pesan harga lama
-        cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+        // Hapus pesan harga lama (kalau ada)
+        const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
+        if (priceIndex !== -1) {
+            cleanChatHistory.splice(priceIndex, 1);
+        }
 
         // Tambahkan pesan harga baru
         const systemPriceMessage = {
@@ -664,17 +667,20 @@ async function refreshCryptoPrice(cryptoId) {
             content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time updated price data from 30 days ago to today: ${formattedPrices}.`
         };
 
-        // Masukkan di indeks 1 setelah pesan sistem utama
+        // Masukkan di indeks 1
         cleanChatHistory.splice(1, 0, systemPriceMessage);
 
-        // 🚀 **Simpan kembali ke localStorage TANPA menghapus history lama**
+        // **Simpan ke localStorage LANGSUNG setelah update harga**
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
-        console.log("✅ Harga crypto berhasil di-refresh!");
+        console.log("✅ Harga berhasil disimpan ke localStorage!");
+
+        return systemPriceMessage;
     } catch (error) {
         console.error("Error refreshing crypto price:", error);
     }
 }
+
 
 
 
