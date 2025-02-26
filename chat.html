@@ -743,14 +743,10 @@ async function getAIResponse(prompt) {
         let aiMessage = cleanText(data.choices[0].message.content);
         
         // Cek kalau AI minta refresh harga
-if (aiMessage.includes("system.refresh.price();")) {
-    console.log("Price Updated");
-    await refreshCryptoPrice(cryptoId); // Pastikan eksekusi selesai dulu
-
-    // Ambil ulang chat history setelah update harga
-    cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-}
-
+        if (aiMessage.includes("system.refresh.price();")) {
+          console.log("Price Updated");
+        await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
+        }
         
 // Deteksi dan update memori dengan kemampuan overwrite
 const memorySavePattern = /system\.save\.memories\("(.+?)"\);/;
