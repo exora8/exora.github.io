@@ -642,41 +642,37 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             document.getElementById('user-input').disabled = false;
             document.querySelector('button').disabled = false;
         }
-        
-        
   
-async function refreshCryptoPrice(cryptoId) {
-    try {
-        // Ambil harga crypto terbaru
-        const prices = await getCryptoPrice(cryptoId);
-        const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-        // Ambil chat history dari localStorage
-        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-        cleanChatHistory.splice(1, 1);
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
-        console.log("✅ Elemen ke-1 di cleanChatHistory berhasil dihapus!");
-        
-        // Tambahkan pesan harga baru
-        const systemPriceMessage = {
-            role: 'system',
-            type: 'price',
-            content: `Selected crypto: ${cryptoId}, Coingecko_R1 real-time updated price data from 30 days ago to today: ${formattedPrices}.`
-        };
+async function refreshCryptoPrice() {
+    // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
-        // Masukkan di indeks 1
-        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
-        
-         // 🚀 **Simpan kembali ke localStorage**
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+    // Ambil chat history dari localStorage
+    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-        return systemPriceMessage; // (Opsional)
-    } catch (error) {
-        console.error("Error refreshing crypto price:", error);
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+
+    // **Buat pesan harga baru**
+    const systemPriceMessage = {
+        role: 'system',
+        type: 'price',
+        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+    };
+
+    // **Tempatkan pesan harga setelah pesan terakhir dari user**
+    let lastUserIndex = cleanChatHistory.map(msg => msg.role).lastIndexOf('user');
+    if (lastUserIndex !== -1) {
+        cleanChatHistory.splice(lastUserIndex + 1, 0, systemPriceMessage);
+    } else {
+        cleanChatHistory.push(systemPriceMessage);
     }
+
+    // **Simpan ke localStorage**
+    localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
-
-
 
 
 // Bersihin teks dari HTML & karakter Markdown
@@ -711,7 +707,16 @@ async function getAIResponse(prompt) {
         cleanChatHistory.unshift(systemMessage);
     }
 
-    
+    // **Jika system harga belum ada, buat baru**
+    if (!systemPriceMessage) {
+        systemPriceMessage = {
+            role: 'system',
+            type: 'price',
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        };
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+    } 
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
     cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
@@ -739,8 +744,7 @@ async function getAIResponse(prompt) {
         
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-          console.log("Price Updated");
-        await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
+        refreshCryptoPrice(); // Panggil fungsi buat refresh harga
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
@@ -793,17 +797,15 @@ if (memoryMatch) {
         
         
 
-        // **Bersihkan history: Simpan system messages, memories, harga + 2 chat terakhir**
+        // Simpan chat AI (hanya teks)
+        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
+
+        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => 
-            msg.role === 'system' || 
-            msg.role === 'memories' || 
-            msg.type === 'price' ||  // ✅ Jaga biar harga tetap ada
-            index >= cleanChatHistory.length - 2
+        (msg, index) => msg.role === 'system' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
     );
 }
-
 
 
         // Simpan kembali chat history yang bersih ke localStorage
