@@ -744,7 +744,7 @@ async function getAIResponse(prompt) {
         
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-          console.log("Price Updated");
+          console.log(`Price Updated for ${cryptoId}`);
         await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
         }
         
