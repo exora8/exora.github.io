@@ -653,9 +653,6 @@ async function refreshCryptoPrice(cryptoId) {
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-        // Cari indeks pesan harga lama
-        const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
-
         cleanChatHistory.splice(1, 1);
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
         console.log("✅ Elemen ke-1 di cleanChatHistory berhasil dihapus!");
