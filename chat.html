@@ -650,6 +650,8 @@ async function refreshCryptoPrice(cryptoId) {
         // Ambil harga crypto terbaru
         const prices = await getCryptoPrice(cryptoId);
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+        // Ambil chat history dari localStorage
+        let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
         // Cari indeks pesan harga lama
         const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
@@ -668,6 +670,9 @@ async function refreshCryptoPrice(cryptoId) {
 
         // Masukkan di indeks 1
         cleanChatHistory.splice(1, 0, systemPriceMessage);
+        
+         // 🚀 **Simpan kembali ke localStorage**
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return systemPriceMessage; // (Opsional)
     } catch (error) {
