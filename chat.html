@@ -667,8 +667,7 @@ async function refreshCryptoPrice(cryptoId) {
         // Masukkan di indeks 1
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
         
-         // 🚀 **Simpan kembali ke localStorage**
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+
 
         return systemPriceMessage; // (Opsional)
     } catch (error) {
