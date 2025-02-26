@@ -667,7 +667,8 @@ async function refreshCryptoPrice(cryptoId) {
         // Masukkan di indeks 1
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
         
-
+         // 🚀 **Simpan kembali ke localStorage**
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return systemPriceMessage; // (Opsional)
     } catch (error) {
@@ -792,15 +793,17 @@ if (memoryMatch) {
         
         
 
-        // Simpan chat AI (hanya teks)
-        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
-
-        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
+        // **Bersihkan history: Simpan system messages, memories, harga + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+        (msg, index) => 
+            msg.role === 'system' || 
+            msg.role === 'memories' || 
+            msg.type === 'price' ||  // ✅ Jaga biar harga tetap ada
+            index >= cleanChatHistory.length - 2
     );
 }
+
 
 
         // Simpan kembali chat history yang bersih ke localStorage
