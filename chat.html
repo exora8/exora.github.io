@@ -650,16 +650,13 @@ async function refreshCryptoPrice(cryptoId) {
         // Ambil harga crypto terbaru
         const prices = await getCryptoPrice(cryptoId);
         const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-        
         // Ambil chat history dari localStorage
         let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-        // Hapus pesan harga lama (kalau ada)
-        const priceIndex = cleanChatHistory.findIndex(msg => msg.type === 'price');
-        if (priceIndex !== -1) {
-            cleanChatHistory.splice(priceIndex, 1);
-        }
-
+        cleanChatHistory.splice(1, 1);
+        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+        console.log("✅ Elemen ke-1 di cleanChatHistory berhasil dihapus!");
+        
         // Tambahkan pesan harga baru
         const systemPriceMessage = {
             role: 'system',
@@ -668,14 +665,12 @@ async function refreshCryptoPrice(cryptoId) {
         };
 
         // Masukkan di indeks 1
-        cleanChatHistory.splice(1, 0, systemPriceMessage);
-
-        // **Simpan ke localStorage LANGSUNG setelah update harga**
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+        
+         // 🚀 **Simpan kembali ke localStorage**
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
-        console.log("✅ Harga berhasil disimpan ke localStorage!");
-
-        return systemPriceMessage;
+        return systemPriceMessage; // (Opsional)
     } catch (error) {
         console.error("Error refreshing crypto price:", error);
     }
@@ -744,7 +739,7 @@ async function getAIResponse(prompt) {
         
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-          console.log(`Price Updated for ${cryptoId}`);
+          console.log("Price Updated");
         await refreshCryptoPrice(cryptoId); // Kirim parameter secara eksplisit
         }
         
