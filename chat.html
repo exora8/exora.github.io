@@ -662,13 +662,14 @@ async function refreshCryptoPrice() {
         content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
-    // **Tempatkan pesan harga setelah pesan terakhir dari user**
-    let lastUserIndex = cleanChatHistory.map(msg => msg.role).lastIndexOf('user');
-    if (lastUserIndex !== -1) {
-        cleanChatHistory.splice(lastUserIndex + 1, 0, systemPriceMessage);
-    } else {
-        cleanChatHistory.push(systemPriceMessage);
-    }
+    // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
+let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
+if (initIndex !== -1) {
+    cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
+} else {
+    cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
+}
+
 
     // **Simpan ke localStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
