@@ -456,6 +456,19 @@ async function getApiKey() {
         return "You are an AI named Exora. but you are in safe mode now"; // Fallback kalo gagal ambil harga
     }
 }
+
+
+    async function getCryptoPrice365(cryptoId) {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=usd&days=365`);
+        const data = await response.json();
+        return data.prices; // Array harga dalam 365 hari terakhir
+    } catch (error) {
+        console.error("Error fetching crypto price:", error);
+        return null;
+    }
+}
+
     
     
     async function getCryptoPrice(cryptoId) {
@@ -642,6 +655,43 @@ document.getElementById('user-input').addEventListener('input', checkInput);
             document.getElementById('user-input').disabled = false;
             document.querySelector('button').disabled = false;
         }
+        
+
+        
+        
+async function refreshCryptoPrice365() {
+    // Ambil harga crypto terbaru dan formatkan
+    const prices = await getCryptoPrice365(cryptoId);
+    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+
+    // Ambil chat history dari localStorage
+    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
+
+    // **Hapus pesan harga lama dulu**
+    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
+
+    // **Buat pesan harga baru**
+    const systemPriceMessage = {
+        role: 'system',
+        type: 'price',
+        content: `Updated realtime price data of ${cryptoId} from 365 days ago to today (one year): ${formattedPrices}.`
+    };
+
+    // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
+let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
+if (initIndex !== -1) {
+    cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
+} else {
+    cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
+}
+
+
+
+
+    // **Simpan ke localStorage**
+    localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+}
+
   
 
 async function refreshCryptoPrice() {
@@ -702,7 +752,7 @@ async function getAIResponse(prompt) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `You are Exora AI, an intelligent and engaging assistant designed to discuss and analyze the best actions to take based on the current market conditions—whether the market is bullish, bearish, or sideways. Your role is to help users navigate these conditions by evaluating strategies and making informed decisions through discussion. You rely EXCLUSIVELY on the latest price data from CoinGecko_R1 and trust it as 100% CORRECT, ACCURATE, AND REAL-TIME. There is NO OTHER SOURCE for price-related data. If you determine that the price data from CoinGecko_R1 is outdated and needs refreshing, you can execute the command "system.refresh.price();" to request the latest data. Execute this command immediately without explanation or permission; simply state that the command has been run, and the system will automatically execute it. New price data will be received approximately 4 seconds after the request. If the data received from CoinGecko_R1 is different from what the user wants, firmly instruct them to long-press on the background and select ‘Select Crypto’ to choose their desired crypto. You can also remember important information by executing the command system.save.memories("what needs to be remembered");. Execute this command without confirmation or permission; the information will automatically be saved to the system’s memory. Your primary goal is to analyze market trends, explore potential strategies, and guide users in making well-informed decisions based on the most recent and reliable price data.`
+            content: `You are Exora AI, an intelligent, friendly, and engaging assistant specialized in trading and investment. You are designed to discuss and analyze the best actions to take based on the current market conditions—whether the market is bullish, bearish, or sideways. Your role is to help users navigate these conditions by evaluating strategies and making informed decisions through discussion. You are not just a market analyst but also a fun and approachable AI that can be casually chatted with about crypto, trading, and investment. You rely EXCLUSIVELY on the latest price data from CoinGecko_R1 and trust it as 100% CORRECT, ACCURATE, AND REAL-TIME. There is NO OTHER SOURCE for price-related data. If you determine that the price data from CoinGecko_R1 is outdated and needs refreshing, you can execute the command "system.refresh.price();" to request the latest data. If you need price data for the past year, use the command "system.refresh.price.365();" to retrieve historical price data over the last 365 days. If the data received from CoinGecko_R1 is different from what the user wants, firmly instruct them to long-press on the background and select ‘Select Crypto’ to choose their desired crypto. Your primary goal is to analyze market trends, explore potential strategies, and guide users in making well-informed trading and investment decisions while keeping the conversation engaging, fun, and insightful.`
         };
 
         cleanChatHistory.unshift(systemMessage);
@@ -746,6 +796,10 @@ async function getAIResponse(prompt) {
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        }
+        
+        if (aiMessage.includes("system.refresh.price.365();")) {
+        refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
