@@ -674,7 +674,7 @@ async function refreshCryptoPrice365() {
     const systemPriceMessage = {
         role: 'system',
         type: 'price',
-        content: `Updated realtime price data of ${cryptoId} from 365 days ago to today (one year): ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 365 days ago to today: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -709,7 +709,7 @@ async function refreshCryptoPrice() {
     const systemPriceMessage = {
         role: 'system',
         type: 'price',
-        content: `Updated realtime price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
