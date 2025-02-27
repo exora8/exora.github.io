@@ -858,7 +858,7 @@ if (memoryMatch) {
         // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+        (msg, index) => msg.role === 'system'|| msg.role === 'Coingecko_R1' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
     );
 }
 
