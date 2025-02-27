@@ -672,7 +672,7 @@ async function refreshCryptoPrice365() {
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
-        role: 'system',
+        role: 'CoinGecko_R1',
         type: 'price',
         content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 365 days ago to today: ${formattedPrices}.`
     };
@@ -859,7 +859,7 @@ if (memoryMatch) {
         // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system'|| msg.role === 'Coingecko_R1' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+        (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
     );
 }
 
