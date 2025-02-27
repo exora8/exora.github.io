@@ -717,6 +717,7 @@ let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.t
 if (initIndex !== -1) {
     cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
 } else {
+  console.log("refreshCryptoPrice Init gak ter detect");
     cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
 }
 
@@ -836,8 +837,8 @@ if (memoryMatch) {
         // Gabungkan lagi semua memori dalam satu blok
         memoryBlock.content = memories.join('\n');
     } else {
-        // Kalau belum ada blok memories, buat blok baru setelah system
-        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'system');
+        // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1
+        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1');
         const memoryMessage = {
             role: 'memories',
             content: `- ${memoryContent}`
