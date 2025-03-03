@@ -799,10 +799,12 @@ async function getAIResponse(prompt) {
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        console.log("price data from 30 days ago to now : ", globalformattedPrices);
         }
         
         if (aiMessage.includes("system.refresh.price.365();")) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
+        console.log("price data from 365 days ago to now : ", globalformattedPrices);
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
