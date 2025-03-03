@@ -657,12 +657,12 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         }
         
 
-        
-        
+let globalFormattedPrices = ""; // Variabel global
 async function refreshCryptoPrice365() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice365(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
+    globalformattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -693,8 +693,8 @@ if (initIndex !== -1) {
 }
 
   
-let globalFormattedPrices = ""; // Variabel global
 
+let globalFormattedPrices = ""; // Variabel global
 async function refreshCryptoPrice() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
