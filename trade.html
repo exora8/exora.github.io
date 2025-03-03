@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EXORA Trade Mode</title>
+    <title>EXORA</title>
     <style>
         * {
             margin: 0;
@@ -657,12 +657,12 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         }
         
 
-let globalFormattedPrices = ""; // Variabel global
+        
+        
 async function refreshCryptoPrice365() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice365(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    globalformattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -694,12 +694,10 @@ if (initIndex !== -1) {
 
   
 
-
 async function refreshCryptoPrice() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    globalformattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -799,12 +797,10 @@ async function getAIResponse(prompt) {
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
-        console.log("price data from 30 days ago to now : ", globalformattedPrices);
         }
         
         if (aiMessage.includes("system.refresh.price.365();")) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
-        console.log("price data from 365 days ago to now : ", globalformattedPrices);
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
