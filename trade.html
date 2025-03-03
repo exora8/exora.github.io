@@ -658,14 +658,11 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         
 
         
-
-let globalFormattedPrices = ""; // Variabel global buat simpan harga format
-
+        
 async function refreshCryptoPrice365() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice365(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    globalFormattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -701,7 +698,6 @@ async function refreshCryptoPrice() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    globalFormattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -801,12 +797,10 @@ async function getAIResponse(prompt) {
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
-        console.log("data 30 hari yang akan dimasukkan :", globalFormattedPrices);
         }
         
         if (aiMessage.includes("system.refresh.price.365();")) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
-        console.log("data 365 hari yang akan dimasukkan :", globalFormattedPrices);
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
@@ -860,12 +854,7 @@ if (memoryMatch) {
         
 
         // Simpan chat AI (hanya teks)
-        // Simpan chat AI + harga terbaru dari globalFormattedPrices
-cleanChatHistory.push({ 
-    role: 'assistant', 
-    content: `${aiMessage}\n\n *Updated  Price:* ${globalFormattedPrices}` 
-});
-
+        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
         // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
