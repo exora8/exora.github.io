@@ -636,7 +636,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
                 enableInput();
                 saveChatHistory(); // Save the chat history
                 
-            }, 12000); // Delay of 10 seconds
+            }, 2000); // Delay of 10 seconds
         }
 
         function enableInput() {
@@ -737,6 +737,7 @@ function cleanText(text) {
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
+  getApiKey();
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
