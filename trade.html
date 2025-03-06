@@ -612,7 +612,7 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
             // Display thinking message after a 1-second delay
             setTimeout(() => {
                 appendMessage('', 'thinking-message');
-            }, 1000); // 1 second delay before showing 'thinking' message
+            }, 500); // 1 second delay before showing 'thinking' message
             
             // Function to check input and toggle the button status
             
@@ -636,7 +636,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
                 enableInput();
                 saveChatHistory(); // Save the chat history
                 
-            }, 1000); // Delay of 10 seconds
+            }, 500); // Delay of 10 seconds
         }
 
         function enableInput() {
@@ -754,7 +754,7 @@ async function getAIResponse(prompt) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `You are Exora AI. You analyze crypto price action using ONLY FROM the CoinGecko_R1 dataset — NEVER FABRICATE OR INVENT PRICE, ONLY FETCH THEM FROM the CoinGecko_R1 DATASET. Use the command system.save.memories("what to remember"); to remember something. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human.`
+            content: `You are Exora AI. You analyze crypto price action using ONLY FROM the CoinGecko_R1 dataset — NEVER FABRICATE OR INVENT PRICE, ONLY FETCH THEM FROM the CoinGecko_R1 DATASET. Use the command system.save.memories("what to remember"); to remember something. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
         };
 
         cleanChatHistory.unshift(systemMessage);
