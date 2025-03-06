@@ -612,7 +612,7 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
             // Display thinking message after a 1-second delay
             setTimeout(() => {
                 appendMessage('', 'thinking-message');
-            }, 2000); // 1 second delay before showing 'thinking' message
+            }, 1000); // 1 second delay before showing 'thinking' message
             
             // Function to check input and toggle the button status
             
@@ -636,7 +636,7 @@ document.getElementById('user-input').addEventListener('input', checkInput);
                 enableInput();
                 saveChatHistory(); // Save the chat history
                 
-            }, 2000); // Delay of 10 seconds
+            }, 1000); // Delay of 10 seconds
         }
 
         function enableInput() {
