@@ -663,6 +663,7 @@ async function refreshCryptoPrice365() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice365(cryptoId);
     const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
+    console.log(formattedPrices);
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
@@ -698,6 +699,7 @@ async function refreshCryptoPrice() {
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
+    console.log(formattedPrices);
 
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
