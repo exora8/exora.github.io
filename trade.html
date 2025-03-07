@@ -672,9 +672,9 @@ async function refreshCryptoPrice365() {
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
-        role: 'CoinGecko_R1',
+        role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 365 days ago to today: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 365 days ago to today: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -707,9 +707,9 @@ async function refreshCryptoPrice() {
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
-        role: 'CoinGecko_R1',
+        role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -761,14 +761,14 @@ async function getAIResponse(prompt) {
 
     // **Cari system message utama dan system harga**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'CoinGecko_R1' && msg.type === 'price');
+    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'CoinGecko_R1_DATASET' && msg.type === 'price');
 
     // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `You are Exora AI. You help users analyze and create perfect trading strategies. YOU STRICTLY FETCH PRICE DATA ONLY FROM YOUR DATASET NAMED COINGECKO_R1. Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1 datasets, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1 datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
+            content: `You are Exora AI. You help users analyze and create perfect trading strategies. YOU STRICTLY FETCH PRICE DATA ONLY FROM YOUR DATASET NAMED COINGECKO_R1_DATASET. Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
         };
 
         cleanChatHistory.unshift(systemMessage);
@@ -777,9 +777,9 @@ async function getAIResponse(prompt) {
     // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
         systemPriceMessage = {
-            role: 'CoinGecko_R1',
+            role: 'CoinGecko_R1_DATASET',
             type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1 real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
         };
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
@@ -860,8 +860,8 @@ if (memoryMatch) {
         // Gabungkan lagi semua memori dalam satu blok
         memoryBlock.content = memories.join('\n');
       } else {
-        // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1
-        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1');
+        // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1_DATASET
+        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1_DATASET');
         const memoryMessage = {
           role: 'memories',
           content: `- ${memoryContent}`
@@ -884,7 +884,7 @@ if (memoryMatch) {
         // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+        (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1_DATASET' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
     );
 }
 
