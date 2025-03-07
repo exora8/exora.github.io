@@ -805,7 +805,7 @@ async function getAIResponse(prompt) {
         }
         
 // Deteksi dan update memori dengan kemampuan overwrite
-const memorySavePattern = /system\.save\.memories\("(.+?)"\);/;
+const memorySavePattern = /system\.save\.memories\(['"](.+?)['"]\);?/gi;
 const memoryMatch = aiMessage.match(memorySavePattern);
 
 if (memoryMatch) {
