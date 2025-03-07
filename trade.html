@@ -818,17 +818,23 @@ async function getAIResponse(prompt) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
         }
         
+        
+        
 // Deteksi dan update memori dengan kemampuan overwrite
 const memorySavePattern = /system\.save\.memories\(['"](.+?)['"]\);?/gi;
 const memoryMatch = aiMessage.match(memorySavePattern);
 
 if (memoryMatch) {
-    const memoryContent = memoryMatch[1];
+  memoryMatch.forEach(match => {
+    const memoryContent = match.match(/['"](.+?)['"]/)?.[1];
+    if (memoryContent) {
+      console.log("Memory detected:", memoryContent);
+      localStorage.setItem("memory", memoryContent); // Overwrite existing memory
 
-    // Cek apakah sudah ada blok memories
-    let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
+      // Cek apakah sudah ada blok memories
+      let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
 
-    if (memoryBlock) {
+      if (memoryBlock) {
         // Pisahkan setiap memori dalam bentuk array
         let memories = memoryBlock.content.split('\n');
 
@@ -837,32 +843,34 @@ if (memoryMatch) {
         let categoryExists = false;
 
         memories = memories.map(mem => {
-            if (mem.includes(categoryPattern)) {
-                categoryExists = true;
-                return `- ${memoryContent}`; // Overwrite memori yang sama
-            }
-            return mem; // Biarkan yang lain tetap
+          if (mem.includes(categoryPattern)) {
+            categoryExists = true;
+            return `- ${memoryContent}`; // Overwrite memori yang sama
+          }
+          return mem; // Biarkan yang lain tetap
         });
 
         // Kalau kategori belum ada, tambahkan baru
         if (!categoryExists) {
-            memories.push(`- ${memoryContent}`);
+          memories.push(`- ${memoryContent}`);
         }
 
         // Gabungkan lagi semua memori dalam satu blok
         memoryBlock.content = memories.join('\n');
-    } else {
+      } else {
         // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1
         let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1');
         const memoryMessage = {
-            role: 'memories',
-            content: `- ${memoryContent}`
+          role: 'memories',
+          content: `- ${memoryContent}`
         };
         cleanChatHistory.splice(lastSystemIndex + 1, 0, memoryMessage);
-    }
+      }
 
-    // Hapus command dari aiMessage biar gak muncul di output
-    aiMessage = aiMessage.replace(memorySavePattern, '');
+      // Hapus command dari aiMessage biar gak muncul di output
+      aiMessage = aiMessage.replace(match, '');
+    }
+  });
 }
 
         
@@ -885,7 +893,7 @@ if (cleanChatHistory.length >= 9) {
         return aiMessage;
     } catch (error) {
         console.error('Error:', error);
-        
+        getApiKey();
         return "Could not get AI response, switching server...";
     }
 }
