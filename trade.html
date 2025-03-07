@@ -612,7 +612,7 @@ document.getElementById('select-coin-button').addEventListener('click', openModa
             // Display thinking message after a 1-second delay
             setTimeout(() => {
                 appendMessage('', 'thinking-message');
-            }, 8500); // 1 second delay before showing 'thinking' message
+            }, 500); // 1 second delay before showing 'thinking' message
             
             // Function to check input and toggle the button status
             
@@ -734,10 +734,24 @@ function cleanText(text) {
     return cleanedText.trim();
 }
 
+function saveApiKey(apiKey) {
+  const lastApiKey = localStorage.getItem("API_KEY");
+  
+  // If current API_KEY is the same as the last one, execute getApiKey()
+  if (lastApiKey === apiKey) {
+    console.log("API_KEY is the same, executing getApiKey()");
+    getApiKey();
+  } else {
+    console.log("API_KEY is different, saving to localStorage");
+    localStorage.setItem("API_KEY", apiKey);
+  }
+}
+
 
 // Call Together AI API for response
 async function getAIResponse(prompt) {
   getApiKey();
+  function saveApiKey(API_KEY);
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
