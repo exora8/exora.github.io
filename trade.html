@@ -675,7 +675,7 @@ async function refreshCryptoPrice365() {
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 365 days ago to today: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 365 days ago: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -711,7 +711,7 @@ async function refreshCryptoPrice() {
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 30 days ago ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -781,7 +781,7 @@ async function getAIResponse(prompt) {
         systemPriceMessage = {
             role: 'CoinGecko_R1_DATASET',
             type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from 30 days ago to today: ${formattedPrices}.`
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 30 days ago ${formattedPrices}.`
         };
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
