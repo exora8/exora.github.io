@@ -812,10 +812,12 @@ async function getAIResponse(prompt) {
         // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
         refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        aiMessage = aiMessage.replace("system.refresh.price();", '');
         }
         
         if (aiMessage.includes("system.refresh.price.365();")) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
+        aiMessage = aiMessage.replace("system.refresh.price.365();", '');
         }
         
         
