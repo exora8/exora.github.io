@@ -751,7 +751,7 @@ function saveApiKey(apiKey) {
 // Call Together AI API for response
 async function getAIResponse(prompt) {
   getApiKey();
-  function saveApiKey(API_KEY);
+  saveApiKey(API_KEY);
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
