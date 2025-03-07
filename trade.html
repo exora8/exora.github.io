@@ -660,31 +660,51 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         
         
 async function refreshCryptoPrice365() {
-    // Ambil harga crypto terbaru dan formatkan
+    // Ambil harga crypto terbaru
     const prices = await getCryptoPrice365(cryptoId);
-    const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
-    console.log(formattedPrices);
+    if (!prices) return console.error("Gagal ambil data harga");
 
-    // Ambil chat history dari localStorage
+    // **Reverse + Format Harga + Tanggal + Waktu + Trend 🔥**
+    const reversedPrices = prices.reverse(); // Urutan Terbaru -> Terlama
+    const formattedPrices = reversedPrices.map((p, i) => {
+        const date = new Date(p[0]); // Convert Timestamp ke Date
+        const time = `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
+        const fullDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        const price = `$${p[1].toFixed(2)}`;
+        const trend = i > 0 && p[1] > reversedPrices[i - 1][1] ? "🔼" : "🔽";
+
+        return `${fullDate} ${time} | ${price} ${trend}`;
+    }).join("\n");
+
+    console.log(formattedPrices); // Cek hasilnya di console 🔥
+
+    // **Ambil chat history dari localStorage**
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Hapus pesan harga lama dulu**
+    // **Hapus pesan harga lama (type: 'price')**
     cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 365 days ago: ${formattedPrices}.`
+        content: `Selected crypto : ${cryptoId}, Real-time Coingecko_R1_DATASET price data from today to 365 days ago:\n\n${formattedPrices}`
     };
 
-    // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
-let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
-if (initIndex !== -1) {
-    cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
-} else {
-    cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
+    // **Posisi setelah pesan system init**
+    let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
+    if (initIndex !== -1) {
+        cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
+    } else {
+        console.log("refreshCryptoPrice Init gak ter detect");
+        cleanChatHistory.push(systemPriceMessage);
+    }
+
+    // **Save ke LocalStorage**
+    localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+    console.log("✅ Harga berhasil di-refresh dengan format lengkap");
 }
+
 
 
 
@@ -696,37 +716,51 @@ if (initIndex !== -1) {
   
 
 async function refreshCryptoPrice() {
-    // Ambil harga crypto terbaru dan formatkan
+    // Ambil harga crypto terbaru
     const prices = await getCryptoPrice(cryptoId);
-    const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
-    console.log(formattedPrices);
+    if (!prices) return console.error("Gagal ambil data harga");
 
-    // Ambil chat history dari localStorage
+    // **Reverse + Format Harga + Tanggal + Waktu + Trend 🔥**
+    const reversedPrices = prices.reverse(); // Urutan Terbaru -> Terlama
+    const formattedPrices = reversedPrices.map((p, i) => {
+        const date = new Date(p[0]); // Convert Timestamp ke Date
+        const time = `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
+        const fullDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        const price = `$${p[1].toFixed(2)}`;
+        const trend = i > 0 && p[1] > reversedPrices[i - 1][1] ? "🔼" : "🔽";
+
+        return `${fullDate} ${time} | ${price} ${trend}`;
+    }).join("\n");
+
+    console.log(formattedPrices); // Cek hasilnya di console 🔥
+
+    // **Ambil chat history dari localStorage**
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Hapus pesan harga lama dulu**
+    // **Hapus pesan harga lama (type: 'price')**
     cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 30 days ago ${formattedPrices}.`
+        content: `Selected crypto : ${cryptoId}, Real-time Coingecko_R1_DATASET price data from today to 30 days ago:\n\n${formattedPrices}`
     };
 
-    // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
-let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
-if (initIndex !== -1) {
-    cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
-} else {
-  console.log("refreshCryptoPrice Init gak ter detect");
-    cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
-}
+    // **Posisi setelah pesan system init**
+    let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
+    if (initIndex !== -1) {
+        cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
+    } else {
+        console.log("refreshCryptoPrice Init gak ter detect");
+        cleanChatHistory.push(systemPriceMessage);
+    }
 
-
-    // **Simpan ke localStorage**
+    // **Save ke LocalStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
+    console.log("✅ Harga berhasil di-refresh dengan format lengkap");
 }
+
 
 
 // Bersihin teks dari HTML & karakter Markdown
@@ -821,6 +855,8 @@ async function getAIResponse(prompt) {
         refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
         aiMessage = aiMessage.replace("system.refresh.price.365();", '');
         }
+        
+        aiMessage = aiMessage.replace("CoinGecko_R1_DATASET", "CoinGecko";
         
         
         
