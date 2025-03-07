@@ -675,7 +675,7 @@ async function refreshCryptoPrice365() {
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 365 days ago: ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 365days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -711,7 +711,7 @@ async function refreshCryptoPrice() {
     const systemPriceMessage = {
         role: 'CoinGecko_R1_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 30 days ago ${formattedPrices}.`
+        content:`selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -770,7 +770,7 @@ async function getAIResponse(prompt) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM CoinGecko_R1_DATASET. Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets with 30days timeframe, Use command "system.refresh.price365();" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
+            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM CoinGecko_R1_DATASET, starting from the latest price (most recent) to the oldest price (earliest). Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets with 30days timeframe, Use command "system.refresh.price365();" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
         };
 
         cleanChatHistory.unshift(systemMessage);
@@ -781,7 +781,7 @@ async function getAIResponse(prompt) {
         systemPriceMessage = {
             role: 'CoinGecko_R1_DATASET',
             type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time Updated price data of ${cryptoId} from today to 30 days ago ${formattedPrices}.`
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
         };
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
