@@ -751,7 +751,6 @@ function saveApiKey(apiKey) {
 
 
 // Call Together AI API for response
-// Call Together AI API for response
 async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
     getApiKey();
     saveApiKey(API_KEY);
@@ -760,7 +759,7 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
 
-    // Ambil chat history dari localStorage
+    // Ambil chat history dari localStorage (TIDAK DIUBAH)
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
     // System messages
@@ -785,13 +784,13 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
         cleanChatHistory.splice(1, 0, systemPriceMessage);
     }
 
+    // **Tambahkan user chat ke history (TIDAK DIUBAH)**
+    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+
     // **Membuat request dalam format yang benar**
     const requestBody = {
         model: 'meta-llama/Llama-Vision-Free',
-        messages: [
-            { role: 'system', content: systemMessage.content }, // System info
-            { role: 'user', content: prompt } // User prompt
-        ]
+        messages: [...cleanChatHistory] // Kirim chat history ke API
     };
 
     // **Tambahkan gambar jika ada**
@@ -831,10 +830,10 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
             aiMessage = aiMessage.replace("system.refresh.price365();", '');
         }
 
-        // Simpan chat AI
+        // **Tambahkan AI response ke history (TIDAK DIUBAH)**
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history**
+        // **Bersihkan history sesuai aturan awal (TIDAK DIUBAH)**
         if (cleanChatHistory.length >= 9) {
             cleanChatHistory = cleanChatHistory.filter(
                 (msg, index) => msg.role === 'system' || msg.role === 'CoinGecko_R1_DATASET' || index >= cleanChatHistory.length - 2
@@ -859,7 +858,6 @@ function convertImageToBase64(file) {
         reader.onerror = error => reject(error);
     });
 }
-
 
 
 
