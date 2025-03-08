@@ -784,21 +784,29 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
         cleanChatHistory.splice(1, 0, systemPriceMessage);
     }
 
-    // **Tambahkan user chat ke history (TIDAK DIUBAH)**
-    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+    // **Buat daftar pesan**
+    let messages = [...cleanChatHistory];
 
-    // **Membuat request dalam format yang benar**
-    const requestBody = {
-        model: 'meta-llama/Llama-Vision-Free',
-        messages: [...cleanChatHistory] // Kirim chat history ke API
-    };
+    // **Tambahkan input user**
+    messages.push({ role: 'user', content: cleanText(prompt) });
 
     // **Tambahkan gambar jika ada**
     if (imageUrl) {
-        requestBody.messages.push({ role: 'user', content: "Analyze this image:", image_url: imageUrl });
+        messages.push({ role: 'user', content: "Analyze this image.", image_url: imageUrl });
     } else if (base64Image) {
-        requestBody.messages.push({ role: 'user', content: "Analyze this image:", image_base64: base64Image });
+        messages.push({ role: 'user', content: "Analyze this image.", image_base64: base64Image });
     }
+
+    // **Pastikan format `messages` benar**
+    const requestBody = {
+        model: 'meta-llama/Llama-Vision-Free',
+        messages: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content || "",  // Pastikan content tidak kosong
+            ...(msg.image_url ? { image_url: msg.image_url } : {}),
+            ...(msg.image_base64 ? { image_base64: msg.image_base64 } : {})
+        }))
+    };
 
     console.log("Request Payload:", JSON.stringify(requestBody, null, 2)); // Debugging payload
 
