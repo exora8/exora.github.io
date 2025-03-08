@@ -458,30 +458,38 @@ async function getApiKey() {
 }
 
 
-    async function getCryptoPrice365(cryptoId) {
+async function getCryptoPrice365(cryptoId) {
     try {
-        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=usd&days=365`);
+        const response = await fetch(`https://www.okx.com/api/v5/market/candles?instId=${cryptoId}-USDT&bar=1D&limit=365`);
         const data = await response.json();
-        return data.prices; // Array harga dalam 365 hari terakhir
+
+        if (data.code !== "0") {
+            throw new Error(data.msg || "Failed to fetch data");
+        }
+
+        return data.data.map(item => [parseInt(item[0]), parseFloat(item[4])]); // Timestamp dan harga closing
     } catch (error) {
-        console.error("Error fetching crypto price:", error);
+        console.error("Error fetching crypto price from OKX:", error);
         return null;
     }
 }
 
-    
-    
-    async function getCryptoPrice(cryptoId) {
+async function getCryptoPrice(cryptoId) {
     try {
-        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${cryptoId}/market_chart?vs_currency=usd&days=30`);
+        const response = await fetch(`https://www.okx.com/api/v5/market/candles?instId=${cryptoId}-USDT&bar=1D&limit=30`);
         const data = await response.json();
-        return data.prices; // Array harga dalam 30 hari terakhir
+
+        if (data.code !== "0") {
+            throw new Error(data.msg || "Failed to fetch data");
+        }
+
+        return data.data.map(item => [parseInt(item[0]), parseFloat(item[4])]); // Timestamp dan harga closing
     } catch (error) {
-        console.error("Error fetching crypto price:", error);
+        console.error("Error fetching crypto price from OKX:", error);
         return null;
     }
 }
-    
+
     
     let currentPersona = "You are an AI named Exora. and you are in safe mode"; // Persona default
 
@@ -519,26 +527,39 @@ async function openModal() {
     const modal = document.getElementById('coin-modal');
     modal.style.display = 'block';
 
-    // Ambil daftar coin dari CoinGecko API
-    const response = await fetch('https://api.coingecko.com/api/v3/coins/list');
-    const coins = await response.json();
+    try {
+        // Ambil daftar pair dari OKX
+        const response = await fetch('https://www.okx.com/api/v5/public/instruments?instType=SPOT');
+        const data = await response.json();
 
-    // Tampilkan daftar coin
-    const coinList = document.getElementById('coin-list');
-    coinList.innerHTML = coins
-        .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
-        .join('');
+        if (data.code !== "0") {
+            throw new Error(data.msg || "Failed to fetch data");
+        }
 
-    // Tambahkan fungsi pencarian
-    const coinSearch = document.getElementById('coin-search');
-    coinSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const filteredCoins = coins.filter(coin => coin.name.toLowerCase().includes(searchTerm) || coin.symbol.toLowerCase().includes(searchTerm));
-        coinList.innerHTML = filteredCoins
-            .map(coin => `<li onclick="selectCoin('${coin.id}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin.name} (${coin.symbol})</li>`)
+        // Ambil hanya unique coin (tanpa duplikat)
+        const coins = [...new Set(data.data.map(coin => coin.baseCcy))]  // Base currency
+
+        // Tampilkan daftar coin
+        const coinList = document.getElementById('coin-list');
+        coinList.innerHTML = coins
+            .map(coin => `<li onclick="selectCoin('${coin}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin}</li>`)
             .join('');
-    });
+
+        // Tambahkan fungsi pencarian
+        const coinSearch = document.getElementById('coin-search');
+        coinSearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredCoins = coins.filter(coin => coin.toLowerCase().includes(searchTerm));
+            coinList.innerHTML = filteredCoins
+                .map(coin => `<li onclick="selectCoin('${coin}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin}</li>`)
+                .join('');
+        });
+
+    } catch (error) {
+        console.error("Error fetching coin list from OKX:", error);
+    }
 }
+
 
 // Fungsi untuk memilih coin
 function selectCoin(coinId) {
@@ -673,9 +694,9 @@ async function refreshCryptoPrice365() {
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
-        role: 'CoinGecko_R1_DATASET',
+        role: 'OKX_DATASET',
         type: 'price',
-        content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 365days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
+        content: `selected crypto : ${cryptoId} ,OKX_DATASET real-time 365days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -709,9 +730,9 @@ async function refreshCryptoPrice() {
 
     // **Buat pesan harga baru**
     const systemPriceMessage = {
-        role: 'CoinGecko_R1_DATASET',
+        role: 'OKX_DATASET',
         type: 'price',
-        content:`selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
+        content:`selected crypto : ${cryptoId} ,OKX_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -763,14 +784,14 @@ async function getAIResponse(prompt) {
 
     // **Cari system message utama dan system harga**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'CoinGecko_R1_DATASET' && msg.type === 'price');
+    let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'OKX_DATASET' && msg.type === 'price');
 
     // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM CoinGecko_R1_DATASET, starting from the latest price (most recent) to the oldest price (earliest). Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets with 30days timeframe, Use command "system.refresh.price365();" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
+            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM OKX_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM OKX_DATASET, starting from the latest price (most recent) to the oldest price (earliest). Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update OKX_DATASET datasets with 30days timeframe, Use command "system.refresh.price365();" to fetch new price and update OKX_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
         };
 
         cleanChatHistory.unshift(systemMessage);
@@ -779,9 +800,9 @@ async function getAIResponse(prompt) {
     // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
         systemPriceMessage = {
-            role: 'CoinGecko_R1_DATASET',
+            role: 'OKX_DATASET',
             type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
+            content: `selected crypto : ${cryptoId} ,OKX_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
         };
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
@@ -822,7 +843,7 @@ async function getAIResponse(prompt) {
         aiMessage = aiMessage.replace("system.refresh.price.365();", '');
         }
         
-        aiMessage = aiMessage.replace("CoinGecko_R1_DATASET", "CoinGecko");
+        aiMessage = aiMessage.replace("OKX_DATASET", "OKX");
         
         
         
@@ -864,8 +885,8 @@ if (memoryMatch) {
         // Gabungkan lagi semua memori dalam satu blok
         memoryBlock.content = memories.join('\n');
       } else {
-        // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1_DATASET
-        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1_DATASET');
+        // Kalau belum ada blok memories, buat blok baru setelah OKX_DATASET
+        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'OKX_DATASET');
         const memoryMessage = {
           role: 'memories',
           content: `- ${memoryContent}`
@@ -888,7 +909,7 @@ if (memoryMatch) {
         // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
 if (cleanChatHistory.length >= 9) {
     cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1_DATASET' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+        (msg, index) => msg.role === 'system'|| msg.role === 'OKX_DATASET' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
     );
 }
 
