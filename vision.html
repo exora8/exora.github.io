@@ -753,9 +753,9 @@ function saveApiKey(apiKey) {
 // Call Together AI API for response
 // Call Together AI API for response
 async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
-  getApiKey();
-  saveApiKey(API_KEY);
-    
+    getApiKey();
+    saveApiKey(API_KEY);
+
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
@@ -763,48 +763,47 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
     // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // **Cari system message utama dan system harga**
+    // System messages
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
     let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'CoinGecko_R1_DATASET' && msg.type === 'price');
 
-    // **Jika belum ada system utama, buat baru**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM CoinGecko_R1_DATASET, starting from the latest price (most recent) to the oldest price (earliest). Use the command \"system.save.memories(\"what to remember\");\" to remember something, Use command \"system.refresh.price();\" to fetch new price and update CoinGecko_R1_DATASET datasets with 30days timeframe, Use command \"system.refresh.price365();\" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You can also analyze images if provided.`
+            content: "YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET. YOU CAN ALSO ANALYZE IMAGES."
         };
         cleanChatHistory.unshift(systemMessage);
     }
 
-    // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
         systemPriceMessage = {
             role: 'CoinGecko_R1_DATASET',
             type: 'price',
-            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
+            content: `selected crypto: ${cryptoId}, updated price data (30-day timeframe). ${formattedPrices}.`
         };
         cleanChatHistory.splice(1, 0, systemPriceMessage);
-    } 
+    }
 
-    // Simpan chat user
-    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
+    // **Membuat request dalam format yang benar**
+    const requestBody = {
+        model: 'meta-llama/Llama-Vision-Free',
+        messages: [
+            { role: 'system', content: systemMessage.content }, // System info
+            { role: 'user', content: prompt } // User prompt
+        ]
+    };
+
+    // **Tambahkan gambar jika ada**
+    if (imageUrl) {
+        requestBody.messages.push({ role: 'user', content: "Analyze this image:", image_url: imageUrl });
+    } else if (base64Image) {
+        requestBody.messages.push({ role: 'user', content: "Analyze this image:", image_base64: base64Image });
+    }
+
+    console.log("Request Payload:", JSON.stringify(requestBody, null, 2)); // Debugging payload
 
     try {
-        // **Buat payload request ke API**
-        const requestBody = {
-            model: 'meta-llama/Llama-Vision-Free',
-            messages: cleanChatHistory
-        };
-
-        // **Tambahkan data gambar jika ada**
-        if (imageUrl) {
-            requestBody.image_url = imageUrl;
-        } else if (base64Image) {
-            requestBody.image_base64 = base64Image;
-        }
-
-        // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -821,7 +820,7 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
 
-        // **Cek dan proses perintah khusus (refresh harga, memori)**
+        // **Cek perintah untuk refresh harga**
         if (aiMessage.includes("system.refresh.price();")) {
             refreshCryptoPrice();
             aiMessage = aiMessage.replace("system.refresh.price();", '');
@@ -835,20 +834,18 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
         // Simpan chat AI
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
+        // **Bersihkan history**
         if (cleanChatHistory.length >= 9) {
             cleanChatHistory = cleanChatHistory.filter(
-                (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1_DATASET' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+                (msg, index) => msg.role === 'system' || msg.role === 'CoinGecko_R1_DATASET' || index >= cleanChatHistory.length - 2
             );
         }
 
-        // Simpan kembali chat history ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return aiMessage;
     } catch (error) {
         console.error('Error:', error);
-        getApiKey();
         return "Could not get AI response, switching server...";
     }
 }
@@ -858,7 +855,7 @@ function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]); // Ambil base64 tanpa prefix
+        reader.onload = () => resolve(reader.result.split(',')[1]); // Hapus prefix base64
         reader.onerror = error => reject(error);
     });
 }
