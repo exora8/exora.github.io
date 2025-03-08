@@ -751,73 +751,57 @@ function saveApiKey(apiKey) {
 
 
 // Call Together AI API for response
-async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
-    getApiKey();
-    saveApiKey(API_KEY);
-
+async function getAIResponse(prompt) {
+  getApiKey();
+  saveApiKey(API_KEY);
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
     const formattedPrices = prices.reverse().map(price => `$${price[1].toFixed(2)}`).join(" ");
 
-    // Ambil chat history dari localStorage (TIDAK DIUBAH)
+    // Ambil chat history dari localStorage
     let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
 
-    // System messages
+    // **Cari system message utama dan system harga**
     let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
     let systemPriceMessage = cleanChatHistory.find(msg => msg.role === 'CoinGecko_R1_DATASET' && msg.type === 'price');
 
+    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
     if (!systemMessage) {
         systemMessage = {
             role: 'system',
             type: 'init',
-            content: "YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET. YOU CAN ALSO ANALYZE IMAGES."
+            content: `YOU ARE EXORA AI — YOUR MAIN MISSION IS TO ANALYZE PRICE ACTION DATA EXCLUSIVELY FROM CoinGecko_R1_DATASET — YOU DO NOT INVENT PRICE DATA, YOU DO NOT ASSUME PRICE DATA, YOU ONLY FETCH AND ANALYZE PRICE ACTION FROM THE SOURCE — NOTHING MORE, NOTHING LESS. YOU ALWAYS FETCH PRICE DATA FROM CoinGecko_R1_DATASET, starting from the latest price (most recent) to the oldest price (earliest). Use the command "system.save.memories("what to remember");" to remember something, Use command "system.refresh.price();" to fetch new price and update CoinGecko_R1_DATASET datasets with 30days timeframe, Use command "system.refresh.price365();" to fetch new price and update CoinGecko_R1_DATASET datasets with 365 days timeframe. You speak in a realistic tone, not too descriptive, and able to use consecutive emojis when the moment feels right, just like a human. Avoid excessive emojis.`
         };
+
         cleanChatHistory.unshift(systemMessage);
     }
 
+    // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
         systemPriceMessage = {
             role: 'CoinGecko_R1_DATASET',
             type: 'price',
-            content: `selected crypto: ${cryptoId}, updated price data (30-day timeframe). ${formattedPrices}.`
+            content: `selected crypto : ${cryptoId} ,Coingecko_R1_DATASET real-time 30days timeframe Updated price data of ${cryptoId} The data is sorted in descending order, starting from the latest price (most recent) to the oldest price (earliest). ${formattedPrices}.`
         };
-        cleanChatHistory.splice(1, 0, systemPriceMessage);
-    }
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
+    } 
 
-    // **Buat daftar pesan**
-    let messages = [...cleanChatHistory];
-
-    // **Tambahkan input user**
-    messages.push({ role: 'user', content: cleanText(prompt) });
-
-    // **Tambahkan gambar jika ada**
-    if (imageUrl) {
-        messages.push({ role: 'user', content: "Analyze this image.", image_url: imageUrl });
-    } else if (base64Image) {
-        messages.push({ role: 'user', content: "Analyze this image.", image_base64: base64Image });
-    }
-
-    // **Pastikan format `messages` benar**
-    const requestBody = {
-        model: 'meta-llama/Llama-Vision-Free',
-        messages: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content || "",  // Pastikan content tidak kosong
-            ...(msg.image_url ? { image_url: msg.image_url } : {}),
-            ...(msg.image_base64 ? { image_base64: msg.image_base64 } : {})
-        }))
-    };
-
-    console.log("Request Payload:", JSON.stringify(requestBody, null, 2)); // Debugging payload
+    // Simpan chat user (hanya teks, tanpa elemen HTML)
+    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
 
     try {
+        // Kirim request ke API
         const response = await fetch('https://api.together.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${API_KEY}`
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+                messages: cleanChatHistory
+            })
         });
 
         if (!response.ok) {
@@ -826,45 +810,98 @@ async function getAIResponse(prompt, imageUrl = null, base64Image = null) {
 
         const data = await response.json();
         let aiMessage = cleanText(data.choices[0].message.content);
-
-        // **Cek perintah untuk refresh harga**
+        
+        // Cek kalau AI minta refresh harga
         if (aiMessage.includes("system.refresh.price();")) {
-            refreshCryptoPrice();
-            aiMessage = aiMessage.replace("system.refresh.price();", '');
+        refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        aiMessage = aiMessage.replace("system.refresh.price();", '');
+        }
+        
+        if (aiMessage.includes("system.refresh.price.365();")) {
+        refreshCryptoPrice365(); // Panggil fungsi buat refresh harga
+        aiMessage = aiMessage.replace("system.refresh.price.365();", '');
+        }
+        
+        aiMessage = aiMessage.replace("CoinGecko_R1_DATASET", "CoinGecko");
+        
+        
+        
+// Deteksi dan update memori dengan kemampuan overwrite
+const memorySavePattern = /system\.save\.memories\(['"](.+?)['"]\);?/gi;
+const memoryMatch = aiMessage.match(memorySavePattern);
+
+if (memoryMatch) {
+  memoryMatch.forEach(match => {
+    const memoryContent = match.match(/['"](.+?)['"]/)?.[1];
+    if (memoryContent) {
+      console.log("Memory detected:", memoryContent);
+      localStorage.setItem("memory", memoryContent); // Overwrite existing memory
+
+      // Cek apakah sudah ada blok memories
+      let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
+
+      if (memoryBlock) {
+        // Pisahkan setiap memori dalam bentuk array
+        let memories = memoryBlock.content.split('\n');
+
+        // Cek apakah ada memori dengan kategori yang sama (misal: 'current crypto')
+        const categoryPattern = memoryContent.split(':')[0].trim(); // Ambil kategori sebelum ':'
+        let categoryExists = false;
+
+        memories = memories.map(mem => {
+          if (mem.includes(categoryPattern)) {
+            categoryExists = true;
+            return `- ${memoryContent}`; // Overwrite memori yang sama
+          }
+          return mem; // Biarkan yang lain tetap
+        });
+
+        // Kalau kategori belum ada, tambahkan baru
+        if (!categoryExists) {
+          memories.push(`- ${memoryContent}`);
         }
 
-        if (aiMessage.includes("system.refresh.price365();")) {
-            refreshCryptoPrice365();
-            aiMessage = aiMessage.replace("system.refresh.price365();", '');
-        }
+        // Gabungkan lagi semua memori dalam satu blok
+        memoryBlock.content = memories.join('\n');
+      } else {
+        // Kalau belum ada blok memories, buat blok baru setelah CoinGecko_R1_DATASET
+        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'CoinGecko_R1_DATASET');
+        const memoryMessage = {
+          role: 'memories',
+          content: `- ${memoryContent}`
+        };
+        cleanChatHistory.splice(lastSystemIndex + 1, 0, memoryMessage);
+      }
 
-        // **Tambahkan AI response ke history (TIDAK DIUBAH)**
+      // Hapus command dari aiMessage biar gak muncul di output
+      aiMessage = aiMessage.replace(match, '');
+    }
+  });
+}
+
+        
+        
+
+        // Simpan chat AI (hanya teks)
         cleanChatHistory.push({ role: 'assistant', content: aiMessage });
 
-        // **Bersihkan history sesuai aturan awal (TIDAK DIUBAH)**
-        if (cleanChatHistory.length >= 9) {
-            cleanChatHistory = cleanChatHistory.filter(
-                (msg, index) => msg.role === 'system' || msg.role === 'CoinGecko_R1_DATASET' || index >= cleanChatHistory.length - 2
-            );
-        }
+        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
+if (cleanChatHistory.length >= 9) {
+    cleanChatHistory = cleanChatHistory.filter(
+        (msg, index) => msg.role === 'system'|| msg.role === 'CoinGecko_R1_DATASET' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
+    );
+}
 
+
+        // Simpan kembali chat history yang bersih ke localStorage
         localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 
         return aiMessage;
     } catch (error) {
         console.error('Error:', error);
+        getApiKey();
         return "Could not get AI response, switching server...";
     }
-}
-
-// **Fungsi untuk konversi gambar ke base64**
-function convertImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]); // Hapus prefix base64
-        reader.onerror = error => reject(error);
-    });
 }
 
 
