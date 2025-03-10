@@ -678,7 +678,17 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         }
         
         
-// **Global Variables**
+// **Format Tanggal & Waktu**
+function formatDateTime(date) {
+    return date.getFullYear() + "-" +
+           ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+           ("0" + date.getDate()).slice(-2) + " " +
+           ("0" + date.getHours()).slice(-2) + ":" +
+           ("0" + date.getMinutes()).slice(-2) + ":" +
+           ("0" + date.getSeconds()).slice(-2);
+}
+
+// **Global Variables for Time**
 let currentTime;
 let pastTime;
 
@@ -691,11 +701,9 @@ function updateTime() {
     pastTime = formatDateTime(pastDate);
 }
 
-// Panggil updateTime() saat pertama kali script berjalan
+// **Panggil updateTime() saat pertama kali script berjalan**
 updateTime();
-        
-        
-        
+
 async function refreshCryptoPrice365() {
     // **Update waktu saat fungsi dipanggil**
     updateTime();
@@ -730,7 +738,6 @@ async function refreshCryptoPrice365() {
     // **Simpan ke localStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
-  
 
 async function refreshCryptoPrice() {
     // **Update waktu saat fungsi dipanggil**
@@ -766,6 +773,7 @@ async function refreshCryptoPrice() {
     // **Simpan ke localStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
+
 
 
 // Bersihin teks dari HTML & karakter Markdown
