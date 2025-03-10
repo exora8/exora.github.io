@@ -721,6 +721,17 @@ async function refreshCryptoPrice(timeframe = { days: 30 }) {
         timeframeValue = timeframe.minutes;
     }
 
+    // Hitung waktu pastTime berdasarkan timeframe yang dipilih
+    const now = new Date();
+    let pastTime = new Date(now);
+    if (timeframe.days) pastTime.setDate(now.getDate() - timeframe.days);
+    if (timeframe.hours) pastTime.setHours(now.getHours() - timeframe.hours);
+    if (timeframe.minutes) pastTime.setMinutes(now.getMinutes() - timeframe.minutes);
+    
+    // Format waktu
+    const currentTime = now.toISOString().replace("T", " ").split(".")[0];
+    const pastTimeFormatted = pastTime.toISOString().replace("T", " ").split(".")[0];
+
     // Ambil harga crypto terbaru berdasarkan timeframe
     const prices = await getCryptoPrice(cryptoId, timeframe);
     const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
@@ -736,7 +747,7 @@ async function refreshCryptoPrice(timeframe = { days: 30 }) {
     const systemPriceMessage = {
         role: 'OKX_DATASET',
         type: 'price',
-        content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: ${timeframeValue} ${timeframeLabel}. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTime}). Prices: ${formattedPrices}.`
+        content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: ${timeframeValue} ${timeframeLabel}. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTimeFormatted}). Prices: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -751,6 +762,7 @@ async function refreshCryptoPrice(timeframe = { days: 30 }) {
     // **Simpan ke localStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
+
 
 
 
