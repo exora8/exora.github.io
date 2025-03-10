@@ -723,7 +723,7 @@ async function refreshCryptoPrice365() {
     const systemPriceMessage = {
         role: 'OKX_DATASET',
         type: 'price',
-        content: `[OKX_DATASET] Selected crypto: ${cryptoId}, OKX_DATASET real-time 365 days timeframe. Updated price data of ${cryptoId}. The data is sorted in descending order, starting from the latest price (most recent) ${currentTime} to the oldest price (earliest) ${pastTime}. ${formattedPrices}.`
+        content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: 365 days. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTime}). Prices: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -758,7 +758,7 @@ async function refreshCryptoPrice() {
     const systemPriceMessage = {
         role: 'OKX_DATASET',
         type: 'price',
-        content: `[OKX_DATASET] Selected crypto: ${cryptoId}, OKX_DATASET real-time 30 days timeframe. Updated price data of ${cryptoId}. The data is sorted in descending order, starting from the latest price (most recent) ${currentTime} to the oldest price (earliest) ${pastTime}. ${formattedPrices}.`
+        content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: 30 days. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTime}). Prices: ${formattedPrices}.`
     };
 
     // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
@@ -828,7 +828,7 @@ async function getAIResponse(prompt) {
         systemPriceMessage = {
             role: 'OKX_DATASET',
             type: 'price',
-            content: `[OKX_DATASET] Selected crypto: ${cryptoId}, OKX_DATASET real-time 30 days timeframe. Updated price data of ${cryptoId}. The data is sorted in descending order, starting from the latest price (most recent) ${currentTime} to the oldest price (earliest) ${pastTime}. ${formattedPrices}.`
+            content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: 30 days. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTime}). Prices: ${formattedPrices}.`
         };
         
         cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
