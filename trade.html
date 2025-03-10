@@ -678,16 +678,27 @@ document.getElementById('user-input').addEventListener('input', checkInput);
         }
         
         
-        
-        
-async function refreshCryptoPrice365() {
-    // Update waktu saat fungsi dipanggil
+// **Global Variables**
+let currentTime;
+let pastTime;
+
+function updateTime() {
     let now = new Date();
     let pastDate = new Date();
     pastDate.setDate(now.getDate() - 30);
 
-    let currentTime = formatDateTime(now);
-    let pastTime = formatDateTime(pastDate);
+    currentTime = formatDateTime(now);
+    pastTime = formatDateTime(pastDate);
+}
+
+// Panggil updateTime() saat pertama kali script berjalan
+updateTime();
+        
+        
+        
+async function refreshCryptoPrice365() {
+    // **Update waktu saat fungsi dipanggil**
+    updateTime();
 
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice365(cryptoId);
@@ -712,23 +723,18 @@ async function refreshCryptoPrice365() {
     if (initIndex !== -1) {
         cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
     } else {
+        console.log("refreshCryptoPrice365 Init gak terdeteksi");
         cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
     }
 
     // **Simpan ke localStorage**
     localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
 }
-
   
 
 async function refreshCryptoPrice() {
-    // Update waktu saat fungsi dipanggil
-    let now = new Date();
-    let pastDate = new Date();
-    pastDate.setDate(now.getDate() - 30);
-
-    let currentTime = formatDateTime(now);
-    let pastTime = formatDateTime(pastDate);
+    // **Update waktu saat fungsi dipanggil**
+    updateTime();
 
     // Ambil harga crypto terbaru dan formatkan
     const prices = await getCryptoPrice(cryptoId);
@@ -811,7 +817,13 @@ async function getAIResponse(prompt) {
 
     // **Jika system harga belum ada, buat baru**
     if (!systemPriceMessage) {
-       refreshCryptoPrice(); // Panggil fungsi buat refresh harga
+        systemPriceMessage = {
+            role: 'OKX_DATASET',
+            type: 'price',
+            content: `Selected crypto: ${cryptoId}, OKX_DATASET real-time 30 days timeframe. Updated price data of ${cryptoId}. The data is sorted in descending order, starting from the latest price (most recent) ${currentTime} to the oldest price (earliest) ${pastTime}. ${formattedPrices}.`
+        };
+        
+        cleanChatHistory.splice(1, 0, systemPriceMessage); // Masukkan setelah system utama
     } 
 
     // Simpan chat user (hanya teks, tanpa elemen HTML)
