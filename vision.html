@@ -58,11 +58,10 @@
             transform: translate(-50%, -50%);
             z-index: 2;
             animation: scanParticles 1.5s infinite alternate;
-            filter: blur(5px);
         }
         @keyframes scanParticles {
             0% { opacity: 1; filter: blur(0px) hue-rotate(0deg); }
-            50% { opacity: 1; filter: blur(1px) hue-rotate(90deg); }
+            50% { opacity: 1; filter: blur(0px) hue-rotate(90deg); }
             100% { opacity: 1; filter: blur(0px) hue-rotate(180deg); }
         }
         #response {
