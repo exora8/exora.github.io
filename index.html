@@ -23,22 +23,19 @@
             z-index: -2;
         }
         #introVideo {
-        z-index: 0;
-        opacity: 1;
-        transition: opacity 2s ease-out; /* Efek fade-out selama 2 detik */
+            z-index: 0;
+            opacity: 1;
+            transition: opacity 2s ease-out;
         }
-       .navbar {
+        .navbar {
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background-color: #0d0d0d;
-            box-sizing: border-box;
-            background-color: rgba(0, 0, 0, 0.70); /* Warna dengan transparansi */
+            background-color: rgba(0, 0, 0, 0.70);
             backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(12px); /* Untuk browser yang belum support */
-            
+            -webkit-backdrop-filter: blur(12px);
         }
         .navbar a {
             color: white;
@@ -50,6 +47,7 @@
             border: 1px solid #00aaff;
             padding: 10px 20px;
             border-radius: 20px;
+            
         }
         .navbar a.register {
             background-color: #00aaff;
@@ -57,135 +55,56 @@
         .navbar a.login {
             margin-left: 10px;
         }
-        .container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            height: calc(100vh - 80px);
-            padding: 0 40px;
-            box-sizing: border-box;
-            z-index: 2;
+        .nav-links{
+          transform: translate(-50px,0px);
         }
-        .content {
-            max-width: 50%;
-            z-index: 2;
-        }
-        .content h1 {
-            font-size: 40px;
-            margin-bottom: 20px;
-            max-width: 30vw;
-            z-index: 2;
-        }
-        .content p {
-            font-size: 18px;
-            margin-bottom: 40px;
-            line-height: 1.6;
-            max-width: 29vw;
-            z-index: 2;
-        }
-         .buttons {
-            display: flex;
-            gap: 20px;
-        }
-        .buttons a {
-            text-decoration: none;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .buttons a.try {
-            background-color: rgba(0, 31, 63, 0.5); /* Warna dengan transparansi */
-            border: 1px solid #001f3f;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            text-decoration: none;
-            border-radius: 40px;
-            backdrop-filter: blur(4px); /* Efek blur */
-            -webkit-backdrop-filter: blur(5px); /* Untuk browser yang belum support */
-            transition: all 0.1s ease-in-out;
-        }
-        
-        .buttons a.try:hover {
-    background-color: rgba(0, 31, 63, 0.8); /* Lebih gelap */
-    backdrop-filter: blur(10px); /* Blur lebih kuat */
-    -webkit-backdrop-filter: blur(10px);
-    transform: scale(1.1); /* Tombol sedikit membesar */
-    box-shadow: 0 4px 15px rgba(0, 31, 63, 0.3); /* Efek shadow */
-    transition: all 0.1s ease-in-out;
-}
-        
-        .buttons a.learn {
-            background-color: rgba(0, 31, 63, 0.5); /* Warna dengan transparansi */
-            border: 1px solid #001f3f;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            text-decoration: none;
-            border-radius: 40px;
-            border: 1px solid #00aaff;
-            transition: all 0.1s ease-in-out;
-            backdrop-filter: blur(5px); /* Efek blur */
-            -webkit-backdrop-filter: blur(5px); /* Untuk browser yang belum support */
-        }
-        
-        .buttons a.learn:hover {
-            background-color: rgba(0, 31, 63, 0.5); /* Warna dengan transparansi */
-            border: 1px solid #001f3f;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            transform: scale(1.1);
-            text-decoration: none;
-            border-radius: 40px;
-            border: 1px solid lightblue;
-            transition: all 0.1s ease-in-out;
-            backdrop-filter: blur(15px); /* Efek blur */
-            -webkit-backdrop-filter: blur(5px); /* Untuk browser yang belum support */
-        }
-        
         
         .logo {
             width: 12vh;
             height: auto;
             z-index: 2;
         }
-         #introVideo {
-        z-index: 0; /* Nimpa loop tapi di bawah konten */
-    }
-    #loopVideo {
-        z-index: -1;
-    }
+        #introVideo {
+            z-index: 0;
+        }
+        #loopVideo {
+            z-index: -1;
+        }
+        
+       .floating-tab {
+            position: fixed;
+        padding: 1rem;
+        background: rgba(30, 30, 30, 0.7);
+        backdrop-filter: blur(10px);
+        color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        animation: float 4s ease-in-out infinite;
+        }
+        .floating-tab:hover {
+          transition: all 0.3s ease;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 31, 63, 0.6);
+        }
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
-<body style="display: none;"> <!-- Sembunyikan body sampai video siap -->
-    <!-- Loading Screen -->
-    <div id="loadingScreen" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: black;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-size: 24px;
-        z-index: 1000;
-    ">
+<body style="display: none;">
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: black; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; z-index: 1000;">
         Loading Exora AI...
     </div>
-  
-    <!-- Looping Background Video -->
-    <video id="loopVideo" autoplay muted loop playsinline></video>
 
-    <!-- Intro Video (Nimpa Loop) -->
+    <video id="loopVideo" autoplay muted loop playsinline></video>
     <video id="introVideo" autoplay muted playsinline></video>
 
     <div class="navbar">
@@ -193,73 +112,123 @@
             <img class="logo" src="https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/text-1738486901277.png">
         </div>
         <div class="nav-links">
+          <a href="https://exora.vercel.app/chat.html">Analyze Now!</a>
+          <a href="https://exora.vercel.app/whitepaper.html">Whitepaper</a>
             <a href="https://www.tiktok.com/@exoraai">Tiktok</a>
             <a href="https://instagram.com/exoraai">Instagram</a>
             <a href="https://x.com/FallenStarX8">Community</a>
         </div>
     </div>
 
-    <div class="container">
-        <div class="content">
-            <h1>The Future of Crypto Trading is Here.</h1>
-            <p>Exora AI is a next-gen artificial intelligence built for real-time crypto market analysis. No more wasted time—Exora delivers instant insights, rapid price predictions, and precise trading signals to help you stay ahead of the market.</p>
-            <div class="buttons">
-                <a class="try" href="https://exora.vercel.app/chat.html">Analyze with Exora <i class="fas fa-arrow-right"></i></a>
-                <a class="learn" href="https://exora.vercel.app/whitepaper.html">About Exora <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-    </div>
-
     <script>
-    const introVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222224221.mp4';
-    const loopVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222225948.mp4';
-    const introVideo = document.getElementById('introVideo');
-    const loopVideo = document.getElementById('loopVideo');
-    const loadingScreen = document.getElementById('loadingScreen');
+        const introVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222224221.mp4';
+        const loopVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222225948.mp4';
+        const introVideo = document.getElementById('introVideo');
+        const loopVideo = document.getElementById('loopVideo');
+        const loadingScreen = document.getElementById('loadingScreen');
 
-    // Load video sources
-    loopVideo.src = loopVideoSrc;
-    introVideo.src = introVideoSrc;
+        loopVideo.src = loopVideoSrc;
+        introVideo.src = introVideoSrc;
 
-    // Cek kedua video sudah di-load
-    let videosLoaded = 0;
-    function videoLoaded() {
-        videosLoaded++;
-        if (videosLoaded === 2) {
-            document.body.style.display = 'block'; // Tampilkan HTML
-            loadingScreen.style.display = 'none'; // Sembunyikan loading screen
+        let videosLoaded = 0;
+        function videoLoaded() {
+            videosLoaded++;
+            if (videosLoaded === 2) {
+                document.body.style.display = 'block';
+                loadingScreen.style.display = 'none';
+                createFloatingTabs();
+            }
         }
+
+        introVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
+        loopVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
+
+        introVideo.addEventListener('timeupdate', () => {
+            const fadeDuration = 2;
+            const remainingTime = introVideo.duration - introVideo.currentTime;
+
+            if (remainingTime <= fadeDuration) {
+                introVideo.style.transition = 'opacity 2s ease-out';
+                introVideo.style.opacity = '0';
+            }
+        });
+
+        introVideo.onended = () => {
+            introVideo.remove();
+        };
+
+        function detectDevice() {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+        window.location.href = "https://exora.vercel.app/phone.html";
+    } else {
     }
+}
 
-    introVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
-    loopVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
+detectDevice(); // Panggil fungsi saat halaman dimuat
 
-    // Fade out efek sebelum video intro selesai
-    introVideo.addEventListener('timeupdate', () => {
-        const fadeDuration = 2; // Durasi efek fade out (2 detik)
-        const remainingTime = introVideo.duration - introVideo.currentTime;
+        window.onload = detectDevice;
 
-        if (remainingTime <= fadeDuration) {
-            introVideo.style.transition = 'opacity 2s ease-out';
-            introVideo.style.opacity = '0'; // Mulai efek fade-out
-        }
+// Floating Tabs
+function createFloatingTabs() {
+  const tabContents = [
+    'Fast and accurate predictions',
+    'Real-time market analysis',
+    'User-friendly interface',
+    'Real-Time Trading Recommendations',
+    'Advanced AI-driven insights',
+    'Supports 1000+ Cryptocurrencies',
+  ];
+
+  const existingTabs = [];
+
+  // Bagi tab secara merata ke kiri dan kanan
+  const half = Math.ceil(tabContents.length / 2);
+  const leftTabs = tabContents.slice(0, half);
+  const rightTabs = tabContents.slice(half);
+
+  // Fungsi untuk membuat grup tab di sisi kiri/kanan
+  function generateGroup(tabs, side) {
+    const safeMargin = 150; // Jarak aman dari tepi
+    const baseX = side === 'left' ? safeMargin : window.innerWidth - 250 - safeMargin;
+    const baseY = window.innerHeight / 4; // Mulai dari 1/4 tinggi layar
+
+    const gapY = 120; // Jarak vertikal antar tab
+
+    tabs.forEach((content, index) => {
+      const tab = document.createElement('div');
+      tab.className = 'floating-tab';
+      tab.innerText = content;
+
+      // Posisi tab
+      let x = baseX + Math.random() * 50; // Random kecil biar nggak terlalu kaku
+      let y = baseY + index * gapY + Math.random() * 50;
+
+      // Simpan posisi tab
+      existingTabs.push({ x, y });
+
+      // Set posisi tab
+      tab.style.left = `${x}px`;
+      tab.style.top = `${y}px`;
+
+      // Efek fade-in
+      tab.style.opacity = '0';
+      tab.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => {
+        tab.style.opacity = '1';
+      }, index * 200);
+
+      document.body.appendChild(tab);
     });
+  }
 
-    // Hapus intro setelah fade out selesai
-    introVideo.onended = () => {
-        introVideo.remove();
-    };
+  // Generate tab di kiri dan kanan
+  generateGroup(leftTabs, 'left');
+  generateGroup(rightTabs, 'right');
+}
 
-    // Redirect ke versi mobile
-    function detectDevice() {
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-            window.location.href = "https://exora.vercel.app/phone.html";
-        }
-    }
 
-    window.onload = detectDevice;
-</script>
 
+    </script>
 </body>
 </html>
