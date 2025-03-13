@@ -171,7 +171,7 @@
                 particles.forEach(p => {
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = Math.random() > 0.5 ? '#fff' : 'transparent';
+                    ctx.fillStyle = Math.random() > 1 ? '#fff' : 'transparent';
                     ctx.fill();
 
                     const dx = p.targetX - p.x;
