@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html>
 <head>
     <title>Exora Vision</title>
@@ -24,6 +24,10 @@
             text-align: center;
             position: relative;
             z-index: 1;
+        }
+        h2 {
+            color: #89b4fa;
+            margin-bottom: 20px;
         }
         input, button {
             background-color: #313244;
@@ -59,17 +63,52 @@
             z-index: 3;
             pointer-events: none;
         }
+        #response {
+            white-space: pre-wrap;
+            background-color: #181825;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            overflow: auto;
+            word-wrap: break-word;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            display: none;
+            opacity: 0;
+            animation: typing 1s ease 0s 1 normal forwards;
+        }
+        @keyframes typing {
+            0% { opacity: 0; filter: blur(5px); }
+            100% { opacity: 1; filter: blur(0px); }
+        }
+        @media (max-width: 600px) {
+            input, button {
+                width: 150px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <input type="file" id="imageInput" accept="image/*">
+        <button id="takePicture" onclick="openCamera()">Take Picture</button>
     </div>
 
     <img id="imagePreview" />
     <canvas id="particleCanvas"></canvas>
+    <pre id="response"></pre>
 
     <script>
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
         document.getElementById('imageInput').addEventListener('change', () => {
             const file = document.getElementById('imageInput').files[0];
             if (file) {
@@ -78,70 +117,58 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    trackCandles(img);
+                    detectCandles(img);
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function trackCandles(image) {
+        function detectCandles(image) {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = image.width;
-            tempCanvas.height = image.height;
-            tempCtx.drawImage(image, 0, 0, image.width, image.height);
-            const imgData = tempCtx.getImageData(0, 0, image.width, image.height);
-            const pixels = imgData.data;
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const particles = [];
 
-            let targets = [];
-            for (let i = 0; i < pixels.length; i += 4) {
-                const r = pixels[i];
-                const g = pixels[i + 1];
-                const b = pixels[i + 2];
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                const r = imgData.data[i];
+                const g = imgData.data[i + 1];
+                const b = imgData.data[i + 2];
+
                 if ((r > 150 && g < 100 && b < 100) || (g > 150 && r < 100 && b < 100)) {
-                    const x = (i / 4) % image.width;
-                    const y = Math.floor((i / 4) / image.width);
-                    targets.push({ x, y });
+                    const x = (i / 4) % canvas.width;
+                    const y = Math.floor((i / 4) / canvas.width);
+                    particles.push({ x, y, size: Math.random() * 3 + 1, speedX: (Math.random() - 0.5) * 8, speedY: (Math.random() - 0.5) * 8 });
                 }
             }
 
-            let particles = Array.from({ length: 100 }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 3 + 1,
-                speed: Math.random() * 3 + 1
-            }));
-
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach((p) => {
-                    let target = targets[Math.floor(Math.random() * targets.length)];
-                    if (target) {
-                        const dx = target.x - p.x;
-                        const dy = target.y - p.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        p.x += (dx / distance) * p.speed;
-                        p.y += (dy / distance) * p.speed;
-                    }
+                particles.forEach(p => {
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = '#89b4fa';
+                    ctx.fillStyle = Math.random() > 0.5 ? '#89b4fa' : '#f38ba8';
                     ctx.fill();
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
                 });
-                requestAnimationFrame(animateParticles);
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateParticles);
+                } else {
+                    canvas.style.display = 'none';
+                }
             }
 
             animateParticles();
-
-            setTimeout(() => {
-                canvas.style.display = 'none';
-            }, 3000);
         }
+        
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         let API_KEY;
