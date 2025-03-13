@@ -24,6 +24,8 @@
             text-align: center;
             position: relative;
             z-index: 1;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
         }
         h2 {
             color: #89b4fa;
@@ -37,10 +39,12 @@
             margin: 5px 0;
             border-radius: 5px;
             width: 200px;
+            transition: transform 0.2s ease;
         }
         button:hover {
             background-color: #89b4fa;
             cursor: pointer;
+            transform: scale(1.05);
         }
         #imagePreview {
             display: none;
@@ -53,6 +57,12 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
+            animation: flicker 0.8s infinite alternate;
+            filter: blur(5px);
+        }
+        @keyframes flicker {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
         #response {
             white-space: pre-wrap;
@@ -68,37 +78,31 @@
             transform: translate(-50%, -50%);
             z-index: 3;
             display: none;
-            animation: typing 2s steps(40, end);
+            animation: typing 2s steps(40, end), fadeIn 0.5s ease-in-out;
         }
         @keyframes typing {
             from { width: 0; }
             to { width: 100%; }
         }
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #1e1e2e;
-            z-index: 4;
-            display: none;
-            animation: flicker-bg 0.8s infinite alternate;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-        @keyframes flicker-bg {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
+        @media (max-width: 600px) {
+            input, button {
+                width: 150px;
+                padding: 8px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="uploadContainer">
+    <div class="container">
         <h2>Exora Vision Uploader</h2>
         <input type="file" id="imageInput" accept="image/*">
         <button id="takePicture" onclick="openCamera()">Take Picture</button>
     </div>
 
-    <div id="loadingOverlay"></div>
     <img id="imagePreview" />
     <pre id="response">>></pre>
 
@@ -126,9 +130,6 @@
         document.getElementById('imageInput').addEventListener('change', () => {
             const file = document.getElementById('imageInput').files[0];
             if (file) {
-                document.getElementById('uploadContainer').style.display = 'none';
-                document.getElementById('loadingOverlay').style.display = 'block';
-
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = document.getElementById('imagePreview');
@@ -179,7 +180,6 @@
                 });
 
                 const data = await togetherResponse.json();
-                document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('imagePreview').style.display = 'none';
                 responseField.style.display = 'block';
                 responseField.textContent = data.choices[0]?.message?.content || "No response received";
