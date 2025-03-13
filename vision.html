@@ -123,6 +123,25 @@
     <pre id="response"></pre>
 
     <script>
+      
+      document.body.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+        for (let item of items) {
+            if (item.type.startsWith("image/")) {
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById("imagePreview").src = event.target.result;
+                    uploadImage(blob);  // Pake fungsi upload yang udah ada
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+    }
+});
+
+
         function openCamera() {
             const input = document.getElementById('imageInput');
             input.setAttribute('capture', 'environment');
