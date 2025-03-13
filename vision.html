@@ -44,12 +44,12 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            width: 100%;
+            width: calc(50% - 5px);
             max-width: 400px;
+            cursor: pointer;
         }
         button:hover {
             background-color: #89b4fa;
-            cursor: pointer;
         }
         #imagePreview {
             margin-top: 10px;
@@ -81,8 +81,9 @@
     <div class="container">
         <div class="input-section">
             <h2>Exora Vision Uploader</h2>
-            <label for="imageInput">Upload Image:</label>
-            <input type="file" id="imageInput" accept="image/*"><br><br>
+            <label for="imageInput">Upload or Take Picture:</label><br>
+            <input type="file" id="imageInput" accept="image/*">
+            <button onclick="takePicture()">Take Picture</button><br><br>
             <img id="imagePreview" />
             <button onclick="uploadImage()">Submit</button>
         </div>
@@ -110,10 +111,30 @@
             }
         }
 
+        document.getElementById("imageInput").addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById("imagePreview").src = e.target.result;
+                    document.getElementById("imagePreview").style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function takePicture() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'camera';
+            input.onchange = (e) => document.getElementById('imageInput').files = e.target.files;
+            input.click();
+        }
+
         async function uploadImage() {
             const fileInput = document.getElementById("imageInput").files[0];
             const responseField = document.getElementById("response");
-            const imagePreview = document.getElementById("imagePreview");
             const userText = "Analisa price action nya dan dimana best area untuk user set tp dan sl nya";
 
             if (!fileInput) {
@@ -132,9 +153,6 @@
 
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
-
-                imagePreview.src = imageUrl;
-                imagePreview.style.display = 'block';
 
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
