@@ -24,8 +24,6 @@
             text-align: center;
             position: relative;
             z-index: 1;
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
         }
         h2 {
             color: #89b4fa;
@@ -57,12 +55,13 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            animation: scanParticles 1.5s infinite alternate;
         }
-        @keyframes scanParticles {
-            0% { opacity: 1; filter: blur(0px) hue-rotate(0deg); }
-            50% { opacity: 1; filter: blur(0px) hue-rotate(90deg); }
-            100% { opacity: 1; filter: blur(0px) hue-rotate(0deg); }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            pointer-events: none;
         }
         #response {
             white-space: pre-wrap;
@@ -76,25 +75,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 3;
+            z-index: 4;
             display: none;
             opacity: 0;
             animation: typing 1s ease 0s 1 normal forwards;
         }
         @keyframes typing {
-	0% {
-		opacity: 0;
-		filter: blur(5px);
-	}
-
-	100% {
-		opacity: 1;
-		filter: blur(0px);
-	}
-}
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            0% { opacity: 0; filter: blur(5px); }
+            100% { opacity: 1; filter: blur(0px); }
         }
         @media (max-width: 600px) {
             input, button {
@@ -111,9 +99,66 @@
     </div>
 
     <img id="imagePreview" />
+    <canvas id="particleCanvas"></canvas>
     <pre id="response"></pre>
 
     <script>
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+        document.getElementById('imageInput').addEventListener('change', () => {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    startParticleScan();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function startParticleScan() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speedX: (Math.random() - 0.5) * 2,
+                    speedY: (Math.random() - 0.5) * 2
+                });
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#89b4fa';
+                    ctx.fill();
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+                });
+                requestAnimationFrame(animateParticles);
+            }
+
+            animateParticles();
+        }
+        
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         let API_KEY;
