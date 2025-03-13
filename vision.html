@@ -84,12 +84,6 @@
             0% { opacity: 0; filter: blur(5px); }
             100% { opacity: 1; filter: blur(0px); }
         }
-        @media (max-width: 600px) {
-            input, button {
-                width: 150px;
-                padding: 8px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -117,26 +111,28 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    startParticleScan();
+                    startParticleScan(img);
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function startParticleScan() {
+        function startParticleScan(image) {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
+            const imgColors = ['#00ff00', '#ff0000', '#ffffff'];
             let particles = [];
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 150; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
                     size: Math.random() * 3 + 1,
-                    speedX: (Math.random() - 0.5) * 2,
-                    speedY: (Math.random() - 0.5) * 2
+                    speedX: (Math.random() - 0.5) * 3,
+                    speedY: (Math.random() - 0.5) * 3,
+                    color: imgColors[Math.floor(Math.random() * imgColors.length)]
                 });
             }
 
@@ -145,7 +141,7 @@
                 particles.forEach(p => {
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = '#89b4fa';
+                    ctx.fillStyle = p.color;
                     ctx.fill();
                     p.x += p.speedX;
                     p.y += p.speedY;
@@ -157,6 +153,10 @@
             }
 
             animateParticles();
+
+            setTimeout(() => {
+                canvas.style.display = 'none';
+            }, 3000);
         }
         
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
