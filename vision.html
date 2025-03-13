@@ -2,36 +2,66 @@
 <html>
 <head>
     <title>Exora Vision Uploader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            text-align: center;
+            padding: 20px;
+        }
+        input[type="file"], input[type="text"], button {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #1f1f1f;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #333333;
+            cursor: pointer;
+        }
+        h2, h3 {
+            color: #76c7c0;
+        }
+        #response {
+            background-color: #1f1f1f;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <h2>Upload Image & Text to Together AI</h2>
-    <label>Upload Image:</label>
+    <h2>Exora Vision Uploader (Dark Mode)</h2>
+    <label>Paste or Upload Image:</label>
     <input type="file" id="imageInput"><br><br>
-
     <label>Input Text:</label>
     <input type="text" id="textInput" placeholder="Enter your text"><br><br>
-
     <button onclick="uploadImage()">Submit</button>
-
     <h3>Response:</h3>
     <pre id="response"></pre>
 
     <script>
-        const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+        const API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
 
-        let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
-
-        async function getApiKey() {
-            try {
-                const response = await fetch('/api/getApiKey');
-                const data = await response.json();
-                API_KEY = data.apiKey; // Simpan API key ke variabel global
-                console.log('Pakai API Key:', API_KEY);
-            } catch (error) {
-                console.error('Gagal ambil API Key:', error);
+        document.addEventListener("paste", (event) => {
+            const items = event.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    const blob = items[i].getAsFile();
+                    const fileInput = document.getElementById("imageInput");
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(blob);
+                    fileInput.files = dataTransfer.files;
+                    alert("Image pasted from clipboard!");
+                    break;
+                }
             }
-        }
+        });
 
         async function uploadImage() {
             const fileInput = document.getElementById("imageInput").files[0];
@@ -39,7 +69,7 @@
             const responseField = document.getElementById("response");
 
             if (!fileInput) {
-                alert("Please upload an image");
+                alert("Please upload or paste an image");
                 return;
             }
 
@@ -48,7 +78,7 @@
                 formData.append("image", fileInput);
 
                 // Step 1: Upload image to ImgBB
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
                     method: "POST",
                     body: formData
                 });
@@ -81,15 +111,13 @@
                 });
 
                 const data = await togetherResponse.json();
-                responseField.textContent = JSON.stringify(data, null, 2);
+                responseField.textContent = data.choices[0]?.message?.content || "No response received.";
 
             } catch (error) {
                 console.error("Error:", error);
                 responseField.textContent = `Error: ${error.message}`;
             }
         }
-
-        getApiKey(); // Panggil saat load halaman biar API key langsung siap
     </script>
 </body>
 </html>
