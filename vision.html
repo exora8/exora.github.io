@@ -1,78 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Image to Together AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image and Text to Meta Llama Vision</title>
 </head>
 <body>
-    <h2>Upload Image and Text to Together AI</h2>
+    <h1>Upload Image and Input Text</h1>
+    
     <form id="uploadForm">
-        <label for="image">Upload Image:</label>
-        <input type="file" id="image" name="image" accept="image/*"><br><br>
+        <label for="imageInput">Upload Image:</label>
+        <input type="file" id="imageInput" accept="image/*"><br><br>
+
+        <label for="textInput">Enter Text:</label>
+        <input type="text" id="textInput" placeholder="Enter your text here"><br><br>
 
         <label for="temperature">Temperature (0 - 1):</label>
-        <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7"><br><br>
+        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7"><br><br>
 
         <label for="top_p">Top-P (0 - 1):</label>
-        <input type="range" id="top_p" name="top_p" min="0" max="1" step="0.1" value="0.7"><br><br>
+        <input type="range" id="top_p" min="0" max="1" step="0.1" value="0.7"><br><br>
 
-        <button type="submit">Submit</button>
+        <button type="button" onclick="sendData()">Submit</button>
     </form>
 
-    <h3>Response:</h3>
+    <h2>Response:</h2>
     <pre id="response"></pre>
 
     <script>
-        let API_KEY;
+        let API_KEY; // Variabel global
 
         async function getApiKey() {
             try {
                 const response = await fetch('/api/getApiKey');
                 const data = await response.json();
-                API_KEY = data.apiKey; 
+                API_KEY = data.apiKey;
                 console.log('Pakai API Key:', API_KEY);
             } catch (error) {
                 console.error('Gagal ambil API Key:', error);
             }
         }
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!API_KEY) await getApiKey();
-            
-            const formData = new FormData();
-            const file = document.getElementById('image').files[0];
+        async function sendData() {
+            const imageInput = document.getElementById('imageInput').files[0];
+            const textInput = document.getElementById('textInput').value;
             const temperature = document.getElementById('temperature').value;
             const top_p = document.getElementById('top_p').value;
 
-            if (!file) {
-                alert('Please select an image!');
+            if (!imageInput) {
+                alert('Please upload an image.');
                 return;
             }
 
-            formData.append('file', file);
+            const formData = new FormData();
+            formData.append('file', imageInput);
+            formData.append('text', textInput);
             formData.append('temperature', temperature);
             formData.append('top_p', top_p);
 
-            const endpoint = 'https://api.together.xyz/v1/chat/completions';
+            const responseElement = document.getElementById('response');
+            responseElement.textContent = 'Sending...';
 
             try {
-                const response = await fetch(endpoint, {
+                const response = await fetch('https://api.together.xyz/v1/chat/completions', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${API_KEY}`
+                        'Authorization': `Bearer ${API_KEY}`,
                     },
-                    body: formData
+                    body: formData,
                 });
-
-                const data = await response.json();
-                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+                const result = await response.json();
+                responseElement.textContent = JSON.stringify(result, null, 2);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('response').textContent = 'Failed to send image!';
+                responseElement.textContent = 'Error sending data.';
             }
-        });
+        }
 
-        getApiKey();
+        getApiKey(); // Ambil API key saat halaman load
     </script>
 </body>
 </html>
