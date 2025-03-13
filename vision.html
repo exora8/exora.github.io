@@ -39,9 +39,24 @@
             width: 200px;
             transition: transform 0.2s ease;
         }
-        button:hover {
-            background-color: #89b4fa;
+        
+        button, .file-btn {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            width: 200px;
+            transition: transform 0.2s ease;
             cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        button:hover, .file-btn:hover {
+            background-color: #89b4fa;
             transform: scale(1.05);
         }
         #imagePreview {
@@ -62,6 +77,9 @@
             left: 0;
             z-index: 3;
             pointer-events: none;
+        }
+        #imageInput {
+            display: none;
         }
         #response {
             white-space: pre-wrap;
@@ -85,8 +103,8 @@
             100% { opacity: 1; filter: blur(0px); }
         }
         @media (max-width: 600px) {
-            input, button {
-                width: 150px;
+            .file-btn, input, button {
+                width: 80%;
                 padding: 8px;
             }
         }
@@ -94,6 +112,7 @@
 </head>
 <body>
     <div class="container">
+      <label for="imageInput" class="file-btn">Choose File</label>
         <input type="file" id="imageInput" accept="image/*">
         <button id="takePicture" onclick="openCamera()">Take Picture</button>
     </div>
