@@ -61,8 +61,8 @@
             filter: blur(5px);
         }
         @keyframes scanParticles {
-            0% { opacity: 0.3; filter: blur(0px) hue-rotate(0deg); }
-            50% { opacity: 0.7; filter: blur(1px) hue-rotate(90deg); }
+            0% { opacity: 1; filter: blur(0px) hue-rotate(0deg); }
+            50% { opacity: 1; filter: blur(1px) hue-rotate(90deg); }
             100% { opacity: 1; filter: blur(0px) hue-rotate(180deg); }
         }
         #response {
@@ -160,7 +160,7 @@
                     messages: [
                         { role: "system", content: "You are Exora VISION HyperCore 3.0, an ELITE price action analyst." },
                         { role: "user", content: [
-                            { type: "text", text: "Analisa price action dari gambar ini sebaik mungkin. dan beritahu saya dimana bisa set tp dan sl saya" },
+                            { type: "text", text: "Analisa price action dari gambar ini. Identifikasi trend, support, resistance, area optimal untuk TP dan SL pada short-term leverage trading ,opsi terbaik untuk sekarang open posisi long/short atau lebih baik menunggu dulu" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
