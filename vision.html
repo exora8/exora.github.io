@@ -81,9 +81,16 @@
             animation: typing 2s steps(40, end), fadeIn 0.5s ease-in-out;
         }
         @keyframes typing {
-            from { filter: blur(7px); }
-            to { filter: blur(0px); }
-        }
+	0% {
+		opacity: 0;
+		transform: translateY(50px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -159,7 +166,7 @@
                     messages: [
                         { role: "system", content: "You are Exora VISION HyperCore 3.0, an ELITE price action analyst." },
                         { role: "user", content: [
-                            { type: "text", text: "Analisa price action dari gambar ini. Identifikasi trend, support, resistance, area optimal untuk TP dan SL pada short-term leverage trading ,opsi terbaik untuk sekarang open posisi long/short dengan detail area tp dan sl" },
+                            { type: "text", text: "Analisa price action dari gambar ini dengan sangat detail. Identifikasi trend, indikator, support, resistance, area optimal untuk TP dan SL pada short-term leverage trading ,opsi terbaik untuk sekarang open posisi long/short dengan detail area entry tp dan sl" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
