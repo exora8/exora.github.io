@@ -290,6 +290,18 @@
         }
 
         getApiKey();
+        
+         let holdTimeout;
+        const responseField = document.getElementById('response');
+
+        responseField.addEventListener('mousedown', () => {
+            holdTimeout = setTimeout(() => {
+                if (confirm('Refresh page?')) location.reload();
+            }, 1000);  // Hold 1 detik buat munculin confirm
+        });
+
+        responseField.addEventListener('mouseup', () => clearTimeout(holdTimeout));
+        responseField.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
     </script>
 </body>
 </html>
