@@ -57,12 +57,13 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            animation: flicker 0.8s infinite alternate;
+            animation: scanParticles 1.5s infinite alternate;
             filter: blur(5px);
         }
-        @keyframes flicker {
-            0% { opacity: 0.3; }
-            100% { opacity: 1; }
+        @keyframes scanParticles {
+            0% { opacity: 0.3; filter: blur(7px) hue-rotate(0deg); }
+            50% { opacity: 0.7; filter: blur(4px) hue-rotate(90deg); }
+            100% { opacity: 1; filter: blur(5px) hue-rotate(180deg); }
         }
         #response {
             white-space: pre-wrap;
@@ -159,7 +160,7 @@
                     messages: [
                         { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
                         { role: "user", content: [
-                            { type: "text", text: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya dan apa yang terbaik untuk dilakukan sekarang short atau long" },
+                            { type: "text", text: "Analisa price action dari gambar ini. Identifikasi trend, support, resistance, serta area optimal untuk TP dan SL pada short-term leverage trading." },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
