@@ -18,6 +18,7 @@
             min-height: 100vh;
             padding: 20px;
             position: relative;
+            overflow: hidden;
         }
         .container {
             text-align: center;
@@ -52,11 +53,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            animation: flicker 0.8s infinite alternate;
-        }
-        @keyframes flicker {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
         }
         #response {
             white-space: pre-wrap;
@@ -78,15 +74,31 @@
             from { width: 0; }
             to { width: 100%; }
         }
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e2e;
+            z-index: 4;
+            display: none;
+            animation: flicker-bg 0.8s infinite alternate;
+        }
+        @keyframes flicker-bg {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="uploadContainer">
         <h2>Exora Vision Uploader</h2>
         <input type="file" id="imageInput" accept="image/*">
         <button id="takePicture" onclick="openCamera()">Take Picture</button>
     </div>
 
+    <div id="loadingOverlay"></div>
     <img id="imagePreview" />
     <pre id="response">>></pre>
 
@@ -114,6 +126,9 @@
         document.getElementById('imageInput').addEventListener('change', () => {
             const file = document.getElementById('imageInput').files[0];
             if (file) {
+                document.getElementById('uploadContainer').style.display = 'none';
+                document.getElementById('loadingOverlay').style.display = 'block';
+
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = document.getElementById('imagePreview');
@@ -164,6 +179,7 @@
                 });
 
                 const data = await togetherResponse.json();
+                document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('imagePreview').style.display = 'none';
                 responseField.style.display = 'block';
                 responseField.textContent = data.choices[0]?.message?.content || "No response received";
