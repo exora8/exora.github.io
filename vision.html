@@ -117,64 +117,83 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    startParticleScan(img);
+                    detectCandlesAndStartParticles(img);
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function startParticleScan(img) {
+        function detectCandlesAndStartParticles(img) {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            let particles = [];
-            for (let i = 0; i < 50; i++) {
-                let startSide = Math.random() > 0.5 ? 'x' : 'y';
-                particles.push({
-                    x: startSide === 'x' ? (Math.random() > 0.5 ? 0 : canvas.width) : Math.random() * canvas.width,
-                    y: startSide === 'y' ? (Math.random() > 0.5 ? 0 : canvas.height) : Math.random() * canvas.height,
-                    size: Math.random() * 3 + 1,
-                    speed: Math.random() * 5 + 2,
-                    targetX: Math.random() * canvas.width,
-                    targetY: Math.random() * canvas.height,
-                    stuck: false
-                });
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = img.width;
+            tempCanvas.height = img.height;
+            tempCtx.drawImage(img, 0, 0);
+
+            const candlePositions = [];
+            const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+            const data = imageData.data;
+
+            for (let y = 0; y < img.height; y++) {
+                for (let x = 0; x < img.width; x++) {
+                    const index = (y * img.width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+
+                    if ((r > 200 && g < 100 && b < 100) || (g > 200 && r < 100 && b < 100)) {
+                        candlePositions.push({ x: x + (window.innerWidth - img.width) / 2, y: y + (window.innerHeight - img.height) / 2 });
+                    }
+                }
             }
+
+            let particles = candlePositions.map(pos => ({
+                x: Math.random() < 0.5 ? -10 : canvas.width + 10,
+                y: Math.random() * canvas.height,
+                targetX: pos.x,
+                targetY: pos.y,
+                size: 3,
+                speed: 10,
+                flicker: 0
+            }));
 
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    if (!p.stuck) {
-                        let dx = p.targetX - p.x;
-                        let dy = p.targetY - p.y;
-                        let distance = Math.sqrt(dx * dx + dy * dy);
+                let activeParticles = false;
 
-                        if (distance < 5) {
-                            p.stuck = true;
-                        } else {
-                            p.x += dx / distance * p.speed;
-                            p.y += dy / distance * p.speed;
-                        }
+                particles.forEach(p => {
+                    const dx = p.targetX - p.x;
+                    const dy = p.targetY - p.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > 5) {
+                        p.x += dx / p.speed;
+                        p.y += dy / p.speed;
+                        activeParticles = true;
+                    } else {
+                        p.flicker = (p.flicker + 1) % 10;
                     }
 
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = p.stuck ? (Math.random() > 0.5 ? '#ff5555' : '#89b4fa') : '#89b4fa';
+                    ctx.fillStyle = p.flicker < 5 ? '#FF4444' : '#44FF44';
                     ctx.fill();
                 });
 
-                if (document.getElementById('imagePreview').style.display !== 'none') {
+                if (activeParticles) {
                     requestAnimationFrame(animateParticles);
                 } else {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.getElementById('imagePreview').style.display = 'none';
                 }
             }
 
             animateParticles();
         }
-        
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         let API_KEY;
@@ -258,6 +277,7 @@
         }
 
         getApiKey();
+        
     </script>
 </body>
 </html>
