@@ -3,51 +3,79 @@
 <head>
     <title>Exora Vision Uploader</title>
     <style>
-        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; padding: 20px; }
-        input, button { background-color: #333; color: #fff; border: none; padding: 10px; margin: 5px 0; }
-        button { cursor: pointer; }
-        h2, h3 { color: #00ffcc; }
-        pre { background-color: #1e1e1e; padding: 10px; border-radius: 5px; }
-        #imagePreview { max-width: 300px; margin-top: 10px; display: block; }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        input, button {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #333;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        pre {
+            background-color: #1e1e1e;
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
-    <h2>Upload Image & Text to Together AI</h2>
-    <label>Upload Image:</label>
+    <h2>Exora Vision Uploader</h2>
+    <label>Upload Image (or Paste):</label>
     <input type="file" id="imageInput"><br><br>
+
     <label>Input Text:</label>
     <input type="text" id="textInput" placeholder="Enter your text"><br><br>
+
     <button onclick="uploadImage()">Submit</button>
+
     <h3>Response:</h3>
     <pre id="response"></pre>
-    <img id="imagePreview" style="display:none;"/>
 
     <script>
-        const API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+        let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
+
+        async function getApiKey() {
+            try {
+                const response = await fetch('/api/getApiKey');
+                const data = await response.json();
+                API_KEY = data.apiKey; // Simpan API key ke variabel global
+                console.log('Pakai API Key:', API_KEY);
+            } catch (error) {
+                console.error('Gagal ambil API Key:', error);
+            }
+        }
+
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
 
-        // Clipboard paste support
         document.addEventListener('paste', (event) => {
             const items = event.clipboardData.items;
-            for (let item of items) {
-                if (item.type.indexOf('image') !== -1) {
-                    const blob = item.getAsFile();
-                    document.getElementById('imageInput').files = new DataTransfer().files;
-                    const dt = new DataTransfer();
-                    dt.items.add(blob);
-                    document.getElementById('imageInput').files = dt.files;
-                    previewImage(blob);
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    document.getElementById('imageInput').files = createFileList(blob);
                 }
             }
         });
 
-        function previewImage(file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                document.getElementById('imagePreview').src = reader.result;
-                document.getElementById('imagePreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+        function createFileList(file) {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            return dataTransfer.files;
         }
 
         async function uploadImage() {
@@ -98,17 +126,15 @@
                 });
 
                 const data = await togetherResponse.json();
-                if (data.choices && data.choices[0] && data.choices[0].message) {
-                    responseField.textContent = data.choices[0].message.content;
-                } else {
-                    responseField.textContent = "Unexpected response format: " + JSON.stringify(data, null, 2);
-                }
+                responseField.textContent = JSON.stringify(data, null, 2);
 
             } catch (error) {
                 console.error("Error:", error);
                 responseField.textContent = `Error: ${error.message}`;
             }
         }
+
+        getApiKey(); // Panggil saat load halaman biar API key langsung siap
     </script>
 </body>
 </html>
