@@ -32,24 +32,45 @@
             border-radius: 10px;
             flex: 1;
             min-width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
         }
         h2, h3 {
             color: #89b4fa;
             margin-bottom: 10px;
         }
-        input, button {
+        input[type='file'] {
+            display: none;
+        }
+        .file-label, button {
             background-color: #313244;
             color: #cdd6f4;
             border: none;
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            width: 100%;
-            max-width: 400px;
-        }
-        button:hover {
-            background-color: #89b4fa;
+            width: 48%;
+            text-align: center;
             cursor: pointer;
+            display: inline-block;
+            transition: 0.3s ease;
+        }
+        .file-label:hover, button:hover {
+            background-color: #89b4fa;
+        }
+        input[type='text'] {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 0 5px rgba(137, 180, 250, 0.7);
+            transition: 0.3s ease;
+        }
+        input[type='text']:focus {
+            box-shadow: 0 0 10px rgba(137, 180, 250, 1);
         }
         #imagePreview {
             margin-top: 10px;
@@ -70,7 +91,7 @@
             .container {
                 flex-direction: column;
             }
-            input, button, #response {
+            .file-label, button, #response {
                 width: 100%;
             }
         }
@@ -80,8 +101,9 @@
     <div class="container">
         <div class="input-section">
             <h2>Exora Vision Uploader</h2>
-            <label>Upload Image:</label>
-            <input type="file" id="imageInput" accept="image/*"><br><br>
+            <label for="imageInput" class="file-label">Choose File</label>
+            <input type="file" id="imageInput" accept="image/*">
+            <button id="captureButton">Take Picture</button><br><br>
             <img id="imagePreview" style="display:none;" />
             <label>Input Text:</label>
             <input type="text" id="textInput" placeholder="Enter your text"><br><br>
@@ -111,58 +133,44 @@
             }
         }
 
-        async function uploadImage() {
-            const fileInput = document.getElementById("imageInput").files[0];
-            const userText = document.getElementById("textInput").value;
-            const responseField = document.getElementById("response");
+        document.querySelector('.file-label').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
 
-            if (!fileInput) {
-                alert("Please upload an image");
-                return;
-            }
+        document.getElementById('imageInput').addEventListener('change', previewImage);
 
-            try {
-                const formData = new FormData();
-                formData.append("image", fileInput);
+        document.getElementById('captureButton').addEventListener('click', () => {
+            const constraints = { video: { facingMode: 'user' } };
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then((stream) => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
 
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
-                    method: "POST",
-                    body: formData
-                });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
 
-                const imgbbData = await imgbbResponse.json();
-                const imageUrl = imgbbData.data.url;
+                    setTimeout(() => {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = canvas.toDataURL('image/png');
+                        document.getElementById('imagePreview').src = imageData;
+                        document.getElementById('imagePreview').style.display = 'block';
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 1000);
+                })
+                .catch((err) => console.error('Camera error:', err));
+        });
 
-                const payload = {
-                    model: "meta-llama/Llama-Vision-Free",
-                    messages: [
-                        { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
-                        { role: "user", content: [
-                            { type: "text", text: userText },
-                            { type: "image_url", image_url: { url: imageUrl } }
-                        ] }
-                    ],
-                    temperature: 0.7,
-                    top_p: 0.7,
-                    top_k: 50,
-                    repetition_penalty: 1
+        function previewImage() {
+            const fileInput = document.getElementById('imageInput').files[0];
+            const imagePreview = document.getElementById('imagePreview');
+            if (fileInput) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
                 };
-
-                const togetherResponse = await fetch(TOGETHER_API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await togetherResponse.json();
-                responseField.textContent = data.choices[0]?.message?.content || "No response received";
-
-            } catch (error) {
-                console.error("Error:", error);
-                responseField.textContent = `Error: ${error.message}`;
+                reader.readAsDataURL(fileInput);
             }
         }
 
