@@ -56,6 +56,7 @@
             max-width: 100%;
             height: auto;
             border-radius: 10px;
+            display: none;
         }
         #response {
             white-space: pre-wrap;
@@ -80,10 +81,10 @@
     <div class="container">
         <div class="input-section">
             <h2>Exora Vision Uploader</h2>
-            <label>Upload Image:</label>
+            <label for="imageInput">Upload Image:</label>
             <input type="file" id="imageInput" accept="image/*"><br><br>
-            <img id="imagePreview" style="display:none;" />
-            <label>Input Text:</label>
+            <img id="imagePreview" />
+            <label for="textInput">Input Text:</label>
             <input type="text" id="textInput" placeholder="Enter your text"><br><br>
             <button onclick="uploadImage()">Submit</button>
         </div>
@@ -115,6 +116,7 @@
             const fileInput = document.getElementById("imageInput").files[0];
             const userText = document.getElementById("textInput").value;
             const responseField = document.getElementById("response");
+            const imagePreview = document.getElementById("imagePreview");
 
             if (!fileInput) {
                 alert("Please upload an image");
@@ -132,6 +134,9 @@
 
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
+
+                imagePreview.src = imageUrl;
+                imagePreview.style.display = 'block';
 
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
