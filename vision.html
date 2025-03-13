@@ -17,27 +17,16 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
         }
         .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 900px;
-        }
-        .input-section, .response-section {
-            background-color: #181825;
-            padding: 20px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
-        h2, h3 {
+        h2 {
             color: #89b4fa;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         input, button {
             background-color: #313244;
@@ -46,18 +35,28 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
-            width: 100%;
-            cursor: pointer;
+            width: 200px;
         }
         button:hover {
             background-color: #89b4fa;
+            cursor: pointer;
         }
         #imagePreview {
+            display: none;
             margin-top: 10px;
             max-width: 100%;
             height: auto;
             border-radius: 10px;
-            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            animation: flicker 0.8s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
         }
         #response {
             white-space: pre-wrap;
@@ -67,36 +66,29 @@
             width: 100%;
             overflow: auto;
             word-wrap: break-word;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: none;
+            animation: typing 2s steps(40, end);
         }
-        @keyframes flicker {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .loading-flicker {
-            animation: flicker 0.5s infinite alternate;
-        }
-        @media (max-width: 600px) {
-            input, button, #response {
-                width: 100%;
-            }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="input-section">
-            <h2>Exora Vision Uploader</h2>
-            <input type="file" id="imageInput" accept="image/*">
-            <button id="takePictureButton" onclick="takePicture()">Take Picture</button>
-            <img id="imagePreview" style="display:none;" />
-        </div>
-
-        <div class="response-section">
-            <h3>Response:</h3>
-            <pre id="response">>></pre>
-        </div>
+        <h2>Exora Vision Uploader</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="takePicture" onclick="openCamera()">Take Picture</button>
     </div>
+
+    <img id="imagePreview" />
+    <pre id="response">>></pre>
 
     <script>
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
@@ -109,39 +101,35 @@
                 const data = await response.json();
                 API_KEY = data.apiKey;
             } catch (error) {
-                console.error('Failed to fetch API key:', error);
+                console.error('Gagal ambil API Key:', error);
             }
         }
 
-        function takePicture() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.capture = 'camera';
-            input.onchange = (e) => handleImageUpload(e.target.files[0]);
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
             input.click();
         }
 
-        document.getElementById("imageInput").addEventListener("change", (e) => {
-            handleImageUpload(e.target.files[0]);
+        document.getElementById('imageInput').addEventListener('change', () => {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    uploadImage(file);
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
-        async function handleImageUpload(file) {
+        async function uploadImage(fileInput) {
             const responseField = document.getElementById("response");
-            const preview = document.getElementById("imagePreview");
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.style.display = "block";
-                preview.classList.add("loading-flicker");
-            };
-            reader.readAsDataURL(file);
-
             try {
                 const formData = new FormData();
-                formData.append("image", file);
+                formData.append("image", fileInput);
 
                 const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
                     method: "POST",
@@ -155,10 +143,7 @@
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
                         { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
-                        { role: "user", content: [
-                            { type: "text", text: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya" },
-                            { type: "image_url", image_url: { url: imageUrl } }
-                        ] }
+                        { role: "user", content: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya" }
                     ],
                     temperature: 0.7,
                     top_p: 0.7,
@@ -176,7 +161,8 @@
                 });
 
                 const data = await togetherResponse.json();
-                preview.style.display = "none";
+                document.getElementById('imagePreview').style.display = 'none';
+                responseField.style.display = 'block';
                 responseField.textContent = data.choices[0]?.message?.content || "No response received";
             } catch (error) {
                 console.error("Error:", error);
