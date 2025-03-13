@@ -137,7 +137,8 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    detectCandles(img);
+
+                    img.onload = () => detectCandles(img); // Pastikan gambar load dulu
                 };
                 reader.readAsDataURL(file);
             }
@@ -157,11 +158,17 @@
                 const r = imgData.data[i];
                 const g = imgData.data[i + 1];
                 const b = imgData.data[i + 2];
-
                 if ((r > 150 && g < 100 && b < 100) || (g > 150 && r < 100 && b < 100)) {
                     const x = (i / 4) % canvas.width;
                     const y = Math.floor(i / 4 / canvas.width);
                     candlePositions.push({ x, y });
+                }
+            }
+
+            if (candlePositions.length === 0) {
+                console.warn('No candles detected, generating random particles.');
+                for (let i = 0; i < 50; i++) {
+                    candlePositions.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
                 }
             }
 
