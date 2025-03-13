@@ -20,18 +20,16 @@
         }
         .container {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 20px;
-            justify-content: center;
-            width: 100%;
-            max-width: 900px;
+            align-items: center;
         }
-        .input-section, .response-section {
+        .input-section {
             background-color: #181825;
             padding: 20px;
             border-radius: 10px;
-            flex: 1;
-            min-width: 300px;
+            display: flex;
+            gap: 10px;
         }
         h2, h3 {
             color: #89b4fa;
@@ -42,10 +40,7 @@
             color: #cdd6f4;
             border: none;
             padding: 10px;
-            margin: 5px 0;
             border-radius: 5px;
-            width: calc(50% - 5px);
-            max-width: 400px;
             cursor: pointer;
         }
         button:hover {
@@ -57,6 +52,11 @@
             height: auto;
             border-radius: 10px;
             display: none;
+            animation: flicker 0.8s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
         }
         #response {
             white-space: pre-wrap;
@@ -66,6 +66,7 @@
             width: 100%;
             overflow: auto;
             word-wrap: break-word;
+            display: none;
         }
         @media (max-width: 600px) {
             .container {
@@ -79,25 +80,21 @@
 </head>
 <body>
     <div class="container">
+        <h2>Exora Vision Uploader</h2>
         <div class="input-section">
-            <h2>Exora Vision Uploader</h2>
-            <label for="imageInput">Upload or Take Picture:</label><br>
             <input type="file" id="imageInput" accept="image/*">
-            <button onclick="takePicture()">Take Picture</button><br><br>
-            <img id="imagePreview" />
-            <button onclick="uploadImage()">Submit</button>
+            <button onclick="takePicture()">Take Picture</button>
         </div>
 
-        <div class="response-section">
-            <h3>Response:</h3>
-            <pre id="response">>></pre>
-        </div>
+        <img id="imagePreview" />
+
+        <h3>Response:</h3>
+        <pre id="response">>></pre>
     </div>
 
     <script>
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-
         let API_KEY;
 
         async function getApiKey() {
@@ -105,42 +102,32 @@
                 const response = await fetch('/api/getApiKey');
                 const data = await response.json();
                 API_KEY = data.apiKey;
-                console.log('Pakai API Key:', API_KEY);
             } catch (error) {
-                console.error('Gagal ambil API Key:', error);
+                console.error('Failed to get API Key:', error);
             }
+        }
+
+        function takePicture() {
+            const fileInput = document.getElementById("imageInput");
+            fileInput.click();
         }
 
         document.getElementById("imageInput").addEventListener("change", (event) => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById("imagePreview").src = e.target.result;
-                    document.getElementById("imagePreview").style.display = 'block';
+                reader.onload = () => {
+                    const imgPreview = document.getElementById("imagePreview");
+                    imgPreview.src = reader.result;
+                    imgPreview.style.display = "block";
+                    uploadImage(file);
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function takePicture() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.capture = 'camera';
-            input.onchange = (e) => document.getElementById('imageInput').files = e.target.files;
-            input.click();
-        }
-
-        async function uploadImage() {
-            const fileInput = document.getElementById("imageInput").files[0];
+        async function uploadImage(fileInput) {
             const responseField = document.getElementById("response");
-            const userText = "Analisa price action nya dan dimana best area untuk user set tp dan sl nya";
-
-            if (!fileInput) {
-                alert("Please upload an image");
-                return;
-            }
 
             try {
                 const formData = new FormData();
@@ -159,7 +146,7 @@
                     messages: [
                         { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
                         { role: "user", content: [
-                            { type: "text", text: userText },
+                            { type: "text", text: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
@@ -179,12 +166,26 @@
                 });
 
                 const data = await togetherResponse.json();
-                responseField.textContent = data.choices[0]?.message?.content || "No response received";
+                const result = data.choices[0]?.message?.content || "No response received";
+
+                document.getElementById("imagePreview").style.animation = "none";
+                responseField.style.display = "block";
+                typeEffect(responseField, result);
 
             } catch (error) {
                 console.error("Error:", error);
                 responseField.textContent = `Error: ${error.message}`;
             }
+        }
+
+        function typeEffect(element, text, speed = 30) {
+            let i = 0;
+            element.textContent = "";
+            const timer = setInterval(() => {
+                element.textContent += text[i];
+                i++;
+                if (i >= text.length) clearInterval(timer);
+            }, speed);
         }
 
         getApiKey();
