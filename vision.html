@@ -136,6 +136,7 @@
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
+                        { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
                         { role: "user", content: [
                             { type: "text", text: userText },
                             { type: "image_url", image_url: { url: imageUrl } }
