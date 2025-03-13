@@ -2,40 +2,10 @@
 <html>
 <head>
     <title>Exora Vision Uploader</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        input, button {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            border: 1px solid #333;
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #333;
-        }
-        pre {
-            background-color: #1e1e1e;
-            padding: 10px;
-            border-radius: 5px;
-            width: 80%;
-            overflow: auto;
-        }
-    </style>
 </head>
 <body>
-    <h2>Exora Vision Uploader</h2>
-    <label>Upload Image (or Paste):</label>
+    <h2>Upload Image & Text to Together AI</h2>
+    <label>Upload Image:</label>
     <input type="file" id="imageInput"><br><br>
 
     <label>Input Text:</label>
@@ -47,6 +17,9 @@
     <pre id="response"></pre>
 
     <script>
+        const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
+
         let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
 
         async function getApiKey() {
@@ -58,24 +31,6 @@
             } catch (error) {
                 console.error('Gagal ambil API Key:', error);
             }
-        }
-
-        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-
-        document.addEventListener('paste', (event) => {
-            const items = event.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    const blob = items[i].getAsFile();
-                    document.getElementById('imageInput').files = createFileList(blob);
-                }
-            }
-        });
-
-        function createFileList(file) {
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            return dataTransfer.files;
         }
 
         async function uploadImage() {
@@ -93,7 +48,7 @@
                 formData.append("image", fileInput);
 
                 // Step 1: Upload image to ImgBB
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
                     method: "POST",
                     body: formData
                 });
