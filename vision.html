@@ -117,48 +117,47 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    startParticleScan(img);
+                    startParticleScan();
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function startParticleScan(img) {
+        function startParticleScan() {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imgData.data;
-
             let particles = [];
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                if ((r > 200 && g < 100 && b < 100) || (g > 200 && r < 100 && b < 100)) { 
-                    const x = (i / 4) % canvas.width;
-                    const y = Math.floor((i / 4) / canvas.width);
-                    particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, targetX: x, targetY: y, size: 2 });
-                }
+            const colors = ['#00FF00', '#FF0000'];
+
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 4 + 1,
+                    speedX: (Math.random() - 0.5) * 4,
+                    speedY: (Math.random() - 0.5) * 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    flicker: 0
+                });
             }
 
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach(p => {
-                    const dx = (p.targetX - p.x) * 0.05;
-                    const dy = (p.targetY - p.y) * 0.05;
-                    p.x += dx;
-                    p.y += dy;
-
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = Math.random() > 0.5 ? '#fff' : 'transparent';
+                    ctx.fillStyle = p.flicker % 10 < 5 ? 'white' : p.color;
                     ctx.fill();
+                    p.flicker++;
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
                 });
-                if (particles.length > 0) requestAnimationFrame(animateParticles);
+                requestAnimationFrame(animateParticles);
             }
 
             animateParticles();
@@ -167,7 +166,7 @@
                 document.getElementById('imagePreview').style.display = 'none';
                 particles = [];
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }, 5000);
+            }, 5000); // Particle duration
         }
         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
