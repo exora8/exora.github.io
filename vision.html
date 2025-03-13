@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
 <head>
     <title>Exora Vision</title>
@@ -117,52 +117,58 @@
                     const img = document.getElementById('imagePreview');
                     img.src = e.target.result;
                     img.style.display = 'block';
-                    detectCandles(img);
+                    startParticleScan(img);
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function detectCandles(image) {
+        function startParticleScan(img) {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const particles = [];
-
-            for (let i = 0; i < imgData.data.length; i += 4) {
-                const r = imgData.data[i];
-                const g = imgData.data[i + 1];
-                const b = imgData.data[i + 2];
-
-                if ((r > 150 && g < 100 && b < 100) || (g > 150 && r < 100 && b < 100)) {
-                    const x = (i / 4) % canvas.width;
-                    const y = Math.floor((i / 4) / canvas.width);
-                    particles.push({ x, y, size: Math.random() * 3 + 1, speedX: (Math.random() - 0.5) * 8, speedY: (Math.random() - 0.5) * 8 });
-                }
+            let particles = [];
+            for (let i = 0; i < 50; i++) {
+                let startSide = Math.random() > 0.5 ? 'x' : 'y';
+                particles.push({
+                    x: startSide === 'x' ? (Math.random() > 0.5 ? 0 : canvas.width) : Math.random() * canvas.width,
+                    y: startSide === 'y' ? (Math.random() > 0.5 ? 0 : canvas.height) : Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speed: Math.random() * 5 + 2,
+                    targetX: Math.random() * canvas.width,
+                    targetY: Math.random() * canvas.height,
+                    stuck: false
+                });
             }
 
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach(p => {
+                    if (!p.stuck) {
+                        let dx = p.targetX - p.x;
+                        let dy = p.targetY - p.y;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 5) {
+                            p.stuck = true;
+                        } else {
+                            p.x += dx / distance * p.speed;
+                            p.y += dy / distance * p.speed;
+                        }
+                    }
+
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = Math.random() > 0.5 ? '#89b4fa' : '#f38ba8';
+                    ctx.fillStyle = p.stuck ? (Math.random() > 0.5 ? '#ff5555' : '#89b4fa') : '#89b4fa';
                     ctx.fill();
-                    p.x += p.speedX;
-                    p.y += p.speedY;
-
-                    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-                    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
                 });
 
-                if (particles.length > 0) {
+                if (document.getElementById('imagePreview').style.display !== 'none') {
                     requestAnimationFrame(animateParticles);
                 } else {
-                    canvas.style.display = 'none';
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                 }
             }
 
