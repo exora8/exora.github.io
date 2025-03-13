@@ -17,8 +17,21 @@
     <pre id="response"></pre>
 
     <script>
-        const API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+        const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
+
+        let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
+
+        async function getApiKey() {
+            try {
+                const response = await fetch('/api/getApiKey');
+                const data = await response.json();
+                API_KEY = data.apiKey; // Simpan API key ke variabel global
+                console.log('Pakai API Key:', API_KEY);
+            } catch (error) {
+                console.error('Gagal ambil API Key:', error);
+            }
+        }
 
         async function uploadImage() {
             const fileInput = document.getElementById("imageInput").files[0];
@@ -35,7 +48,7 @@
                 formData.append("image", fileInput);
 
                 // Step 1: Upload image to ImgBB
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
                     method: "POST",
                     body: formData
                 });
@@ -75,6 +88,8 @@
                 responseField.textContent = `Error: ${error.message}`;
             }
         }
+
+        getApiKey(); // Panggil saat load halaman biar API key langsung siap
     </script>
 </body>
 </html>
