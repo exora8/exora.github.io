@@ -209,16 +209,24 @@
         
          const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-        let API_KEY;
+        const API_KEYS = [
+    "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
+    "1986fcb80017badcac2c5761e9bc5d9b5b635a57b58573c094c5aaee0f7cad65",
+    "47aacfae02634de54a494b4071c9fb357122f453c3ed25a848e77a32a39c50c2",
+    "11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d",
+    "cf887a3d000a64a1686d2bb8e392a64b7f46fe131aff4685e5199510106b8608",
+    "9fa71bf023b928a32cad2959fcf5fee36bb9fbb3732ed6ba659892c079da57e0",
+    "401925c1ac6e2e33847169014115e9344dcaf32d1c1fe386c8fc92768d7b15ad",
+    "215c434d7361a2799557f151ab3b3b80c710a09111339e712a82579f8790f7f2",
+    "34211673816c9ef4729e0259c042ebe3d762fb90ff16c36b42ddfb1c0f9e10e6",
+    "1ea461952d729c0e3dccadd919ee5d121a8125bc7bd5924192495528e24e2afb",
+    "40f561d9befc36d117412f9003d81a2306790e536cec5c36ce540833885f6bd5",
+    "f8eb6808a6c585445cd0db8cb5d048b9cb2d35262fe67f9b512ebc17eb4937b2",
+    "f19df6a1c0a9dccb696764e091d8990734acdff7b39f811a873f7ddf580f92ff"
+];
 
-        async function getApiKey() {
-            try {
-                const response = await fetch('/api/getApiKey');
-                const data = await response.json();
-                API_KEY = data.apiKey;
-            } catch (error) {
-                console.error('Gagal ambil API Key:', error);
-            }
+        function getRandomApiKey() {
+            return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
         }
 
         function openCamera() {
@@ -254,6 +262,7 @@
 
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
+                const selectedApiKey = getRandomApiKey();
 
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
@@ -274,7 +283,7 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${API_KEY}`
+                        Authorization: `Bearer ${selectedApiKey}`
                     },
                     body: JSON.stringify(payload)
                 });
