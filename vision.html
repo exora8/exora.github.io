@@ -99,13 +99,9 @@
             opacity: 0;
             animation: typing 1s ease 0s 1 normal forwards;
         }
-        .typing::after {
-            content: '|';
-            animation: blink 0.7s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        @keyframes typing {
+            0% { opacity: 0; filter: blur(5px); }
+            100% { opacity: 1; filter: blur(0px); }
         }
         @media (max-width: 600px) {
             .file-btn, input, button {
@@ -301,38 +297,6 @@
         }
 
         getApiKey();
-        
-        function simulateTyping(text, element, speed = 50) {
-            let i = 0;
-            element.textContent = '';
-            element.style.display = 'block';
-            const typeInterval = setInterval(() => {
-                if (i < text.length) {
-                    element.textContent += text[i];
-                    i++;
-                } else {
-                    clearInterval(typeInterval);
-                }
-            }, speed);
-        }
-
-        document.getElementById('imageInput').addEventListener('change', () => {
-            const file = document.getElementById('imageInput').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.getElementById('imagePreview');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-
-                    setTimeout(() => {
-                        img.style.display = 'none';
-                        simulateTyping('Analyzing price action...\nFinding trends, support, and resistance levels...\nBest entry: $42,300 | TP: $42,750 | SL: $42,000', document.getElementById('response'));
-                    }, 1500);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
     </script>
 </body>
 </html>
