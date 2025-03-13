@@ -3,92 +3,25 @@
 <head>
     <title>Exora Vision Uploader</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-        }
-        .input-section {
-            background-color: #181825;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            gap: 10px;
-        }
-        h2, h3 {
-            color: #89b4fa;
-            margin-bottom: 10px;
-        }
-        input, button {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #89b4fa;
-        }
-        #imagePreview {
-            margin-top: 10px;
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            display: none;
-            animation: flicker 0.8s infinite alternate;
-        }
-        @keyframes flicker {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
-        #response {
-            white-space: pre-wrap;
-            background-color: #181825;
-            padding: 10px;
-            border-radius: 5px;
-            width: 100%;
-            overflow: auto;
-            word-wrap: break-word;
-            display: none;
-        }
-        @media (max-width: 600px) {
-            .container {
-                flex-direction: column;
-            }
-            input, button, #response {
-                width: 100%;
-            }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #1e1e2e; color: #cdd6f4; font-family: 'Arial', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .container { display: flex; flex-direction: column; gap: 20px; justify-content: center; width: 100%; max-width: 500px; position: relative; }
+        .button-section { display: flex; justify-content: center; gap: 10px; }
+        button, input { background-color: #313244; color: #cdd6f4; border: none; padding: 10px; border-radius: 5px; width: 100%; max-width: 200px; cursor: pointer; }
+        button:hover { background-color: #89b4fa; }
+        #imagePreview { margin-top: 10px; max-width: 100%; height: auto; border-radius: 10px; display: none; }
+        #response { white-space: pre-wrap; background-color: #181825; padding: 10px; border-radius: 5px; width: 100%; overflow: auto; word-wrap: break-word; display: none; }
+        .loading { animation: flicker 0.5s infinite alternate; }
+        @keyframes flicker { 0% { opacity: 1; } 100% { opacity: 0.2; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Exora Vision Uploader</h2>
-        <div class="input-section">
+        <div class="button-section">
             <input type="file" id="imageInput" accept="image/*">
             <button onclick="takePicture()">Take Picture</button>
         </div>
-
         <img id="imagePreview" />
-
-        <h3>Response:</h3>
         <pre id="response">>></pre>
     </div>
 
@@ -102,90 +35,110 @@
                 const response = await fetch('/api/getApiKey');
                 const data = await response.json();
                 API_KEY = data.apiKey;
+                console.log('Pakai API Key:', API_KEY);
             } catch (error) {
-                console.error('Failed to get API Key:', error);
+                console.error('Gagal ambil API Key:', error);
             }
         }
 
         function takePicture() {
-            const fileInput = document.getElementById("imageInput");
-            fileInput.click();
+            const constraints = { video: { facingMode: 'environment' } };
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then((stream) => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        stream.getTracks().forEach(track => track.stop());
+                        const imageData = canvas.toDataURL('image/jpeg');
+                        uploadImageBase64(imageData);
+                    }, 1000);
+                })
+                .catch(err => console.error('Camera access error:', err));
         }
 
         document.getElementById("imageInput").addEventListener("change", (event) => {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const imgPreview = document.getElementById("imagePreview");
-                    imgPreview.src = reader.result;
-                    imgPreview.style.display = "block";
-                    uploadImage(file);
-                };
-                reader.readAsDataURL(file);
-            }
+            if (file) uploadImage(file);
         });
 
-        async function uploadImage(fileInput) {
+        async function uploadImage(file) {
             const responseField = document.getElementById("response");
+            const preview = document.getElementById("imagePreview");
+            responseField.style.display = 'none';
+            preview.style.display = 'block';
+            preview.classList.add('loading');
 
             try {
                 const formData = new FormData();
-                formData.append("image", fileInput);
-
+                formData.append("image", file);
                 const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
                     method: "POST",
                     body: formData
                 });
-
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
-
-                const payload = {
-                    model: "meta-llama/Llama-Vision-Free",
-                    messages: [
-                        { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
-                        { role: "user", content: [
-                            { type: "text", text: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya" },
-                            { type: "image_url", image_url: { url: imageUrl } }
-                        ] }
-                    ],
-                    temperature: 0.7,
-                    top_p: 0.7,
-                    top_k: 50,
-                    repetition_penalty: 1
-                };
-
-                const togetherResponse = await fetch(TOGETHER_API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await togetherResponse.json();
-                const result = data.choices[0]?.message?.content || "No response received";
-
-                document.getElementById("imagePreview").style.animation = "none";
-                responseField.style.display = "block";
-                typeEffect(responseField, result);
-
+                preview.src = imageUrl;
+                sendToAI(imageUrl);
             } catch (error) {
-                console.error("Error:", error);
-                responseField.textContent = `Error: ${error.message}`;
+                console.error("Error uploading image:", error);
+                preview.classList.remove('loading');
             }
         }
 
-        function typeEffect(element, text, speed = 30) {
-            let i = 0;
-            element.textContent = "";
-            const timer = setInterval(() => {
-                element.textContent += text[i];
-                i++;
-                if (i >= text.length) clearInterval(timer);
-            }, speed);
+        async function uploadImageBase64(base64) {
+            const blob = await fetch(base64).then(res => res.blob());
+            uploadImage(blob);
+        }
+
+        async function sendToAI(imageUrl) {
+            const responseField = document.getElementById("response");
+            const preview = document.getElementById("imagePreview");
+            const payload = {
+                model: "meta-llama/Llama-Vision-Free",
+                messages: [
+                    { role: "system", content: "You are Exora HyperCore 3.0, an ELITE price action analyst." },
+                    { role: "user", content: [
+                        { type: "text", text: "Analisa price action nya dan dimana best area untuk user set tp dan sl nya" },
+                        { type: "image_url", image_url: { url: imageUrl } }
+                    ] }
+                ],
+                temperature: 0.7,
+                top_p: 0.7,
+                top_k: 50,
+                repetition_penalty: 1
+            };
+
+            const timeout = setTimeout(() => {
+                responseField.textContent = "Failed: Response timeout";
+                preview.classList.remove('loading');
+                responseField.style.display = 'block';
+            }, 20000);
+
+            try {
+                const togetherResponse = await fetch(TOGETHER_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
+                    body: JSON.stringify(payload)
+                });
+                clearTimeout(timeout);
+                const data = await togetherResponse.json();
+                preview.style.display = 'none';
+                preview.classList.remove('loading');
+                responseField.style.display = 'block';
+                responseField.textContent = data.choices[0]?.message?.content || "No response received";
+            } catch (error) {
+                clearTimeout(timeout);
+                console.error("Error sending to AI:", error);
+                responseField.textContent = `Error: ${error.message}`;
+                preview.classList.remove('loading');
+                responseField.style.display = 'block';
+            }
         }
 
         getApiKey();
