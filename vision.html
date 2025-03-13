@@ -90,7 +90,7 @@
 
         <div class="response-section">
             <h3>Response:</h3>
-            <pre id="response"></pre>
+            <pre id="response">You are Exora HyperCore 3.0, an ELITE price action analyst.</pre>
         </div>
     </div>
 
@@ -163,21 +163,6 @@
                 console.error("Error:", error);
                 responseField.textContent = `Error: ${error.message}`;
             }
-        }
-
-        document.getElementById("imageInput").addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file) previewImage(file);
-        });
-
-        function previewImage(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imgElement = document.getElementById("imagePreview");
-                imgElement.src = e.target.result;
-                imgElement.style.display = "block";
-            };
-            reader.readAsDataURL(file);
         }
 
         getApiKey();
