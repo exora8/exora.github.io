@@ -148,83 +148,92 @@
             input.click();
         }
 
-        document.getElementById('imageInput').addEventListener('change', () => {
-            const file = document.getElementById('imageInput').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.getElementById('imagePreview');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    detectCandles(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+document.getElementById('imageInput').addEventListener('change', () => {
+    const file = document.getElementById('imageInput').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById('imagePreview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            detectCandles(img);
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-        function detectCandles(image) {
-            const canvas = document.getElementById('particleCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+function detectCandles(image) {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-            ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            let candlePositions = [];
-            for (let i = 0; i < imgData.data.length; i += 4) {
-                const r = imgData.data[i];
-                const g = imgData.data[i + 1];
-                const b = imgData.data[i + 2];
+    let candlePositions = [];
+    for (let i = 0; i < imgData.data.length; i += 4) {
+        const r = imgData.data[i];
+        const g = imgData.data[i + 1];
+        const b = imgData.data[i + 2];
 
-                if ((r > 150 && g < 100 && b < 100) || (g > 150 && r < 100 && b < 100)) {
-                    const x = (i / 4) % canvas.width;
-                    const y = Math.floor(i / 4 / canvas.width);
-                    candlePositions.push({ x, y });
-                }
-            }
+        if ((r > 120 && g < 70 && b < 70) || (g > 120 && r < 70 && b < 70)) {
+            const x = (i / 4) % canvas.width;
+            const y = Math.floor(i / 4 / canvas.width);
+            candlePositions.push({ x, y });
+        }
+    }
 
-            startParticles(candlePositions);
+    startVirtualCursor(candlePositions);
+    
+}
+
+function startVirtualCursor(candlePositions) {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let cursor = { x: canvas.width / 2, y: canvas.height / 2 };
+
+    function drawCursor() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#0f8d14';
+        ctx.lineWidth = 1.5;
+
+        // Garis horizontal & vertikal
+        ctx.beginPath();
+        ctx.moveTo(0, cursor.y);
+        ctx.lineTo(canvas.width, cursor.y);
+        ctx.moveTo(cursor.x, 0);
+        ctx.lineTo(cursor.x, canvas.height);
+        ctx.stroke();
+
+        // Cari candle terdekat
+        if (candlePositions.length > 0) {
+            let closest = candlePositions.reduce((a, b) => 
+                Math.hypot(cursor.x - a.x, cursor.y - a.y) < Math.hypot(cursor.x - b.x, cursor.y - b.y) ? a : b
+            );
+            ctx.fillStyle = '#77fa03';
+            ctx.beginPath();
+            ctx.arc(closest.x, closest.y, 5, 0, Math.PI * 2);
+            ctx.fill();
         }
 
-        function startParticles(candlePositions) {
-            const canvas = document.getElementById('particleCanvas');
-            const ctx = canvas.getContext('2d');
-            let particles = [];
-            const totalParticles = 50;
+        // Random gerak liar
+        cursor.x += (Math.random() - 0.5) * 98;
+        cursor.y += (Math.random() - 0.5) * 20;
 
-            for (let i = 0; i < totalParticles; i++) {
-                let target = candlePositions[Math.floor(Math.random() * candlePositions.length)];
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 3 + 1,
-                    speed: Math.random() * 3 + 1,
-                    targetX: target.x,
-                    targetY: target.y
-                });
-            }
+        cursor.x = Math.max(0, Math.min(canvas.width, cursor.x));
+        cursor.y = Math.max(0, Math.min(canvas.height, cursor.y));
 
-            function animateParticles() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = Math.random() > 0.5 ? '#fff' : 'transparent';
-                    ctx.fill();
+        requestAnimationFrame(drawCursor);
+    }
 
-                    const dx = p.targetX - p.x;
-                    const dy = p.targetY - p.y;
-                    p.x += dx * 0.05;
-                    p.y += dy * 0.05;
-                });
+    drawCursor();
+    
+}
 
-                if (document.getElementById('imagePreview').style.display === 'none') return;
-                requestAnimationFrame(animateParticles);
-            }
 
-            animateParticles();
-        }
+
         
          const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
