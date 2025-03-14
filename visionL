@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exora Vision</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        h2 {
+            color: #89b4fa;
+            margin-bottom: 20px;
+        }
+        input, button {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            width: 200px;
+            transition: transform 0.2s ease;
+        }
+        
+        button, .file-btn {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            width: 200px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        button:hover, .file-btn:hover {
+            background-color: #89b4fa;
+            transform: scale(1.05);
+        }
+        #imagePreview {
+            display: none;
+            margin-top: 10px;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+        #imageInput {
+            display: none;
+        }
+        #response {
+            white-space: pre-wrap;
+            background-color: #181825;
+            padding: 10px;
+            border-radius: 5px;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            word-wrap: break-word;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            display: none;
+            opacity: 0;
+            animation: typing 1s ease 0s 1 normal forwards;
+        }
+        @keyframes typing {
+            0% { opacity: 0; filter: blur(5px); }
+            100% { opacity: 1; filter: blur(0px); }
+        }
+        @media (max-width: 600px) {
+            .file-btn, input, button {
+                width: 80%;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <label for="imageInput" class="file-btn">Choose File</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="takePicture" onclick="openCamera()">Take Picture</button>
+    </div>
+
+    <img id="imagePreview" />
+    <canvas id="particleCanvas"></canvas>
+    <pre id="response"></pre>
+
+    <script>
+      
+      document.body.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+        for (let item of items) {
+            if (item.type.startsWith("image/")) {
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById("imagePreview").src = event.target.result;
+                    uploadImage(blob);  // Pake fungsi upload yang udah ada
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+    }
+});
+
+
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+document.getElementById('imageInput').addEventListener('change', () => {
+    const file = document.getElementById('imageInput').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById('imagePreview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            detectCandles(img);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function detectCandles(image) {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    let candlePositions = [];
+    for (let i = 0; i < imgData.data.length; i += 4) {
+        const r = imgData.data[i];
+        const g = imgData.data[i + 1];
+        const b = imgData.data[i + 2];
+
+        if ((r > 100 && g < 90 && b < 90) || (g > 100 && r < 90 && b < 90)) {
+            const x = (i / 4) % canvas.width;
+            const y = Math.floor(i / 4 / canvas.width);
+            candlePositions.push({ x, y });
+        }
+    }
+
+    
+
+    startVirtualCursor(candlePositions);
+    
+}
+
+function startVirtualCursor(candlePositions) {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let cursor = { x: canvas.width / 2, y: canvas.height / 2 };
+
+    function drawCursor() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#0f8d14';
+        ctx.lineWidth = 1.5;
+
+        // Garis horizontal & vertikal
+        ctx.beginPath();
+        ctx.moveTo(0, cursor.y);
+        ctx.lineTo(canvas.width, cursor.y);
+        ctx.moveTo(cursor.x, 0);
+        ctx.lineTo(cursor.x, canvas.height);
+        ctx.stroke();
+
+        // Cari candle terdekat
+        if (candlePositions.length > 0) {
+            let closest = candlePositions.reduce((a, b) => 
+                Math.hypot(cursor.x - a.x, cursor.y - a.y) < Math.hypot(cursor.x - b.x, cursor.y - b.y) ? a : b
+            );
+            ctx.fillStyle = '#77fa03';
+            ctx.beginPath();
+            ctx.arc(closest.x, closest.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Random gerak liar
+        cursor.x += (Math.random() - 0.5) * 165;
+        cursor.y += (Math.random() - 0.5) * 20;
+
+        cursor.x = Math.max(0, Math.min(canvas.width, cursor.x));
+        cursor.y = Math.max(0, Math.min(canvas.height, cursor.y));
+
+        requestAnimationFrame(drawCursor);
+    }
+
+    drawCursor();
+    
+}
+
+
+
+        
+         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
+        const API_KEYS = [
+    "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
+    "1986fcb80017badcac2c5761e9bc5d9b5b635a57b58573c094c5aaee0f7cad65",
+    "47aacfae02634de54a494b4071c9fb357122f453c3ed25a848e77a32a39c50c2",
+    "11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d",
+    "cf887a3d000a64a1686d2bb8e392a64b7f46fe131aff4685e5199510106b8608",
+    "9fa71bf023b928a32cad2959fcf5fee36bb9fbb3732ed6ba659892c079da57e0",
+    "401925c1ac6e2e33847169014115e9344dcaf32d1c1fe386c8fc92768d7b15ad",
+    "215c434d7361a2799557f151ab3b3b80c710a09111339e712a82579f8790f7f2",
+    "34211673816c9ef4729e0259c042ebe3d762fb90ff16c36b42ddfb1c0f9e10e6",
+    "1ea461952d729c0e3dccadd919ee5d121a8125bc7bd5924192495528e24e2afb",
+    "40f561d9befc36d117412f9003d81a2306790e536cec5c36ce540833885f6bd5",
+    "f8eb6808a6c585445cd0db8cb5d048b9cb2d35262fe67f9b512ebc17eb4937b2",
+    "f19df6a1c0a9dccb696764e091d8990734acdff7b39f811a873f7ddf580f92ff"
+];
+
+        function getRandomApiKey() {
+            return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+        }
+
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+        document.getElementById('imageInput').addEventListener('change', () => {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    uploadImage(file);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadImage(fileInput) {
+            const responseField = document.getElementById("response");
+            try {
+                const formData = new FormData();
+                formData.append("image", fileInput);
+
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const imgbbData = await imgbbResponse.json();
+                const imageUrl = imgbbData.data.url;
+                const selectedApiKey = getRandomApiKey();
+
+                const payload = {
+                    model: "meta-llama/Llama-Vision-Free",
+                    messages: [
+                        { role: "system", content: "You are Exora VISION HyperCore 3.0, a highly advanced Price Action Analyst. You analyze market movements, candlestick patterns, and structures with extreme accuracy. Your vision system allows you to process both text and images, detecting patterns and trends with unmatched precision. You do not guess—you calculate. You do not assume—you confirm. Every price movement has meaning, and you understand it instantly. You are designed to see what others miss and provide clear, data-driven insights. The market moves. You know why." },
+                        { role: "user", content: [
+                            { type: "text", text: "Analisa price action dari gambar ini dengan detail. Identifikasi trend, indikator, support, resistance,identifikasi level entry take profit dan stop loss untuk middle term spot trading" },
+                            { type: "image_url", image_url: { url: imageUrl } }
+                        ] }
+                    ],
+                    temperature: 0.7,
+                    top_p: 0.7,
+                    top_k: 50,
+                    repetition_penalty: 1
+                };
+
+                const togetherResponse = await fetch(TOGETHER_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${selectedApiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await togetherResponse.json();
+                document.getElementById('imagePreview').style.display = 'none';
+                responseField.style.display = 'block';
+                responseField.textContent = data.choices[0]?.message?.content || "No response received";
+            } catch (error) {
+                console.error("Error:", error);
+                responseField.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        
+         let holdTimeout;
+        const responseField = document.getElementById('response');
+
+        responseField.addEventListener('mousedown', () => {
+            holdTimeout = setTimeout(() => {
+                if (confirm('Refresh page?')) location.reload();
+            }, 1000);  // Hold 1 detik buat munculin confirm
+        });
+
+        responseField.addEventListener('mouseup', () => clearTimeout(holdTimeout));
+        responseField.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
+    </script>
+</body>
+</html>
