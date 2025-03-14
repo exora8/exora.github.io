@@ -177,16 +177,14 @@ function detectCandles(image) {
         const g = imgData.data[i + 1];
         const b = imgData.data[i + 2];
 
-        if (
-    (r > 100 && g < 90 && b < 90) ||  // Bearish merah lebih longgar
-    (g > 100 && r < 90 && b < 90)      // Bullish hijau lebih longgar
-) {
-    const x = (i / 4) % canvas.width;
-    const y = Math.floor(i / 4 / canvas.width);
-    candlePositions.push({ x, y });
-}
-
+        if ((r > 100 && g < 90 && b < 90) || (g > 100 && r < 90 && b < 90)) {
+            const x = (i / 4) % canvas.width;
+            const y = Math.floor(i / 4 / canvas.width);
+            candlePositions.push({ x, y });
+        }
     }
+
+    
 
     startVirtualCursor(candlePositions);
     
@@ -223,7 +221,7 @@ function startVirtualCursor(candlePositions) {
         }
 
         // Random gerak liar
-        cursor.x += (Math.random() - 0.5) * 115;
+        cursor.x += (Math.random() - 0.5) * 165;
         cursor.y += (Math.random() - 0.5) * 20;
 
         cursor.x = Math.max(0, Math.min(canvas.width, cursor.x));
