@@ -2,114 +2,205 @@
 <html>
 <head>
     <title>Exora Vision</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .container {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        h2 {
-            color: #89b4fa;
-            margin-bottom: 20px;
-        }
-        input, button {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-        }
-        
-        button, .file-btn {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-            display: inline-block;
-            text-align: center;
-            line-height: 1.5;
-            font-size: 16px;
-        }
-        button:hover, .file-btn:hover {
-            background-color: #89b4fa;
-            transform: scale(1.05);
-        }
-        #imagePreview {
-            display: none;
-            margin-top: 10px;
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 3;
-            pointer-events: none;
-        }
-        #imageInput {
-            display: none;
-        }
-        #response {
-            white-space: pre-wrap;
-            background-color: #181825;
-            padding: 10px;
-            border-radius: 5px;
-            height: 100%;
-            width: 100%;
-            overflow: auto;
-            word-wrap: break-word;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 4;
-            display: none;
-            opacity: 0;
-            animation: typing 1s ease 0s 1 normal forwards;
-        }
-        @keyframes typing {
-            0% { opacity: 0; filter: blur(5px); }
-            100% { opacity: 1; filter: blur(0px); }
-        }
-        @media (max-width: 600px) {
-            .file-btn, input, button {
-                width: 80%;
-                padding: 8px;
-            }
-        }
-    </style>
+    
+<style>
+ * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #1e1e2e;
+    color: #cdd6f4;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Container utama di tengah */
+.container {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px; /* Biar gak kegedean di desktop */
+}
+
+/* Heading */
+h2 {
+    color: #89b4fa;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+/* Input dan Button Styling */
+input,
+button,
+.file-btn {
+    background-color: #313244;
+    color: #cdd6f4;
+    border: none;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 200px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+/* Hover efek */
+button:hover,
+.file-btn:hover {
+    background-color: #89b4fa;
+    transform: scale(1.05);
+}
+
+/* Gambar Preview */
+#imagePreview {
+    display: none;
+    margin-top: 10px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+    z-index: 2;
+    animation: popup 0.8s ease-out forwards;
+}
+
+/* Setelah gambar loaded */
+#imagePreview.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Animasi scale smooth */
+@keyframes popup {
+    0% {
+        transform: translate(-50%, 350%) scale(0.5);
+        opacity: 0;
+    }
+
+    90% {
+        transform: translate(-50%, -48%) scale(0.99);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Canvas untuk efek scan */
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* File input biar ga keliatan */
+#imageInput {
+    display: none;
+}
+
+/* Responsif pesan hasil / output */
+#response {
+    white-space: pre-wrap;
+    background-color: #181825;
+    padding: 10px;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    word-wrap: break-word;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    display: none;
+    opacity: 0;
+    animation: typing 1s ease 0s 1 normal forwards;
+}
+
+/* Animasi response typing */
+@keyframes typing {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 150%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* 🎯 RESPONSIVE BREAKPOINTS */
+
+/* Untuk HP kecil */
+@media (max-width: 480px) {
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .file-btn,
+    input,
+    button {
+        width: 90%;
+        padding: 8px;
+    }
+
+    #imagePreview {
+        max-width: 80%;
+    }
+}
+
+/* Tablet dan layar menengah */
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .file-btn,
+    input,
+    button {
+        width: 85%;
+    }
+}
+
+/* Desktop besar */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 600px;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    #imagePreview {
+        max-width: 70%;
+    }
+}
+</style>
 </head>
 <body>
     <div class="container">
@@ -156,88 +247,83 @@ document.getElementById('imageInput').addEventListener('change', () => {
             const img = document.getElementById('imagePreview');
             img.src = e.target.result;
             img.style.display = 'block';
-            detectCandles(img);
+            img.onload = () => {
+                img.classList.add('show');
+
+                // Tunggu animasi selesai dulu baru setup canvas
+                setTimeout(() => setupCanvas(img), 800);
+            };
         };
         reader.readAsDataURL(file);
     }
 });
 
-function detectCandles(image) {
+function setupCanvas(image) {
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2);
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Ambil ukuran image setelah animasi selesai
+    const rect = image.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    canvas.style.position = 'absolute';
+    canvas.style.top = `${rect.top + window.scrollY}px`;
+    canvas.style.left = `${rect.left + window.scrollX}px`;
+    canvas.style.display = 'block';
 
-    let candlePositions = [];
-    for (let i = 0; i < imgData.data.length; i += 4) {
-        const r = imgData.data[i];
-        const g = imgData.data[i + 1];
-        const b = imgData.data[i + 2];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        if ((r > 100 && g < 90 && b < 90) || (g > 100 && r < 90 && b < 90)) {
-            const x = (i / 4) % canvas.width;
-            const y = Math.floor(i / 4 / canvas.width);
-            candlePositions.push({ x, y });
-        }
-    }
-
-    
-
-    startVirtualCursor(candlePositions);
-    
+    startScanningLight(canvas, ctx);
 }
 
-function startVirtualCursor(candlePositions) {
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
+function startScanningLight(canvas, ctx) {
+    let scanY = -100;
+    const scanSpeed = 3;
 
-    let cursor = { x: canvas.width / 2, y: canvas.height / 2 };
-
-    function drawCursor() {
+    function drawScanningLight() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#0f8d14';
-        ctx.lineWidth = 1.5;
 
-        // Garis horizontal & vertikal
-        ctx.beginPath();
-        ctx.moveTo(0, cursor.y);
-        ctx.lineTo(canvas.width, cursor.y);
-        ctx.moveTo(cursor.x, 0);
-        ctx.lineTo(cursor.x, canvas.height);
-        ctx.stroke();
+        // Cahaya kotak dengan bloom hanya di area gambar
+        const lightWidth = canvas.width * 1.2;
+        const lightHeight = 100;
+        const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-        // Cari candle terdekat
-        if (candlePositions.length > 0) {
-            let closest = candlePositions.reduce((a, b) => 
-                Math.hypot(cursor.x - a.x, cursor.y - a.y) < Math.hypot(cursor.x - b.x, cursor.y - b.y) ? a : b
-            );
-            ctx.fillStyle = '#77fa03';
-            ctx.beginPath();
-            ctx.arc(closest.x, closest.y, 5, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        ctx.fillStyle = gradient;
+        ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
 
-        // Random gerak liar
-        cursor.x += (Math.random() - 0.5) * 165;
-        cursor.y += (Math.random() - 0.5) * 20;
+        scanY += scanSpeed;
+        if (scanY > canvas.height) scanY = -100;
 
-        cursor.x = Math.max(0, Math.min(canvas.width, cursor.x));
-        cursor.y = Math.max(0, Math.min(canvas.height, cursor.y));
-
-        requestAnimationFrame(drawCursor);
+        requestAnimationFrame(drawScanningLight);
     }
 
-    drawCursor();
-    
+    drawScanningLight();
 }
 
 
 
-        
-         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+
+
+
+         const IMG_API_KEY = [
+    "bedc482173ef5ae2ee3d11aff6c751ad",
+    "e289a41a680b3b8e42d47c618ef1a799",
+    "983f47767cae39ddfb0031228296bcda",
+    "02e4e79b8f4f7ef185b2d2492f1b4096",
+    "f7d50fbf59995e894c0d3ece42161f65",
+    "a7a1d267d1b26b88fd43562c0c1ca3ea",
+    "57858a3e433bf19132f376e4b25438af"
+];
+         
+         
+         
+         
+         
+         
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         const API_KEYS = [
     "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
@@ -257,6 +343,10 @@ function startVirtualCursor(candlePositions) {
 
         function getRandomApiKey() {
             return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+        }
+        
+        function getRandomApiKey1() {
+            return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
         }
 
         function openCamera() {
@@ -282,10 +372,12 @@ function startVirtualCursor(candlePositions) {
         async function uploadImage(fileInput) {
             const responseField = document.getElementById("response");
             try {
+               const selectedImgApiKey = getRandomApiKey1();
+               console.log("selected imgbb api key : ", selectedImgApiKey);
                 const formData = new FormData();
                 formData.append("image", fileInput);
 
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${selectedImgApiKey}`, {
                     method: "POST",
                     body: formData
                 });
@@ -293,6 +385,7 @@ function startVirtualCursor(candlePositions) {
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
                 const selectedApiKey = getRandomApiKey();
+                
 
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
