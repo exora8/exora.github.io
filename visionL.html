@@ -4,62 +4,72 @@
     <title>Exora Vision</title>
     <style>
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .container {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        h2 {
-            color: #89b4fa;
-            margin-bottom: 20px;
-        }
-        input, button {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-        }
-        
-        button, .file-btn {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-            display: inline-block;
-            text-align: center;
-            line-height: 1.5;
-            font-size: 16px;
-        }
-        button:hover, .file-btn:hover {
-            background-color: #89b4fa;
-            transform: scale(1.05);
-        }
-        #imagePreview {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #1e1e2e;
+    color: #cdd6f4;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+}
+
+h2 {
+    color: #89b4fa;
+    margin-bottom: 20px;
+}
+
+input, button {
+    background-color: #313244;
+    color: #cdd6f4;
+    border: none;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 200px;
+    transition: transform 0.2s ease;
+}
+
+button, .file-btn {
+    background-color: #313244;
+    color: #cdd6f4;
+    border: none;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 200px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+button:hover, .file-btn:hover {
+    background-color: #89b4fa;
+    transform: scale(1.05);
+}
+
+#imagePreview {
     display: none;
     margin-top: 10px;
     max-width: 100%;
@@ -68,84 +78,94 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.5); /* Mulai kecil */
-    opacity: 0; /* Mulai transparan */
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
     z-index: 2;
-    animation: popup 0.8s ease-out forwards; /* Animasi aktif langsung */
+    animation: popup 0.8s ease-out forwards;
 }
 
-/* Setelah gambar loaded */
 #imagePreview.show {
     display: block; 
     opacity: 1;
 }
 
-/* Animasi scale smooth */
 @keyframes popup {
     0% {
-      
         transform: translate(-50%, 350%) scale(0.5);
         opacity: 0;
     }
 
     90% {
         transform: translate(-50%, -48%) scale(0.99);
-        
         opacity: 1;
     }
     
     100% {
         transform: translate(-50%, -50%) scale(1);
-        
         opacity: 1;
     }
 }
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 3;
-            pointer-events: none;
-        }
-        #imageInput {
-            display: none;
-        }
-        #response {
-            white-space: pre-wrap;
-            background-color: #181825;
-            padding: 10px;
-            border-radius: 5px;
-            height: 100%;
-            width: 100%;
-            overflow: auto;
-            word-wrap: break-word;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 4;
-            display: none;
-            opacity: 0;
-            animation: typing 1s ease 0s 1 normal forwards;
-        }
-        @keyframes typing {
-	0% {
-		opacity: 0;
-		transform: translate(-50%, 150%);
-	}
-
-	100% {
-		opacity: 1;
-		transform: translate(-50%, -50%);
-	}
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
 }
-        @media (max-width: 600px) {
-            .file-btn, input, button {
-                width: 80%;
-                padding: 8px;
-            }
-        }
+
+#imageInput {
+    display: none;
+}
+
+#response {
+    white-space: pre-wrap;
+    background-color: #181825;
+    padding: 10px;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    word-wrap: break-word;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    display: none;
+    opacity: 0;
+    animation: typing 1s ease 0s 1 normal forwards;
+}
+
+@keyframes typing {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 150%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Responsiveness */
+@media (max-width: 600px) {
+    .file-btn, input, button {
+        width: 100%;
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    #response {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
     </style>
 </head>
 <body>
