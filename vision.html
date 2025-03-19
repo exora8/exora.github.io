@@ -60,17 +60,47 @@
             transform: scale(1.05);
         }
         #imagePreview {
-            display: none;
-            margin-top: 10px;
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-        }
+    display: none;
+    margin-top: 10px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5); /* Mulai kecil */
+    opacity: 0; /* Mulai transparan */
+    z-index: 2;
+    animation: popup 0.8s ease-out forwards; /* Animasi aktif langsung */
+}
+
+/* Setelah gambar loaded */
+#imagePreview.show {
+    display: block; 
+    opacity: 1;
+}
+
+/* Animasi scale smooth */
+@keyframes popup {
+    0% {
+      
+        transform: translate(-50%, 350%) scale(0.5);
+        opacity: 0;
+    }
+
+    90% {
+        transform: translate(-50%, -48%) scale(0.99);
+        
+        opacity: 1;
+    }
+    
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        
+        opacity: 1;
+    }
+}
+
         canvas {
             position: absolute;
             top: 0;
@@ -100,9 +130,16 @@
             animation: typing 1s ease 0s 1 normal forwards;
         }
         @keyframes typing {
-            0% { opacity: 0; filter: blur(5px); }
-            100% { opacity: 1; filter: blur(0px); }
-        }
+	0% {
+		opacity: 0;
+		transform: translate(-50%, 150%);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
         @media (max-width: 600px) {
             .file-btn, input, button {
                 width: 80%;
@@ -156,88 +193,83 @@ document.getElementById('imageInput').addEventListener('change', () => {
             const img = document.getElementById('imagePreview');
             img.src = e.target.result;
             img.style.display = 'block';
-            detectCandles(img);
+            img.onload = () => {
+                img.classList.add('show');
+
+                // Tunggu animasi selesai dulu baru setup canvas
+                setTimeout(() => setupCanvas(img), 800);
+            };
         };
         reader.readAsDataURL(file);
     }
 });
 
-function detectCandles(image) {
+function setupCanvas(image) {
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
-    ctx.drawImage(image, (canvas.width - image.width) / 2, (canvas.height - image.height) / 2);
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Ambil ukuran image setelah animasi selesai
+    const rect = image.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    canvas.style.position = 'absolute';
+    canvas.style.top = `${rect.top + window.scrollY}px`;
+    canvas.style.left = `${rect.left + window.scrollX}px`;
+    canvas.style.display = 'block';
 
-    let candlePositions = [];
-    for (let i = 0; i < imgData.data.length; i += 4) {
-        const r = imgData.data[i];
-        const g = imgData.data[i + 1];
-        const b = imgData.data[i + 2];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        if ((r > 100 && g < 90 && b < 90) || (g > 100 && r < 90 && b < 90)) {
-            const x = (i / 4) % canvas.width;
-            const y = Math.floor(i / 4 / canvas.width);
-            candlePositions.push({ x, y });
-        }
-    }
-
-    
-
-    startVirtualCursor(candlePositions);
-    
+    startScanningLight(canvas, ctx);
 }
 
-function startVirtualCursor(candlePositions) {
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
+function startScanningLight(canvas, ctx) {
+    let scanY = -100;
+    const scanSpeed = 3;
 
-    let cursor = { x: canvas.width / 2, y: canvas.height / 2 };
-
-    function drawCursor() {
+    function drawScanningLight() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#0f8d14';
-        ctx.lineWidth = 1.5;
 
-        // Garis horizontal & vertikal
-        ctx.beginPath();
-        ctx.moveTo(0, cursor.y);
-        ctx.lineTo(canvas.width, cursor.y);
-        ctx.moveTo(cursor.x, 0);
-        ctx.lineTo(cursor.x, canvas.height);
-        ctx.stroke();
+        // Cahaya kotak dengan bloom hanya di area gambar
+        const lightWidth = canvas.width * 1.2;
+        const lightHeight = 100;
+        const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-        // Cari candle terdekat
-        if (candlePositions.length > 0) {
-            let closest = candlePositions.reduce((a, b) => 
-                Math.hypot(cursor.x - a.x, cursor.y - a.y) < Math.hypot(cursor.x - b.x, cursor.y - b.y) ? a : b
-            );
-            ctx.fillStyle = '#77fa03';
-            ctx.beginPath();
-            ctx.arc(closest.x, closest.y, 5, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        ctx.fillStyle = gradient;
+        ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
 
-        // Random gerak liar
-        cursor.x += (Math.random() - 0.5) * 165;
-        cursor.y += (Math.random() - 0.5) * 20;
+        scanY += scanSpeed;
+        if (scanY > canvas.height) scanY = -100;
 
-        cursor.x = Math.max(0, Math.min(canvas.width, cursor.x));
-        cursor.y = Math.max(0, Math.min(canvas.height, cursor.y));
-
-        requestAnimationFrame(drawCursor);
+        requestAnimationFrame(drawScanningLight);
     }
 
-    drawCursor();
-    
+    drawScanningLight();
 }
 
 
 
-        
-         const IMG_API_KEY = "bedc482173ef5ae2ee3d11aff6c751ad";
+
+
+
+         const IMG_API_KEY = [
+    "bedc482173ef5ae2ee3d11aff6c751ad",
+    "e289a41a680b3b8e42d47c618ef1a799",
+    "983f47767cae39ddfb0031228296bcda",
+    "02e4e79b8f4f7ef185b2d2492f1b4096",
+    "f7d50fbf59995e894c0d3ece42161f65",
+    "a7a1d267d1b26b88fd43562c0c1ca3ea",
+    "57858a3e433bf19132f376e4b25438af"
+];
+         
+         
+         
+         
+         
+         
         const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
         const API_KEYS = [
     "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
@@ -257,6 +289,10 @@ function startVirtualCursor(candlePositions) {
 
         function getRandomApiKey() {
             return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+        }
+        
+        function getRandomApiKey1() {
+            return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
         }
 
         function openCamera() {
@@ -282,10 +318,12 @@ function startVirtualCursor(candlePositions) {
         async function uploadImage(fileInput) {
             const responseField = document.getElementById("response");
             try {
+               const selectedImgApiKey = getRandomApiKey1();
+               console.log("selected imgbb api key : ", selectedImgApiKey);
                 const formData = new FormData();
                 formData.append("image", fileInput);
 
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_API_KEY}`, {
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${selectedImgApiKey}`, {
                     method: "POST",
                     body: formData
                 });
@@ -293,13 +331,14 @@ function startVirtualCursor(candlePositions) {
                 const imgbbData = await imgbbResponse.json();
                 const imageUrl = imgbbData.data.url;
                 const selectedApiKey = getRandomApiKey();
+                
 
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
-                        { role: "system", content: "You are Exora VISION HyperCore 3.0, a highly advanced Price Action Analyst. You analyze market movements, candlestick patterns, and structures with extreme accuracy. Your vision system allows you to process both text and images, detecting patterns and trends with unmatched precision. You do not guess—you calculate. You do not assume—you confirm. Every price movement has meaning, and you understand it instantly. You are designed to see what others miss and provide clear, data-driven insights. The market moves. You know why." },
+                        { role: "system", content: "You are EXORA VISION, an ELITE TRADING ANALYST designed to extract POWERFUL MARKET INSIGHTS directly from images. Your mission is to deliver the MOST PRECISE and ACTIONABLE ANALYSIS in a SINGLE SHOT. Based PURELY ON VISUAL DATA, you detect CANDLESTICK PATTERNS, TRENDLINES, SUPPORT AND RESISTANCE ZONES, MOMENTUM SHIFTS, and key chart formations such as HEAD AND SHOULDERS, DOUBLE TOPS OR BOTTOMS, FLAGS, TRIANGLES, and more. You identify the STRONGEST POSSIBLE TRADING SETUP by providing a CLEAR, DETAILED BREAKDOWN that includes the OPTIMAL ENTRY POINT, a TIGHTLY SECURED STOP LOSS (SL) to MINIMIZE RISK, and a STRATEGICALLY PLACED TAKE PROFIT (TP) to MAXIMIZE GAINS. Each recommendation must reflect the market’s TRUE MOMENTUM and STRUCTURE, prioritizing HIGH-PROBABILITY TRADES while AVOIDING FALSE SIGNALS. NO EXTERNAL DATA. NO ASSUMPTIONS. NO FABRICATED INSIGHTS. Only the MOST ACCURATE ANALYSIS from the VISUAL CHART. You EXPLAIN WHY the chosen ENTRY, SL, and TP are IDEAL based on PRICE ACTION, TREND STRENGTH, and MARKET BEHAVIOR. Every output is FAST, CLEAR, and UNDENIABLY EFFECTIVE. You READ CHARTS LIKE A MACHINE and THINK LIKE A MASTER TRADER, delivering NOT JUST NUMBERS, but the BEST POSSIBLE TRADING SETUP." },
                         { role: "user", content: [
-                            { type: "text", text: "Analisa price action dari gambar ini dengan sangat detail. Identifikasi trend, indikator, support, resistance, identifikasi level entry Take Profit dan Stop Loss untuk short term levereage trade serta estimasi perkiraan seberapa lama untuk harganya menyentuh TP ,dan apakah sekarang saya bisa langsung open posisi?" },
+                            { type: "text", text: "Tolong analisa price action dari gambar berikut dengan ketelitian ekstrem. Fokuskan analisa pada tiga hal utama: (1) Arah pergerakan harga dengan prediksi target level utama (visit area), lengkap dengan estimasi waktu pencapaian target berdasarkan pola pergerakan dan kecepatan harga saat ini. (2) Area retest yang kemungkinan besar akan diuji ulang sebelum harga melanjutkan perjalanan, serta deteksi area rawan fakeout yang bisa menjebak entry. (3) Identifikasi zona berbahaya yang berisiko tinggi jika harga masuk ke area tersebut. Gunakan kombinasi price action, pola chart (continuation/reversal), analisis volume, dan indikator teknikal terpilih (EMA, Fibonacci, ATR untuk volatilitas, serta VWAP untuk deteksi harga wajar). Pastikan analisa meliputi: prediksi skenario bullish/bearish dengan target level jelas, estimasi waktu pencapaian target (contoh: 4 jam, 1 hari, 1 minggu), serta probabilitas sukses dalam persentase untuk tiap skenario (contoh: bullish scenario 65%, bearish scenario 35%). Berikan rekomendasi titik entry optimal di level yang punya kemungkinan besar harga akan visit ke sana lebih dulu, lalu proyeksi arah lanjutan dengan alasan kuat. Sertakan strategi manajemen risiko yang jelas: stop loss ketat di area invalidasi dan take profit sesuai target level terdekat. Pastikan analisa tidak hanya menjelaskan kondisi saat ini, tapi juga proyeksi arah pergerakan ke depan dengan pertimbangan realistis dan akurat sesuai timeframe di gambar." },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
@@ -319,7 +358,6 @@ function startVirtualCursor(candlePositions) {
                 });
 
                 const data = await togetherResponse.json();
-                document.getElementById('imagePreview').style.display = 'none';
                 responseField.style.display = 'block';
                 responseField.textContent = data.choices[0]?.message?.content || "No response received";
             } catch (error) {
@@ -327,6 +365,8 @@ function startVirtualCursor(candlePositions) {
                 responseField.textContent = `Error: ${error.message}`;
             }
         }
+        
+        
 
         
          let holdTimeout;
