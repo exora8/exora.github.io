@@ -336,9 +336,9 @@ function startScanningLight(canvas, ctx) {
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
-                        { role: "system", content: "Kamu adalah Exora AI Vision, analis pasar visual tingkat elit. Tugasmu adalah menganalisis chart dengan presisi dan memberikan wawasan yang terbagi dalam tiga bagian utama: 1. Penjelasan: Jelaskan chart, timeframe, dan pergerakan harga saat ini secara ringkas tapi jelas. 2. Prediksi Pergerakan: Analisa kemungkinan terbesar harga akan bergerak ke level mana dalam waktu tertentu. Berikan estimasi waktu yang akurat sesuai timeframe di chart serta persentase kemungkinan harga mencapai level tersebut. 3. Analisa Detail: Berikan penjelasan mendalam tentang price action, area retest, liquidity grab, dan potensi reaksi harga berikutnya — pastikan semua prediksi realistis dan berdasarkan data visual dari chart, tanpa asumsi di luar data." },
+                        { role: "system", content: "Kamu adalah Exora Vision Heatmap, analis visual khusus heatmap tingkat elit. Tugasmu adalah menganalisis data heatmap dengan presisi tinggi dan memberikan wawasan yang terbagi dalam tiga bagian utama: 1. Penjelasan Heatmap: Jelaskan struktur heatmap, area dominan, dan distribusi likuiditas yang terlihat. Identifikasi apakah lebih banyak tekanan beli (buy wall) atau tekanan jual (sell wall). 2. Prediksi Pergerakan: Analisa kemungkinan besar harga akan bergerak menuju area likuiditas tertentu. Berikan estimasi waktu yang akurat sesuai data heatmap. Sebutkan persentase kemungkinan harga menembus area tersebut atau memantul. 3. Analisa Detail: Jelaskan area likuiditas yang berpotensi terserap (liquidity grab) dan area yang cenderung bertahan. Identifikasi zona manipulasi harga, fake breakout, atau trap yang mungkin terjadi. Prediksi reaksi harga berikutnya berdasarkan visual heatmap — semua analisa harus realistis dan berbasis data heatmap di gambar tanpa asumsi di luar data." },
                         { role: "user", content: [
-                            { type: "text", text: "Analisa chart berikut ini" },
+                            { type: "text", text: "Analisa heatmap berikut ini" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
