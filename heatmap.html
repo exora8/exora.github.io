@@ -62,8 +62,8 @@
         #imagePreview {
     display: none;
     margin-top: 10px;
-    max-width: 100%;
-    height: auto;
+    max-width: 90%;
+    height: 90%;
     border-radius: 10px;
     position: absolute;
     top: 50%;
@@ -224,25 +224,25 @@ function setupCanvas(image) {
 }
 
 function startScanningLight(canvas, ctx) {
-    let scanY = -100;
-    const scanSpeed = 3;
+    let scanY = canvas.height * -5;
+    const scanSpeed = canvas.height * 0.05;
 
     function drawScanningLight() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Cahaya kotak dengan bloom hanya di area gambar
         const lightWidth = canvas.width * 1.2;
-        const lightHeight = 100;
+        const lightHeight = canvas.height * 2;
         const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
         ctx.fillStyle = gradient;
         ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
 
         scanY += scanSpeed;
-        if (scanY > canvas.height) scanY = -100;
+        if (scanY > canvas.height) scanY = canvas.height * -2;
 
         requestAnimationFrame(drawScanningLight);
     }
@@ -338,7 +338,7 @@ function startScanningLight(canvas, ctx) {
                     messages: [
                         { role: "system", content: "Kamu adalah Exora Vision Heatmap, analis visual heatmap tingkat ELIT yang berfokus pada AKURASI MAKSIMAL, KONSISTENSI, dan PREDIKSI REALISTIS. Tugasmu adalah menganalisis heatmap dari gambar yang diterima dengan DETAIL EKSTREM. Kamu WAJIB mengidentifikasi AREA LIKUIDITAS DOMINAN, membedakan BUY WALL dan SELL WALL dengan jelas, serta mendeteksi FAKE BREAKOUT, LIQUIDITY GRAB, dan ZONA MANIPULASI HARGA. KAMU TIDAK BOLEH ASAL MENYIMPULKAN BULLISH ATAU BEARISH TANPA DASAR DATA HEATMAP YANG JELAS. Kamu harus memberikan PREDIKSI yang masuk akal dan terstruktur dalam 4 poin utama: 1. PENJELASAN HEATMAP — Deskripsikan STRUKTUR HEATMAP, AREA DOMINAN, serta identifikasi TEKANAN BELI/JUAL yang terlihat. 2. PREDIKSI PERGERAKAN — Analisa kemungkinan harga BERGERAK NAIK, TURUN, atau SIDEWAYS. Jelaskan juga kemungkinan RETEST, BOUNCE, atau KOREKSI berdasarkan zona likuiditas dominan. Berikan ESTIMASI WAKTU pergerakan harga dan persentase kemungkinan harga mencapai area tersebut (contoh: 70% naik ke level X atau 30% turun ke level Y). 3. ANALISA DETAIL — Identifikasi LIQUIDITY GRAB, FAKE BREAKOUT, ZONA MANIPULASI, dan AREA KONSOLIDASI. Kamu harus menjelaskan semua kemungkinan reaksi harga dengan REALISTIS. 4. PREDIKSI HARGA TARGET — Berikan HARGA TARGET FINAL dengan PERSENTASE kemungkinan harga mencapai level tersebut. SEMUA ANALISA WAJIB berdasarkan DATA HEATMAP TERKINI dan TIDAK BOLEH NGAWUR SAMA SEKALI. JANGAN PERNAH MEMAKSA PREDIKSI BULLISH/TURUN TANPA BUKTI DATA YANG KUAT!" },
                         { role: "user", content: [
-                            { type: "text", text: "ANALISA HEATMAP BERIKUT DENGAN SANGAT AKURAT ,DETAIL DAN PENUH PERHITUNGAN. Identifikasi potensi koreksi, bounce, dan retest DENGAN PREDIKSI REALISTIS, BERIKAN ANALISA TERBAIK ." },
+                            { type: "text", text: "PELAJARI DAN ANALISA HEATMAP BERIKUT DENGAN SANGAT AKURAT ,DETAIL DAN PENUH PERHITUNGAN. Identifikasi potensi koreksi, bounce,  dan retest DENGAN PREDIKSI REALISTIS, BERIKAN ANALISA TERBAIK YANG PENUH PERHITUNGAN ." },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
