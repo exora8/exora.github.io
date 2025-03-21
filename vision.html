@@ -62,8 +62,8 @@
         #imagePreview {
     display: none;
     margin-top: 10px;
-    max-width: 100%;
-    height: auto;
+    max-width: 90%;
+    height: 90%;
     border-radius: 10px;
     position: absolute;
     top: 50%;
@@ -224,25 +224,25 @@ function setupCanvas(image) {
 }
 
 function startScanningLight(canvas, ctx) {
-    let scanY = -100;
-    const scanSpeed = 3;
+    let scanY = canvas.height * -5;
+    const scanSpeed = canvas.height * 0.05;
 
     function drawScanningLight() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Cahaya kotak dengan bloom hanya di area gambar
         const lightWidth = canvas.width * 1.2;
-        const lightHeight = 100;
+        const lightHeight = canvas.height * 2;
         const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
         ctx.fillStyle = gradient;
         ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
 
         scanY += scanSpeed;
-        if (scanY > canvas.height) scanY = -100;
+        if (scanY > canvas.height) scanY = canvas.height * -2;
 
         requestAnimationFrame(drawScanningLight);
     }
