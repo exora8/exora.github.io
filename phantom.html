@@ -201,9 +201,11 @@ input[type="file"] {
     let labels = [];
 
     async function loadOrCreateModel() {
+      showLoading();
         try {
             model = await tf.loadLayersModel('indexeddb://crypto_model');
             console.log("Model loaded from IndexedDB!");
+            hideLoading();
         } catch (error) {
             console.log("No saved model found. Creating a new model...");
             model = tf.sequential({
@@ -224,6 +226,8 @@ input[type="file"] {
             console.log("Saving new model to IndexedDB...");
             await model.save('indexeddb://crypto_model');
             console.log("Model saved!");
+            hideLoading();
+            
         }
     }
 
@@ -265,6 +269,7 @@ input[type="file"] {
             alert("Model belum dimuat, tunggu sebentar...");
             return;
         }
+        showLoading();
 
         const imgElement = document.getElementById('image-preview');
         let tensor = tf.browser.fromPixels(imgElement)
@@ -279,6 +284,7 @@ input[type="file"] {
 
         document.getElementById('result').innerText =
             `Prediction: ${labels[maxIndex]} (${(predictedProb[maxIndex] * 100).toFixed(2)}%)`;
+            hideLoading();
     }
 
     document.getElementById('drop-zone').addEventListener('drop', async (event) => {
@@ -316,6 +322,7 @@ input[type="file"] {
     }
 
     try {
+      showLoading();
         console.log("Training started...");
 
         if (!model.optimizer) {
@@ -343,9 +350,11 @@ input[type="file"] {
         await model.save('indexeddb://crypto_model');
 
         document.getElementById('train-status').innerText = "Training complete! Model saved.";
+        hideLoading();
     } catch (error) {
         console.error("Training error:", error);
         alert("Error saat training AI. Cek console untuk detail.");
+        hideLoading();
     }
 }
 
