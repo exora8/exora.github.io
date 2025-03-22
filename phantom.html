@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.0.2/tesseract.min.js"></script>
+     <style>
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background-color: #121212;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s, background 0.3s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 1s ease-in-out;
+}
+
+#image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s;
+}
+
+#image-preview:hover {
+    transform: scale(1.05);
+}
+
+#drop-zone {
+    border: 2px dashed #fff;
+    padding: 40px;
+    width: 80%;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.3s, transform 0.3s;
+}
+
+#drop-zone:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+}
+
+h3, h2 {
+    font-weight: normal;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s, background 0.3s;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.custom-file-upload:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+#mode-indicator {
+    font-size: 1.3em;
+    margin: 10px 0;
+    font-weight: bold;
+    animation: fadeIn 1s ease-in-out;
+}
+
+
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#loading-screen.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #007bff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+    </style>
+</head>
+<body>
+    <h1>Crypto Price Predictor</h1>
+    
+    <div id="loading-screen">
+    <div class="loader"></div>
+</div>
+
+    <button onclick="toggleMode()">Switch Mode</button>
+    <h3 id="mode-indicator">Mode: Analyze</h3>
+    
+    <div id="analyze-mode">
+        <label for="imageInput" class="custom-file-upload">Choose File</label>
+<input type="file" id="imageInput" accept="image/*">
+        <br>
+        <img id="image-preview" src="" alt="Image Preview" hidden>
+        <br>
+        <button onclick="predictPrice()">Predict Price</button>
+        <h2 id="result"></h2>
+    </div>
+    
+    <div id="learn-mode" style="display:none;">
+        <h3>Drag & Drop images to train AI</h3>
+        <div id="drop-zone">Drop images here</div>
+        <button onclick="trainAI()">Train AI</button>
+        <h2 id="train-status"></h2>
+    </div>
+
+   <script>
+        let model;
+        let mode = 'analyze';
+        let trainingData = [];
+        let labels = [];
+
+        async function loadOrCreateModel() {
+    try {
+        model = await tf.loadLayersModel('indexeddb://crypto_model');
+        console.log("Model loaded from IndexedDB!");
+    } catch (error) {
+      showLoading();
+        console.log("No saved model found. Creating a new model...");
+        model = tf.sequential({
+            layers: [
+                tf.layers.conv2d({ inputShape: [224, 224, 3], kernelSize: 3, filters: 32, activation: 'relu' }),
+                tf.layers.maxPooling2d({ poolSize: 2 }),
+                tf.layers.conv2d({ kernelSize: 3, filters: 64, activation: 'relu' }),
+                tf.layers.maxPooling2d({ poolSize: 2 }),
+                tf.layers.flatten(),
+                tf.layers.dense({ units: 128, activation: 'relu' }),
+                tf.layers.dense({ units: 1 })
+            ]
+        });
+        console.log("New model created!");
+
+        model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
+
+        console.log("Saving new model to IndexedDB...");
+        await model.save('indexeddb://crypto_model');  // 🔥 Tambahkan ini
+        console.log("Model saved!");
+        hideLoading();
+    }
+}
+
+
+        function toggleMode() {
+            mode = mode === 'analyze' ? 'learn' : 'analyze';
+            document.getElementById('mode-indicator').innerText = `Mode: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+            document.getElementById('analyze-mode').style.display = mode === 'analyze' ? 'block' : 'none';
+            document.getElementById('learn-mode').style.display = mode === 'learn' ? 'block' : 'none';
+        }
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const img = document.getElementById('image-preview');
+                img.src = reader.result;
+                img.hidden = false;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        async function extractTextOCR(imageElement) {
+            try {
+                const { data: { text } } = await Tesseract.recognize(imageElement, 'eng');
+                let matches = text.match(/\d+(?:,\d+)*(?:\.\d+)?/g);
+                return matches ? parseFloat(matches[0].replace(/,/g, '')) : null;
+            } catch (error) {
+                console.error("OCR error:", error);
+                return null;
+            }
+        }
+
+        async function predictPrice() {
+          showLoading();
+            if (!model) {
+                alert("Model belum dimuat, tunggu sebentar...");
+                return;
+            }
+
+            const imgElement = document.getElementById('image-preview');
+            let tensor = tf.browser.fromPixels(imgElement)
+                .resizeBilinear([224, 224])
+                .toFloat()
+                .expandDims(0); // Tambahkan batch dimension
+
+            const prediction = model.predict(tensor);
+            const predictedPrice = (await prediction.data())[0];
+
+            const ocrPrice = await extractTextOCR(imgElement);
+
+            document.getElementById('result').innerText =
+                `AI Price: $${predictedPrice.toFixed(2)} | OCR Price: $${ocrPrice || "Not Found"}`;
+                hideLoading();
+        }
+
+        document.getElementById('drop-zone').addEventListener('drop', async (event) => {
+    event.preventDefault();
+    let files = event.dataTransfer.files;
+
+    for (let file of files) {
+        let reader = new FileReader();
+        reader.onload = async function () {
+            let img = new Image();
+            img.src = reader.result;
+            await new Promise(resolve => img.onload = resolve);
+
+            let tensor = tf.browser.fromPixels(img)
+                .resizeBilinear([224, 224])
+                .toFloat()
+                .expandDims(0);  // 🔥 FIX: Tambahkan batch dimension
+
+            let extractedPrice = await extractTextOCR(img);
+
+            if (extractedPrice) {
+                trainingData.push(tensor);  // 🔥 FIX: Dataset harus memiliki batch dimension
+                labels.push(extractedPrice);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('train-status').innerText = `${files.length} images added for training.`;
+});
+
+async function trainAI() {
+    if (trainingData.length === 0) {
+        alert("Please wait");
+        return;
+    }
+
+    try {
+       showLoading();
+        console.log("Training started...");
+        
+        // Cek & kompilasi model sebelum training
+        if (!model.optimizer) {
+            model.compile({
+                optimizer: 'adam',
+                loss: 'meanSquaredError'
+            });
+            console.log("Model compiled successfully!");
+        }
+
+        let datasetImages = tf.concat(trainingData, 0); // 🔥 FIX: Menggabungkan batch tanpa reshape
+        let datasetLabels = tf.tensor(labels).reshape([labels.length, 1]);
+
+        console.log("Dataset shape:", datasetImages.shape, datasetLabels.shape);
+
+        await model.fit(datasetImages, datasetLabels, { epochs: 5 });
+
+        console.log("Training complete, saving model...");
+        await tf.io.removeModel('indexeddb://crypto_model'); // Hapus model lama sebelum simpan
+        await model.save('indexeddb://crypto_model');
+
+        document.getElementById('train-status').innerText = "Training complete! Model saved.";
+        hideLoading();
+    } catch (error) {
+        console.error("Training error:", error);
+        alert("Error saat training AI. Cek console untuk detail.");
+    }
+}
+
+
+
+        document.getElementById('imageInput').addEventListener('change', previewImage);
+        loadOrCreateModel();
+
+        document.getElementById('drop-zone').addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+        });
+
+        document.getElementById('drop-zone').addEventListener('drop', async (event) => {
+    event.preventDefault();
+    let files = event.dataTransfer.files;
+
+    for (let file of files) {
+        let reader = new FileReader();
+        reader.onload = async function () {
+            let img = new Image();
+            img.src = reader.result;
+            await new Promise(resolve => img.onload = resolve);
+
+            let tensor = tf.browser.fromPixels(img)
+                .resizeBilinear([224, 224])
+                .toFloat()
+                .expandDims(0);  // 🔥 FIX: Tambahkan batch dimension (1, 224, 224, 3)
+
+            let extractedPrice = await extractTextOCR(img);
+
+            if (extractedPrice) {
+                trainingData.push(tensor);  // 🔥 FIX: Training data harus memiliki batch dimension
+                labels.push(extractedPrice);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('train-status').innerText = `${files.length} images added for training.`;
+});
+
+function showLoading() {
+    document.getElementById('loading-screen').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loading-screen').classList.remove('show');
+}
+
+
+    </script>
+
+
+</body>
+</html>
