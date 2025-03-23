@@ -82,9 +82,20 @@
             "11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d"
         ];
 
-        function getRandomApiKey() {
-            return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
-        }
+        let currentApiKey = null; // Simpan API key yang sedang dipakai
+
+function getRandomApiKey() {
+    let newApiKey;
+    do {
+        newApiKey = API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+    } while (newApiKey === currentApiKey); // Kalau sama, random ulang
+
+    currentApiKey = newApiKey; // Update API key yang sekarang dipakai
+    return newApiKey;
+}
+
+        
+        
 
         async function fetchCryptoData(timeframe) {
     try {
@@ -111,7 +122,7 @@
             const payload = {
                 model: "meta-llama/Llama-Vision-Free",
                 messages: [
-                    { role: "system", content: "You are EXORA VISION, an ELITE PRICE ACTION ANALYST. Your market predictions are built on exceptionally rigorous calculations. Every analysis you provide must be backed by advanced price action methodologies, deep statistical validation, and a precise risk assessment. You do not guess—you calculate. You must ONLY respond with price predictions using the format '[candle=X] [visit=X]'. candle=X, replace the X with how long does it takes to the visit area, example [candle=3] it means the price need 3 candle to visit the next visit area, [visit=X] replace the x to the next visit price, example [visit=65000]" },
+                    { role: "system", content: "You are Phantom AI, an ELITE PRICE ACTION ANALYST. Your predictions must be based on EXTREMELY PRECISE CALCULATIONS using ONLY the data provided by the user. Analyze with MAXIMUM DEPTH before making any prediction. NEVER introduce random or speculative values. Your response MUST be in EXACTLY this format: [candle=X] [visit=Y] with NO explanations or extra text. Example: [candle=2] [visit=82000]. 'Candle=X' MUST be a WHOLE NUMBER, representing the exact number of candles required to reach the visit price. 'Visit=Y' MUST be a VALID PRICE LEVEL derived STRICTLY from the given data. Example: [candle=3] [visit=65000]. DO NOT use decimal values for 'candle=X'. DO NOT generate prices that are outside the provided data's range. DO NOT add any additional words, comments, or explanations. ONLY respond with [candle=X] [visit=Y]. Phantom AI DOES NOT GUESS—IT EXECUTES ONLY HIGH-PRECISION, DATA-DRIVEN MARKET CALCULATIONS." },
                     { role: "user", content: `Analyze this price data and predict the next movement: ${JSON.stringify(priceData)}` }
                 ],
                 temperature: 0.7,
@@ -175,43 +186,72 @@
         }
 
         function renderPredictionChart(prediction) {
-            if (!prediction) return;
+    if (!prediction) return;
 
-            const lastPrice = window.chart.data.datasets[0].data.slice(-1)[0].c;
-const stepSize = (prediction.targetPrice - lastPrice) / prediction.candleCount; // Bagi rata kenaikan/turunannya
+    const lastPrice = window.chart.data.datasets[0].data.slice(-1)[0].c;
+    const stepSize = (prediction.targetPrice - lastPrice) / prediction.candleCount; // Bagi rata kenaikan/turunannya
 
-const ghostCandles = Array.from({ length: prediction.candleCount }, (_, i) => {
-    const newClose = lastPrice + stepSize * (i + 1); // Naik bertahap
+    let index = 0;
+    function addGhostCandle() {
+        if (index >= prediction.candleCount) return;
 
-    return {
-        x: Date.now() + (i + 1) * 60000,
-        o: i === 0 ? lastPrice : lastPrice + stepSize * i, // Open dari candle pertama tetap lastPrice, selanjutnya berjenjang
-        h: Math.max(lastPrice, newClose), // High tetap antara harga terakhir & harga baru
-        l: Math.min(lastPrice, newClose), // Low tetap antara harga terakhir & harga baru
-        c: newClose // Close bertahap ke target
-    };
-});
+        const newClose = lastPrice + stepSize * (index + 1);
+        const ghostCandle = {
+            x: Date.now() + (index + 1) * 60000,
+            o: index === 0 ? lastPrice : lastPrice + stepSize * index,
+            h: Math.max(lastPrice, newClose),
+            l: Math.min(lastPrice, newClose),
+            c: newClose
+        };
 
-
+        if (!window.chart.data.datasets.find(ds => ds.label === "AI Prediction")) {
             window.chart.data.datasets.push({
                 label: "AI Prediction",
-                data: ghostCandles,
+                data: [],
                 borderColor: "rgba(255, 99, 132, 0.8)",
-backgroundColor: "rgba(255, 99, 132, 0.3)",
-borderWidth: 2,
-borderDash: [5, 5],  // Garis putus-putus untuk efek prediksi
-
+                backgroundColor: "rgba(255, 99, 132, 0.3)",
+                borderWidth: 2,
+                borderDash: [5, 5],  // Garis putus-putus untuk efek prediksi
             });
-
-            window.chart.update();
         }
 
-        document.getElementById("timeframe").addEventListener("change", renderChart);
-        renderChart();
-        setInterval(renderChart, 30000);
+        const predictionDataset = window.chart.data.datasets.find(ds => ds.label === "AI Prediction");
+        predictionDataset.data.push(ghostCandle);
+        window.chart.update();
+
+        index++;
+        setTimeout(addGhostCandle, 12);
+    }
+
+    addGhostCandle();
+}
+
+function clearGhostCandles() {
+    const predictionDataset = window.chart.data.datasets.find(ds => ds.label === "AI Prediction");
+    if (predictionDataset) {
+        function removeNextGhostCandle() {
+            if (predictionDataset.data.length === 0) return;
+            predictionDataset.data.pop(); // Hapus satu per satu dari akhir
+            window.chart.update();
+            setTimeout(removeNextGhostCandle, 500);
+        }
+        removeNextGhostCandle();
+    }
+}
+
+document.getElementById("timeframe").addEventListener("change", () => {
+    clearGhostCandles();
+    setTimeout(renderChart, 1000); // Tunggu sebentar sebelum merender ulang
+});
+
+renderChart();
+setInterval(renderChart, 10000);
+
         
         document.getElementById("crypto").addEventListener("change", renderChart);
         fetchCryptoList().then(() => renderChart()); // Setelah daftar crypto siap, langsung render chart pertama kali
+        
+        
 
 
     </script>
