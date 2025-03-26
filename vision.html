@@ -294,6 +294,45 @@ function startScanningLight(canvas, ctx) {
         function getRandomApiKey1() {
             return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
         }
+        
+       function getUniqueRandomKey(keysArray, storageKey) {
+    if (!keysArray.length) {
+        console.error("⚠️ Error: Array API key kosong!");
+        return null;
+    }
+
+    let newKey;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    // Ambil last key dari localStorage
+    const lastKey = localStorage.getItem(storageKey);
+
+    do {
+        newKey = keysArray[Math.floor(Math.random() * keysArray.length)];
+        attempts++;
+        console.log(`🔍 Attempt ${attempts}: ${newKey}`);
+        
+        if (attempts >= maxAttempts) {
+            console.warn("⚠️ Warning: Maksimum percobaan tercapai, tetap pakai key terakhir.");
+            break;
+        }
+
+    } while (newKey === lastKey);
+
+    console.log(`✅ API key terpilih: ${newKey}`);
+    
+    // Simpan key baru ke localStorage
+    localStorage.setItem(storageKey, newKey);
+
+    return newKey;
+}
+
+// Contoh pemakaian
+const apiKey = getUniqueRandomKey(API_KEYS, "lastApiKey");
+const imgApiKey = getUniqueRandomKey(IMG_API_KEY, "lastImgApiKey");
+
+
 
         function openCamera() {
             const input = document.getElementById('imageInput');
