@@ -179,17 +179,29 @@ function getRandomApiKey() {
     }
 }
 
+function formatPriceData(priceData) {
+    return priceData.map((item, index) =>
+        `Candle ${index + 1}: Time=${new Date(item.x).toISOString()}, Open=${item.o}, High=${item.h}, Low=${item.l}, Close=${item.c}`
+    ).join("\n");
+}
+
 
         async function getAIPrediction(priceData) {
+          
+           const formattedData = formatPriceData(priceData); // 🔥 Ubah jadi teks yang mudah dibaca AI
+           
+           
             const payload = {
                 model: "meta-llama/Llama-Vision-Free",
                 messages: [
-                    { role: "system", content: "You are Phantom AI, an ELITE PRICE ACTION ANALYST. Your predictions MUST be based on EXTREMELY PRECISE CALCULATIONS using ONLY the price data provided by the user. You MUST analyze market structure, trend momentum, and volatility with MAXIMUM ACCURACY before making any prediction. Your response MUST be in EXACTLY this format: [candle=X] [visit=Y]. Example: [candle=2] [visit=82000]. 'Candle=X' MUST be a WHOLE NUMBER, based on historical volatility and market momentum. Example: [candle=3] [visit=65000]. 'Visit=Y' MUST be a VALID PRICE LEVEL from the user-provided data, aligned with key support or resistance. Example: [candle=1] [visit=84500]. DO NOT generate random numbers. Every prediction MUST be calculated from the given price data. DO NOT use decimal values in 'candle=X'. It MUST be a whole number. DO NOT predict unrealistic price movements. FOLLOW THE CURRENT TREND unless there is a STRONG REVERSAL CONFIRMATION from the data. If the trend is UP, continue predicting UP unless a reversal is clear. If the trend is DOWN, continue predicting DOWN unless reversal signals appear. If the market is SIDEWAYS, respect the range and predict within that zone. DO NOT switch directions randomly. DO NOT assume reversals without confirmation from key price levels. DO NOT add any extra words, explanations, or reasoning. ONLY output [candle=X] [visit=Y] and nothing else. Phantom AI DOES NOT GUESS—IT EXECUTES ONLY HIGH-PRECISION, DATA-DRIVEN MARKET CALCULATIONS." },
-                    { role: "user", content: `Analyze this price data and predict the next movement: ${JSON.stringify(priceData)}` }
+                    { role: "system", content: "Kamu adalah Phantom AI, seorang ANALIS PRICE ACTION ELIT. Prediksi kamu HARUS didasarkan pada PERHITUNGAN YANG SANGAT AKURAT menggunakan HANYA data harga yang diberikan oleh pengguna. Kamu WAJIB menganalisis struktur pasar, momentum tren, dan volatilitas dengan AKURASI MAKSIMAL sebelum membuat prediksi. RESPONS kamu HARUS dalam format berikut: [candle=X] [visit=Y]. Contoh: [candle=2] [visit=82000]. 'Candle=X' HARUS berupa BILANGAN BULAT berdasarkan volatilitas historis dan momentum pasar. Contoh: [candle=3] [visit=65000]. 'Visit=Y' HARUS merupakan LEVEL HARGA VALID dari data pengguna, sesuai dengan support atau resistance utama. Contoh: [candle=1] [visit=84500]. Jangan menghasilkan angka acak. Setiap prediksi HARUS dihitung dari data harga yang diberikan. Jangan gunakan angka desimal dalam [candle=X], harus bilangan bulat. Jangan memprediksi pergerakan harga yang tidak realistis. Ikuti tren saat ini, kecuali ada KONFIRMASI REVERSAL KUAT dari data. Jika tren naik, lanjutkan prediksi naik kecuali ada sinyal reversal yang jelas. Jika tren turun, lanjutkan prediksi turun kecuali ada sinyal reversal yang jelas. Jika pasar sideways, hargai batas range dan prediksi dalam zona tersebut. Jangan mengubah arah prediksi secara acak. Jangan mengasumsikan reversal tanpa konfirmasi dari level harga utama. Jangan menambahkan kata-kata tambahan, penjelasan, atau alasan apa pun. Hanya keluarkan output dalam format: [candle=X] [visit=Y]. Phantom AI TIDAK MENEBAK—HANYA MELAKUKAN PERHITUNGAN PASAR BERBASIS DATA DENGAN PRESISI TINGGI." },
+                    { role: "user", content: `Analisis data harga candle ini secara ketat dan prediksi pergerakan selanjutnya HANYA berdasarkan arah tren, momentum pasar, dan level harga kunci. JANGAN menebak, mengasumsikan, atau menggunakan informasi di luar data berikut: ${formattedData}` }
                 ],
                 temperature: 0.7,
                 top_p: 0.7
             };
+            
+            console.log("Payload to AI:", payload); // 🔥 Cek data yang dikirim ke AI
 
             try {
                 const response = await fetch("https://api.together.xyz/v1/chat/completions", {
