@@ -168,22 +168,28 @@
             if (item.type.startsWith("image/")) {
                 const blob = item.getAsFile();
                 const reader = new FileReader();
-                reader.onload = function (e) {
-            const img = document.getElementById('imagePreview');
-            img.src = e.target.result;
-            img.style.display = 'block';
-            img.onload = () => {
-                img.classList.add('show');
+                reader.onload = (event) => {
+                    const img = document.getElementById("imagePreview");
+                    img.src = event.target.result;
+                    img.style.display = "block";
 
-                // Tunggu animasi selesai dulu baru setup canvas
-                setTimeout(() => setupCanvas(img), 800);
-            };
-        };
+                    // Tambah animasi setelah gambar dimuat
+                    img.onload = () => {
+                        img.classList.add("show");
+
+                        // Tunggu animasi selesai dulu baru setup canvas
+                        setTimeout(() => setupCanvas(img), 800);
+                    };
+
+                    // Panggil fungsi upload jika perlu
+                    uploadImage(blob);
+                };
                 reader.readAsDataURL(blob);
             }
         }
     }
 });
+
 
 
         function openCamera() {
