@@ -168,10 +168,17 @@
             if (item.type.startsWith("image/")) {
                 const blob = item.getAsFile();
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    document.getElementById("imagePreview").src = event.target.result;
-                    uploadImage(blob);  // Pake fungsi upload yang udah ada
-                };
+                reader.onload = function (e) {
+            const img = document.getElementById('imagePreview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            img.onload = () => {
+                img.classList.add('show');
+
+                // Tunggu animasi selesai dulu baru setup canvas
+                setTimeout(() => setupCanvas(img), 800);
+            };
+        };
                 reader.readAsDataURL(blob);
             }
         }
