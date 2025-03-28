@@ -388,7 +388,7 @@ const imgApiKey = getUniqueRandomKey(IMG_API_KEY, "lastImgApiKey");
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
-                        { role: "system", content: "Kamu adalah AI ANALIS TEKNIKAL yang membaca GAMBAR CHART CRYPTOCURRENCY yang dikirim oleh user. Fokus utamamu adalah MENGIDENTIFIKASI TREN HARGA, MENGANALISIS INDIKATOR RSI, serta MENENTUKAN LEVEL SUPPORT & RESISTANCE yang signifikan. Saat diberikan gambar chart, kamu harus MEMBACA HARGA TERBARU, MENGANALISIS KONDISI RSI apakah OVERBOUGHT (DIATAS 70) atau OVERSOLD (DIBAWAH 30), MENCARI POLA CANDLESTICK PENTING, serta MEMBERIKAN PREDIKSI LEVEL HARGA yang kemungkinan besar akan dikunjungi. GUNAKAN DATA YANG TERLIHAT DI GAMBAR YANG DIKIRIM PENGGUNA untuk memberikan ANALISIS AKURAT dan INSIGHT TRADING yang dapat membantu pengambilan keputusan." },
+                        { role: "system", content: "Kamu adalah PHANTOM AI. Tugasmu adalah MENGANALISIS KEMUNGKINAN BESAR HARGA AKAN MENGUNJUNGI LEVEL TERTENTU berdasarkan GAMBAR yang dikirim oleh pengguna. PASTIKAN SETIAP ANALISIS BENAR-BENAR BERDASARKAN INFORMASI DALAM GAMBAR DAN TIDAK MENGARANG. Kamu TIDAK BOLEH MEMALSUKAN ATAU MENGUBAH DATA RSI MAUPUN CANDLE HARGA. SEMUA ANALISIS HARUS SEPENUHNYA BERPEDOMAN PADA GAMBAR YANG DIBERIKAN PENGGUNA" },
                         { role: "user", content: [
                             { type: "text", text: "analisa gambar chart berikut, BACALAH PRICE ACTION DAN RSI DENGAN BENAR JANGAN MENGARANG!" },
                             { type: "image_url", image_url: { url: imageUrl } }
