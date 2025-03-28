@@ -36,6 +36,35 @@
           z-index: -10;
         }
         
+         .probability-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            background: #222;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            z-index: 10;
+        }
+        .progress-container {
+            width: 100%;
+            background: #444;
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 20px;
+            background: #4caf50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 50px;
+            transition: width 0.5s;
+        }
+        
     </style>
 </head>
 <body>
@@ -57,6 +86,14 @@
     <div class="chart-container">
         <canvas id="cryptoChart"></canvas>
     </div>
+    
+    <div class="probability-bar">
+        <p>Success Probability</p>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%;">0%</div>
+        </div>
+    </div>
+
     
     <script>
       
@@ -195,7 +232,7 @@ function formatPriceData(priceData) {
                 model: "meta-llama/Llama-Vision-Free",
                 messages: [
                     { role: "system", content: "Kamu adalah Phantom AI, seorang ANALIS PRICE ACTION ELIT dengan presisi tinggi. Prediksi kamu HARUS 100% didasarkan pada data harga yang diberikan pengguna, tanpa tebakan atau asumsi eksternal. Gunakan hanya struktur pasar, momentum tren, support & resistance, dan volatilitas historis sebagai dasar analisis. Kamu WAJIB memastikan bahwa setiap prediksi logis, sesuai dengan pola harga sebelumnya, dan sejalan dengan tren utama. Jika tren naik, prediksi harus naik kecuali ada sinyal reversal yang jelas. Jika tren turun, prediksi harus turun kecuali ada sinyal kuat pembalikan arah. Jika pasar sideways, patuhi batas range dan prediksi tetap dalam zona tersebut." },
-                    { role: "system", content: "FORMAT OUTPUT: [candle=X] [visit=Y]. 'Candle=X' adalah bilangan bulat yang mewakili jumlah candle ke depan berdasarkan momentum dan volatilitas. 'Visit=Y' adalah level harga valid yang berasal dari data candle pengguna, sesuai dengan titik support atau resistance yang sudah diuji. Contoh: [candle=3] [visit=65000]. Contoh kalau mau menggunakan titik: [candle=3] [visit=4.72]. Jangan menggunakan angka acak atau harga yang tidak ada dalam dataset. Jangan pernah menggunakan angka desimal dalam [candle=X]. Jangan memprediksi lonjakan harga yang tidak masuk akal dibanding volatilitas rata-rata. Pastikan setiap prediksi mengikuti pola harga terbaru dan masuk akal secara teknikal." },
+                    { role: "system", content: "FORMAT OUTPUT: [candle=X] [visit=Y] [probability=X%]. 'Candle=X' adalah bilangan bulat yang mewakili estimasi jumlah candle yang dibutuhkan untuk mencapai level harga yang diprediksi. 'Visit=Y' adalah level harga yang kemungkinan besar akan dikunjungi berdasarkan data candle pengguna, sesuai dengan titik support atau resistance yang sudah diuji. 'Probability=X%' adalah tingkat seberapa besar kemungkinan prediksi ini berhasil dari 0% sampai 100%, dihitung berdasarkan pola historis, volatilitas, dan reliabilitas sinyal teknikal. Contoh: [candle=3] [visit=65000] [probability=75%]. Contoh kalau mau menggunakan titik: [candle=3] [visit=4.72] [probability=76%]. Jangan menggunakan angka acak atau harga yang tidak ada dalam dataset. Jangan pernah menggunakan angka desimal dalam [candle=X]. Jangan memprediksi lonjakan harga yang tidak masuk akal dibanding volatilitas rata-rata. Pastikan setiap prediksi mengikuti pola harga terbaru dan masuk akal secara teknikal." },
                     { role: "system", content: "CARA MEMBACA DATA CANDLE: Setiap candle mewakili pergerakan harga dalam satu periode tertentu. Data terdiri dari Time (waktu terbentuk), Open (harga pembukaan), High (harga tertinggi), Low (harga terendah), dan Close (harga penutupan). Jika Close lebih tinggi dari Open, berarti candle bullish (harga naik). Jika Close lebih rendah dari Open, berarti candle bearish (harga turun). High dan Low menunjukkan volatilitas dalam periode itu. Gunakan pola candlestick dan level harga utama untuk memahami momentum pasar." },
                     { role: "user", content: `Analisis data harga candle ini secara ketat dan prediksi pergerakan selanjutnya HANYA berdasarkan tren utama, momentum pasar, dan level harga kritis. Jangan menebak atau mengasumsikan informasi di luar data berikut: ${formattedData}` }
                 ],
@@ -231,11 +268,23 @@ function formatPriceData(priceData) {
         }
 
         function parseAIPrediction(predictionText) {
-            const match = predictionText.match(/\[candle=(\d+)\] \[visit=(\d+\.?\d*)\]/);
+            const match = predictionText.match(/\[candle=(\d+)\] \[visit=(\d+\.?\d*)\] \[probability=(\d+)%\]/);
             if (match) {
-                return { candleCount: parseInt(match[1]), targetPrice: parseFloat(match[2]) };
+                const parsedData = {
+                    candleCount: parseInt(match[1]),
+                    targetPrice: parseFloat(match[2]),
+                    probability: parseInt(match[3])
+                };
+                updateProgressBar(parsedData.probability);
+                return parsedData;
             }
             return null;
+        }
+        
+        function updateProgressBar(probability) {
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = probability + "%";
+            progressBar.textContent = probability + "%";
         }
 
         async function renderChart() {
