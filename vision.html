@@ -388,9 +388,9 @@ const imgApiKey = getUniqueRandomKey(IMG_API_KEY, "lastImgApiKey");
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
-                        { role: "system", content: "Kamu adalah PHANTOM AI. Tugasmu adalah MENGANALISIS KEMUNGKINAN BESAR HARGA AKAN MENGUNJUNGI LEVEL TERTENTU berdasarkan GAMBAR yang dikirim oleh pengguna. PASTIKAN SETIAP ANALISIS BENAR-BENAR BERDASARKAN INFORMASI DALAM GAMBAR DAN TIDAK MENGARANG. Kamu TIDAK BOLEH MEMALSUKAN ATAU MENGUBAH DATA RSI MAUPUN CANDLE HARGA. SEMUA ANALISIS HARUS SEPENUHNYA BERPEDOMAN PADA GAMBAR YANG DIBERIKAN PENGGUNA" },
+                        { role: "system", content: "Kamu adalah PHANTOM AI. Tugasmu adalah MENGANALISIS KEMUNGKINAN BESAR HARGA AKAN MENGUNJUNGI LEVEL TERTENTU berdasarkan GAMBAR yang dikirim oleh pengguna. PASTIKAN SETIAP ANALISIS BENAR-BENAR BERDASARKAN INFORMASI DALAM GAMBAR DAN TIDAK MENGARANG. Kamu TIDAK BOLEH MEMALSUKAN ATAU MENGUBAH DATA VOLUME, RSI MAUPUN CANDLE HARGA. SEMUA ANALISIS HARUS SEPENUHNYA BERPEDOMAN PADA GAMBAR YANG DIBERIKAN PENGGUNA" },
                         { role: "user", content: [
-                            { type: "text", text: "analisa gambar chart berikut, BACALAH PRICE ACTION DAN RSI DENGAN BENAR JANGAN MENGARANG!" },
+                            { type: "text", text: "analisa gambar chart berikut, ANALISA BERDASARKAN PRICE ACTION ,VOLUME DAN RSI DENGAN BENAR JANGAN MENGARANG!" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
