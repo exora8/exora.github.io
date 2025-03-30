@@ -198,25 +198,66 @@ function getRandomApiKey() {
         
         
 
-        async function fetchCryptoData(timeframe) {
+        async function fetchCryptoList() {
     try {
-        const selectedCrypto = document.getElementById("crypto").value; // Ambil crypto yang dipilih
-        const response = await fetch(`https://min-api.cryptocompare.com/data/v2/${timeframe}?fsym=${selectedCrypto}&tsym=USD&limit=50`);
+        const response = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SPOT");
         const data = await response.json();
-        if (!data.Data || !data.Data.Data) throw new Error("Invalid response from API");
+        if (!data.data) throw new Error("Invalid response from API");
 
-        return data.Data.Data.map(item => ({
-            x: item.time * 1000,
-            o: item.open,
-            h: item.high,
-            l: item.low,
-            c: item.close
-        }));
+        const cryptoContainer = document.getElementById("crypto-container");
+        cryptoContainer.innerHTML = ""; // Hapus isi sebelumnya
+
+        // Buat search input
+        const searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.placeholder = "Search cryptocurrency...";
+        searchInput.id = "crypto-search";
+        searchInput.style.width = "100%";
+        searchInput.style.marginBottom = "5px";
+        cryptoContainer.appendChild(searchInput);
+
+        // Buat select dropdown
+        const cryptoSelect = document.createElement("select");
+        cryptoSelect.id = "crypto";
+        cryptoSelect.style.width = "100%";
+        cryptoContainer.appendChild(cryptoSelect);
+
+        // Ambil semua pasangan crypto yang berpasangan dengan USDT
+        const allCryptos = data.data
+            .filter(item => item.instId.endsWith("USDT")) // Hanya ambil crypto yang dipasangkan dengan USDT
+            .map(item => ({
+                symbol: item.instId.replace("-USDT", ""), // Hapus "-USDT"
+                fullName: item.instId // OKX nggak punya full name, jadi pakai instId
+            }));
+
+        function updateDropdown(filterText = "") {
+            cryptoSelect.innerHTML = ""; // Hapus opsi sebelumnya
+
+            const filteredCryptos = allCryptos.filter(crypto =>
+                crypto.symbol.toLowerCase().includes(filterText)
+            );
+
+            filteredCryptos.forEach(crypto => {
+                const option = document.createElement("option");
+                option.value = crypto.symbol; // Simpan simbol aja tanpa "-USDT"
+                option.textContent = `${crypto.symbol} (USDT)`;
+                cryptoSelect.appendChild(option);
+            });
+        }
+
+        // Event listener untuk search input
+        searchInput.addEventListener("input", function () {
+            updateDropdown(this.value.toLowerCase());
+        });
+
+        // Pertama kali tampilkan semua crypto
+        updateDropdown();
+
     } catch (error) {
-        console.error("Error fetching crypto data:", error);
-        return [];
+        console.error("Error fetching crypto list:", error);
     }
 }
+
 
 function formatPriceData(priceData) {
     return priceData.map((item, index) =>
@@ -238,7 +279,7 @@ function formatPriceData(priceData) {
                     { role: "system", content: "CARA MEMBACA DATA CANDLE: Setiap candle mewakili pergerakan harga dalam satu periode tertentu. Data terdiri dari Time (waktu terbentuk), Open (harga pembukaan), High (harga tertinggi), Low (harga terendah), dan Close (harga penutupan). Jika Close lebih tinggi dari Open, berarti candle bullish (harga naik). Jika Close lebih rendah dari Open, berarti candle bearish (harga turun). High dan Low menunjukkan volatilitas dalam periode itu. Gunakan pola candlestick dan level harga utama untuk memahami momentum pasar." },
                     { role: "user", content: `Analisis data harga candle ini dengan ketat dan prediksi candle SELANJUTNYA dengan akurasi tinggi berdasarkan tren utama, momentum pasar, pola candle sebelumnya, serta reaksi harga terhadap level support dan resistance. Jika harga mendekati support, tentukan apakah akan terjadi pantulan atau penembusan. Jika harga mendekati resistance, analisis apakah ada potensi rejection atau breakout. Perhatikan volatilitas dan pola pergerakan untuk menentukan apakah candle berikutnya cenderung bullish, bearish, atau tetap dalam fase konsolidasi. Fokus hanya pada pergerakan dalam 2 candle ke depan tanpa menebak di luar data berikut: ${formattedData}.` }
                 ],
-                temperature: 0.00000001,
+                temperature: 0.01,
                 top_p: 0.7
             };
             
