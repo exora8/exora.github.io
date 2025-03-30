@@ -246,7 +246,7 @@ function formatPriceData(priceData) {
                     { role: "system", content: "CARA MEMBACA DATA CANDLE: Setiap candle mewakili pergerakan harga dalam satu periode tertentu. Data terdiri dari Time (waktu terbentuk), Open (harga pembukaan), High (harga tertinggi), Low (harga terendah), dan Close (harga penutupan). Jika Close lebih tinggi dari Open, berarti candle bullish (harga naik). Jika Close lebih rendah dari Open, berarti candle bearish (harga turun). High dan Low menunjukkan volatilitas dalam periode itu. Gunakan pola candlestick dan level harga utama untuk memahami momentum pasar." },
                     { role: "user", content: `Analisis data harga candle ini dengan ketat dan prediksi candle SELANJUTNYA dengan akurasi tinggi berdasarkan tren utama, momentum pasar, pola candle sebelumnya, serta reaksi harga terhadap level support dan resistance. Jika harga mendekati support, tentukan apakah akan terjadi pantulan atau penembusan. Jika harga mendekati resistance, analisis apakah ada potensi rejection atau breakout. Perhatikan volatilitas dan pola pergerakan untuk menentukan apakah candle berikutnya cenderung bullish, bearish, atau tetap dalam fase konsolidasi. Fokus hanya pada pergerakan dalam 2 candle ke depan tanpa menebak di luar data berikut: ${formattedData}.` }
                 ],
-                temperature: 0.0000000000000001,
+                temperature: 0,
                 top_p: 0.7
             };
             
