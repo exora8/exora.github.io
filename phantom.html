@@ -285,16 +285,9 @@ function formatPriceData(priceData) {
     const match = cleanedText.match(/\[candle=(\d+)\]\s*\[visit=([\d,\.]+)\]\s*(?:\[probability=(\d+)%\])?/);
 
     if (match) {
-        let targetPrice = parseFloat(match[2].replace(',', '.')); // Auto ganti koma jadi titik
-
-        // Kalau targetPrice kurang dari 1 (nol koma), bulatkan ke 3 desimal
-        if (targetPrice < 1) {
-            targetPrice = parseFloat(targetPrice.toFixed(3));
-        }
-
         const parsedData = {
             candleCount: parseInt(match[1]),
-            targetPrice: targetPrice,
+            targetPrice: parseFloat(match[2].replace(',', '.')), // Auto ganti koma jadi titik
             probability: match[3] ? parseInt(match[3]) : null // Bisa null kalau ga ada probability
         };
 
@@ -307,7 +300,6 @@ function formatPriceData(priceData) {
 
     return null;
 }
-
         
         function updateProgressBar(probability) {
             const progressBar = document.getElementById("progressBar");
