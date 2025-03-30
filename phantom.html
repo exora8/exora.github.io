@@ -241,7 +241,7 @@ function formatPriceData(priceData) {
             const payload = {
                 model: "meta-llama/Llama-Vision-Free",
                 messages: [
-                    { role: "system", content: "Kamu adalah Phantom AI, seorang ANALIS PRICE ACTION ELIT dengan presisi tinggi. Prediksi kamu HARUS 100% didasarkan pada data harga yang diberikan pengguna, tanpa tebakan atau asumsi eksternal. Gunakan hanya struktur pasar, momentum tren, support & resistance, dan volatilitas historis sebagai dasar analisis. Kamu WAJIB memastikan bahwa setiap prediksi logis, sesuai dengan pola harga sebelumnya, dan sejalan dengan tren utama. Jika tren naik, prediksi harus naik kecuali ada sinyal reversal yang jelas. Jika tren turun, prediksi harus turun kecuali ada sinyal kuat pembalikan arah. Jika pasar sideways, patuhi batas range dan prediksi tetap dalam zona tersebut." },
+                    { role: "system", content: "Kamu adalah Phantom AI, seorang ANALIS PRICE ACTION ELIT dengan presisi tinggi" },
                     { role: "system", content: "FORMAT OUTPUT: [candle=X] [visit=Y] [probability=X%]. 'Candle=X' adalah bilangan bulat yang mewakili estimasi jumlah candle yang dibutuhkan untuk mencapai level harga yang diprediksi. 'Visit=Y' adalah level harga yang kemungkinan besar akan dikunjungi berdasarkan data candle pengguna, sesuai dengan titik support atau resistance yang sudah diuji. 'Probability=X%' adalah tingkat seberapa besar kemungkinan prediksi ini berhasil dari 0% sampai 100%, dihitung berdasarkan pola historis, volatilitas, dan reliabilitas sinyal teknikal. Contoh: [candle=3] [visit=65000] [probability=75%]. Contoh kalau mau menggunakan titik: [candle=3] [visit=4.72] [probability=76%]. Jangan menggunakan angka acak atau harga yang tidak ada dalam dataset. Jangan pernah menggunakan angka desimal dalam [candle=X]. Jangan memprediksi lonjakan harga yang tidak masuk akal dibanding volatilitas rata-rata. Pastikan setiap prediksi mengikuti pola harga terbaru dan masuk akal secara teknikal." },
                     { role: "system", content: "CARA MEMBACA DATA CANDLE: Setiap candle mewakili pergerakan harga dalam satu periode tertentu. Data terdiri dari Time (waktu terbentuk), Open (harga pembukaan), High (harga tertinggi), Low (harga terendah), dan Close (harga penutupan). Jika Close lebih tinggi dari Open, berarti candle bullish (harga naik). Jika Close lebih rendah dari Open, berarti candle bearish (harga turun). High dan Low menunjukkan volatilitas dalam periode itu. Gunakan pola candlestick dan level harga utama untuk memahami momentum pasar." },
                     { role: "user", content: `Analisis data harga candle ini dengan ketat dan prediksi candle SELANJUTNYA dengan akurasi tinggi berdasarkan tren utama, momentum pasar, pola candle sebelumnya, serta reaksi harga terhadap level support dan resistance. Jika harga mendekati support, tentukan apakah akan terjadi pantulan atau penembusan. Jika harga mendekati resistance, analisis apakah ada potensi rejection atau breakout. Perhatikan volatilitas dan pola pergerakan untuk menentukan apakah candle berikutnya cenderung bullish, bearish, atau tetap dalam fase konsolidasi. Fokus hanya pada pergerakan dalam 2 candle ke depan tanpa menebak di luar data berikut: ${formattedData}.` }
@@ -278,18 +278,29 @@ function formatPriceData(priceData) {
         }
 
         function parseAIPrediction(predictionText) {
-            const match = predictionText.match(/\[candle=(\d+)\] \[visit=(\d+\.?\d*)\] \[probability=(\d+)%\]/);
-            if (match) {
-                const parsedData = {
-                    candleCount: parseInt(match[1]),
-                    targetPrice: parseFloat(match[2]),
-                    probability: parseInt(match[3])
-                };
-                updateProgressBar(parsedData.probability);
-                return parsedData;
-            }
-            return null;
+    // Bersihin spasi ekstra dan karakter tak terlihat
+    const cleanedText = predictionText.trim();
+
+    // Regex fleksibel buat menangani angka dengan koma atau titik
+    const match = cleanedText.match(/\[candle=(\d+)\]\s*\[visit=([\d,\.]+)\]\s*(?:\[probability=(\d+)%\])?/);
+
+    if (match) {
+        const parsedData = {
+            candleCount: parseInt(match[1]),
+            targetPrice: parseFloat(match[2].replace(',', '.')), // Auto ganti koma jadi titik
+            probability: match[3] ? parseInt(match[3]) : null // Bisa null kalau ga ada probability
+        };
+
+        if (parsedData.probability !== null) {
+            updateProgressBar(parsedData.probability);
         }
+
+        return parsedData;
+    }
+
+    return null;
+}
+
         
         function updateProgressBar(probability) {
             const progressBar = document.getElementById("progressBar");
