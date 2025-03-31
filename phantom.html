@@ -307,25 +307,33 @@ function formatPriceData(priceData) {
 }
 
 function addReversalLine(level) {
-    if (!window.chart) return;
+    if (!window.chart || !window.chart.canvas) return;
 
-    // Cek apakah reversal line sudah ada sebelumnya, kalau ada hapus dulu biar ga double
-    window.chart.data.datasets = window.chart.data.datasets.filter(ds => ds.label !== "Reversal Area");
+    let chartCanvas = window.chart.canvas;
+    let parent = chartCanvas.parentElement;
 
-    // Tambahin dataset buat reversal line
-    window.chart.data.datasets.push({
-        label: "Reversal Area",
-        data: [
-            { x: window.chart.data.datasets[0].data[0].x, y: level },
-            { x: window.chart.data.datasets[0].data.slice(-1)[0].x, y: level }
-        ],
-        borderColor: "rgba(255, 215, 0, 0.8)", // Warna gold biar gampang keliatan
-        borderWidth: 2,
-        borderDash: [10, 5], // Garis putus-putus
-        pointRadius: 0
-    });
+    // Hapus reversal line sebelumnya kalau ada
+    let existingLine = document.getElementById("reversal-line");
+    if (existingLine) existingLine.remove();
 
-    window.chart.update();
+    // Buat garis horizontal baru
+    let line = document.createElement("div");
+    line.id = "reversal-line";
+    line.style.position = "absolute";
+    line.style.left = chartCanvas.offsetLeft + "px";
+    line.style.width = chartCanvas.clientWidth + "px";
+    line.style.height = "2px";
+    line.style.background = "gold";
+    line.style.zIndex = "10"; // Biar di atas chart
+    line.style.pointerEvents = "none"; // Biar ga ngeganggu klik chart
+
+    // Konversi `level` ke posisi pixel
+    let chartRect = chartCanvas.getBoundingClientRect();
+    let scale = window.chart.scales.y;
+    let yPixel = scale.getPixelForValue(level);
+    line.style.top = yPixel + "px";
+
+    parent.appendChild(line);
 }
 
         
