@@ -312,11 +312,13 @@ function addReversalLine(level) {
     let chartCanvas = window.chart.canvas;
     let parent = chartCanvas.parentElement;
 
-    // Hapus reversal line sebelumnya kalau ada
+    // Hapus reversal line dan label sebelumnya kalau ada
     let existingLine = document.getElementById("reversal-line");
+    let existingLabel = document.getElementById("reversal-label");
     if (existingLine) existingLine.remove();
+    if (existingLabel) existingLabel.remove();
 
-    // Buat garis horizontal baru
+    // Buat garis horizontal
     let line = document.createElement("div");
     line.id = "reversal-line";
     line.style.position = "absolute";
@@ -324,17 +326,59 @@ function addReversalLine(level) {
     line.style.width = chartCanvas.clientWidth + "px";
     line.style.height = "2px";
     line.style.background = "gold";
-    line.style.zIndex = "10"; // Biar di atas chart
-    line.style.pointerEvents = "none"; // Biar ga ngeganggu klik chart
+    line.style.zIndex = "10";
+    line.style.pointerEvents = "auto"; // Biar bisa di-hover
 
-    // Konversi `level` ke posisi pixel
-    let chartRect = chartCanvas.getBoundingClientRect();
+    // Buat label harga di awal garis
+    let label = document.createElement("div");
+    label.id = "reversal-label";
+    label.innerText = level.toFixed(2); // Format harga
+    label.style.position = "absolute";
+    label.style.left = chartCanvas.offsetLeft - 40 + "px"; // Geser kiri dikit
+    label.style.width = "35px";
+    label.style.height = "20px";
+    label.style.lineHeight = "20px";
+    label.style.textAlign = "center";
+    label.style.background = "gold";
+    label.style.color = "black";
+    label.style.fontSize = "12px";
+    label.style.borderRadius = "5px";
+    label.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+    
+    // Konversi level ke posisi pixel
     let scale = window.chart.scales.y;
     let yPixel = scale.getPixelForValue(level);
     line.style.top = yPixel + "px";
+    label.style.top = (yPixel - 10) + "px"; // Geser dikit biar pas
+
+    // Tooltip pas hover
+    line.addEventListener("mouseenter", function () {
+        let tooltip = document.createElement("div");
+        tooltip.id = "reversal-tooltip";
+        tooltip.innerText = "Reversal Area";
+        tooltip.style.position = "absolute";
+        tooltip.style.left = chartCanvas.offsetLeft + chartCanvas.clientWidth / 2 + "px";
+        tooltip.style.top = (yPixel - 25) + "px";
+        tooltip.style.padding = "5px 10px";
+        tooltip.style.background = "black";
+        tooltip.style.color = "white";
+        tooltip.style.fontSize = "12px";
+        tooltip.style.borderRadius = "5px";
+        tooltip.style.whiteSpace = "nowrap";
+        tooltip.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+        tooltip.style.zIndex = "15";
+
+        parent.appendChild(tooltip);
+
+        line.addEventListener("mouseleave", function () {
+            if (tooltip) tooltip.remove();
+        });
+    });
 
     parent.appendChild(line);
+    parent.appendChild(label);
 }
+
 
         
         function updateProgressBar(probability) {
