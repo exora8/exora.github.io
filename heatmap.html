@@ -169,14 +169,27 @@
                 const blob = item.getAsFile();
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    document.getElementById("imagePreview").src = event.target.result;
-                    uploadImage(blob);  // Pake fungsi upload yang udah ada
+                    const img = document.getElementById("imagePreview");
+                    img.src = event.target.result;
+                    img.style.display = "block";
+
+                    // Tambah animasi setelah gambar dimuat
+                    img.onload = () => {
+                        img.classList.add("show");
+
+                        // Tunggu animasi selesai dulu baru setup canvas
+                        setTimeout(() => setupCanvas(img), 800);
+                    };
+
+                    // Panggil fungsi upload jika perlu
+                    uploadImage(blob);
                 };
                 reader.readAsDataURL(blob);
             }
         }
     }
 });
+
 
 
         function openCamera() {
@@ -294,6 +307,45 @@ function startScanningLight(canvas, ctx) {
         function getRandomApiKey1() {
             return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
         }
+        
+       function getUniqueRandomKey(keysArray, storageKey) {
+    if (!keysArray.length) {
+        console.error("⚠️ Error: Array API key kosong!");
+        return null;
+    }
+
+    let newKey;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    // Ambil last key dari localStorage
+    const lastKey = localStorage.getItem(storageKey);
+
+    do {
+        newKey = keysArray[Math.floor(Math.random() * keysArray.length)];
+        attempts++;
+        console.log(`🔍 Attempt ${attempts}: ${newKey}`);
+        
+        if (attempts >= maxAttempts) {
+            console.warn("⚠️ Warning: Maksimum percobaan tercapai, tetap pakai key terakhir.");
+            break;
+        }
+
+    } while (newKey === lastKey);
+
+    console.log(`✅ API key terpilih: ${newKey}`);
+    
+    // Simpan key baru ke localStorage
+    localStorage.setItem(storageKey, newKey);
+
+    return newKey;
+}
+
+// Contoh pemakaian
+const apiKey = getUniqueRandomKey(API_KEYS, "lastApiKey");
+const imgApiKey = getUniqueRandomKey(IMG_API_KEY, "lastImgApiKey");
+
+
 
         function openCamera() {
             const input = document.getElementById('imageInput');
@@ -336,14 +388,13 @@ function startScanningLight(canvas, ctx) {
                 const payload = {
                     model: "meta-llama/Llama-Vision-Free",
                     messages: [
-                        { role: "system", content: "Kamu adalah analis market crypto yang spesialis dalam membaca heatmap Coinglass dengan akurasi tinggi. Tugasmu adalah mengidentifikasi zona likuidasi besar, mengenali pergerakan market yang didorong oleh whale, dan memahami reaksi harga di area berisiko tinggi. Fokus utamamu adalah mendeteksi area kuning atau terang sebagai magnet harga, dan zona biru atau gelap sebagai area bebas gerak. Kamu harus memperhitungkan kemungkinan breakout, fakeout, reversal, serta potensi pergerakan harga terbesar. Kamu harus bisa membedakan apakah pergerakan market murni dorongan supply & demand atau hasil manipulasi pelaku besar. Prioritaskan kecepatan, akurasi, dan perhitungan realistis. Berikan kesimpulan tegas, prediksi pergerakan harga berikutnya, dan peringatan jika ada potensi manipulasi besar." },
-                        { role: "system", content: "!BACALAH GAMBAR HEATMAP DENGAN BENAR! Cara membaca heatmap Coinglass dengan benar adalah mengenali warna kuning atau terang sebagai magnet harga karena area ini berisi banyak likuidasi yang bisa menarik pergerakan harga mendekat. Semakin terang warnanya, semakin besar potensi harga tertarik ke sana. Warna biru atau ungu gelap menunjukkan area dengan likuidasi rendah, di mana harga lebih bebas bergerak tanpa hambatan. Jika harga mendekati zona kuning lalu berhenti dan berbalik, itu tanda buyer atau seller bertahan kuat. Jika harga menembus zona kuning dengan volume besar, kemungkinan besar terjadi likuidasi besar-besaran yang mendorong harga lebih jauh. Munculnya zona kuning baru secara mendadak bisa menjadi sinyal adanya pelaku besar (whale) yang masuk dan mencoba menggerakkan market. Jika zona kuning cepat muncul lalu hilang, itu bisa jadi manipulasi untuk memancing trader masuk jebakan. Untuk mengantisipasi fakeout, perhatikan volume dan kecepatan pergerakan harga. Jika harga menembus zona kuning tapi volume rendah atau bergerak terlalu cepat lalu kembali ke area semula, itu kemungkinan besar fakeout. Selain itu, jika muncul zona kuning baru jauh dari harga saat ini tapi harga tidak bergerak mendekat, itu bisa jadi jebakan likuidasi palsu yang sengaja dibuat pelaku besar untuk menggiring sentimen market ke arah tertentu. Prioritaskan analisa zona dengan volume besar yang bertahan lama dan hindari mengikuti pergerakan yang terlihat terlalu cepat tanpa konfirmasi tambahan." },
+                        { role: "system", content: "Anda adalah Analis Spesialis Likuiditas Pasar yang ahli membaca Heatmap Order Book / Liquidity Map. Anda akan menerima sebuah gambar (screenshot) Heatmap Likuiditas yang menunjukkan konsentrasi order (biasanya area terang/berwarna pekat menandakan likuiditas tinggi) pada berbagai level harga. Tugas utama Anda: Pertama, analisis visual heatmap; periksa gambar heatmap secara cermat dan pastikan Anda membaca skala harga dengan akurat. Kedua, identifikasi harga saat ini; tentukan atau perkirakan posisi harga pasar saat ini pada heatmap. Ketiga, identifikasi zona likuiditas tinggi (area terang/pekat); temukan zona likuiditas tinggi signifikan di ATAS harga saat ini (potensi resistance/supply), catat level harga kuncinya, dan temukan zona likuiditas tinggi signifikan di BAWAH harga saat ini (potensi support/demand), catat level harga kuncinya. Keempat, analisis kedekatan dan kekuatan; bandingkan zona likuiditas tinggi di atas dan di bawah harga saat ini, perhatikan mana zona yang secara visual terlihat paling kuat (paling terang/pekat/besar) DAN relatif paling dekat dengan harga saat ini, karena zona ini sering bertindak sebagai "magnet" harga. Kelima, prediksi target kunjungan berikutnya; berdasarkan analisis kedekatan dan kekuatan visual zona likuiditas tinggi, tentukan satu level harga spesifik yang mewakili zona likuiditas tinggi terdekat dan paling signifikan yang kemungkinan besar akan DIKUNJUNGI BERIKUTNYA (next visit). Keenam, estimasi probabilitas; berikan estimasi probabilitas dalam bentuk persentase (%) bahwa harga akan mencapai level target yang Anda prediksi tersebut dalam waktu dekat, dasarkan estimasi pada kekuatan visual dan kedekatan zona target relatif terhadap harga saat ini dan zona likuiditas signifikan lainnya. Format output yang diinginkan adalah langsung ke poin utama, tanpa basa-basi, seperti ini: Analisis Heatmap Likuiditas: Harga Saat Ini (Perkiraan): [Level Harga]. Zona Likuiditas Kuat Terdekat (Atas): [Level Harga]. Zona Likuiditas Kuat Terdekat (Bawah): [Level Harga]. Prediksi Berdasarkan Heatmap: Level Harga Target Kunjungan Berikutnya: [Level Harga Spesifik]. Estimasi Probabilitas Kunjungan: [Angka]%. Penting: Analisis HANYA berdasarkan informasi visual likuiditas yang ada di dalam gambar heatmap. Jangan berasumsi data lain. Akurasi pembacaan level harga dari skala heatmap sangat krusial. Probabilitas adalah estimasi visual berdasarkan kekuatan dan kedekatan likuiditas." },
                         { role: "user", content: [
-                            { type: "text", text: "ANALISA GAMBAR HEATMAP BERIKUT DENGAN SANGAT AKURAT, DAN DETAIL! IDENTIFIKASI ZONA KUNING SEBAGAI MAGNET HARGA DAN ZONA BIRU SEBAGAI AREA BEBAS GERAK. DETEKSI KEMUNGKINAN BREAKOUT, FAKEOUT, DAN MANIPULASI PASAR. WASPADA ZONA KUNING BARU ATAU MENDADAK HILANG YANG BISA MENANDAKAN JEBATAN LIKUIDASI! TENTUKAN TARGET HARGA SELANJUTNYA DENGAN PERSENTASE KEMUNGKINAN (%), SEBUTKAN ARAH PALING KUAT DAN ALTERNATIFNYA BESERTA PROBABILITAS MASING-MASING DALAM PERSEN UNTUK SETIAP SKENARIO YANG MUNGKIN TERJADI BERDASARKAN DATA HEATMAP DAN KONDISI MARKET TERKINI!" },
+                            { type: "text", text: "Analisa heatmap berikut dan prediksi level harga target kunjungan berikutnya dan estimasi probabilitasnya dalam persen. Atau: Dari heatmap likuiditas ini, identifikasi zona terang terdekat/terkuat. Tentukan level target kunjungan berikutnya & probabilitasnya (%). Atau: Heatmap analysis: Next price target level? Probability (%)? Atau: Lihat heatmap ini. Berdasarkan zona likuiditas terdekat yang paling signifikan dari harga sekarang, berapa level target berikutnya dan berapa persen kemungkinan tercapai?" },
                             { type: "image_url", image_url: { url: imageUrl } }
                         ] }
                     ],
-                    temperature: 0,
+                    temperature: 0.01,
                     top_p: 0.7,
                     top_k: 50,
                     repetition_penalty: 1
