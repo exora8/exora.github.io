@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kartini AI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        h2 {
+            color: #89b4fa;
+            margin-bottom: 20px;
+        }
+        input, button {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            width: 200px;
+            transition: transform 0.2s ease;
+        }
+        
+        button, .file-btn {
+            background-color: #313244;
+            color: #cdd6f4;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            width: 200px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        button:hover, .file-btn:hover {
+            background-color: #89b4fa;
+            transform: scale(1.05);
+        }
+        #imagePreview {
+    display: none;
+    margin-top: 10px;
+    max-width: 90%;
+    height: 90%;
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5); /* Mulai kecil */
+    opacity: 0; /* Mulai transparan */
+    z-index: 2;
+    animation: popup 0.8s ease-out forwards; /* Animasi aktif langsung */
+}
+
+/* Setelah gambar loaded */
+#imagePreview.show {
+    display: block; 
+    opacity: 1;
+}
+
+/* Animasi scale smooth */
+@keyframes popup {
+    0% {
+      
+        transform: translate(-50%, 350%) scale(0.5);
+        opacity: 0;
+    }
+
+    90% {
+        transform: translate(-50%, -48%) scale(0.99);
+        
+        opacity: 1;
+    }
+    
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        
+        opacity: 1;
+    }
+}
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+        #imageInput {
+            display: none;
+        }
+        #response {
+            white-space: pre-wrap;
+            background-color: #181825;
+            padding: 10px;
+            border-radius: 5px;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            word-wrap: break-word;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            display: none;
+            opacity: 0;
+            animation: typing 1s ease 0s 1 normal forwards;
+        }
+        @keyframes typing {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, 150%);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+        @media (max-width: 600px) {
+            .file-btn, input, button {
+                width: 80%;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <label for="imageInput" class="file-btn">Choose File</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="takePicture" onclick="openCamera()">Take Picture</button>
+    </div>
+
+    <img id="imagePreview" />
+    <canvas id="particleCanvas"></canvas>
+    <pre id="response"></pre>
+
+    <script>
+      
+      document.body.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+        for (let item of items) {
+            if (item.type.startsWith("image/")) {
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.getElementById("imagePreview");
+                    img.src = event.target.result;
+                    img.style.display = "block";
+
+                    // Tambah animasi setelah gambar dimuat
+                    img.onload = () => {
+                        img.classList.add("show");
+
+                        // Tunggu animasi selesai dulu baru setup canvas
+                        setTimeout(() => setupCanvas(img), 800);
+                    };
+
+                    // Panggil fungsi upload jika perlu
+                    uploadImage(blob);
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+    }
+});
+
+
+
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+document.getElementById('imageInput').addEventListener('change', () => {
+    const file = document.getElementById('imageInput').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById('imagePreview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            img.onload = () => {
+                img.classList.add('show');
+
+                // Tunggu animasi selesai dulu baru setup canvas
+                setTimeout(() => setupCanvas(img), 800);
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function setupCanvas(image) {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Ambil ukuran image setelah animasi selesai
+    const rect = image.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    canvas.style.position = 'absolute';
+    canvas.style.top = `${rect.top + window.scrollY}px`;
+    canvas.style.left = `${rect.left + window.scrollX}px`;
+    canvas.style.display = 'block';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    startScanningLight(canvas, ctx);
+}
+
+function startScanningLight(canvas, ctx) {
+    let scanY = canvas.height * -5;
+    const scanSpeed = canvas.height * 0.05;
+
+    function drawScanningLight() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Cahaya kotak dengan bloom hanya di area gambar
+        const lightWidth = canvas.width * 1.2;
+        const lightHeight = canvas.height * 2;
+        const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
+
+        scanY += scanSpeed;
+        if (scanY > canvas.height) scanY = canvas.height * -2;
+
+        requestAnimationFrame(drawScanningLight);
+    }
+
+    drawScanningLight();
+}
+
+
+
+
+
+
+         const IMG_API_KEY = [
+    "bedc482173ef5ae2ee3d11aff6c751ad",
+    "e289a41a680b3b8e42d47c618ef1a799",
+    "983f47767cae39ddfb0031228296bcda",
+    "02e4e79b8f4f7ef185b2d2492f1b4096",
+    "f7d50fbf59995e894c0d3ece42161f65",
+    "a7a1d267d1b26b88fd43562c0c1ca3ea",
+    "57858a3e433bf19132f376e4b25438af"
+];
+         
+         
+         
+         
+         
+         
+        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
+        const API_KEYS = [
+    "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
+    "1986fcb80017badcac2c5761e9bc5d9b5b635a57b58573c094c5aaee0f7cad65",
+    "47aacfae02634de54a494b4071c9fb357122f453c3ed25a848e77a32a39c50c2",
+    "11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d",
+    "cf887a3d000a64a1686d2bb8e392a64b7f46fe131aff4685e5199510106b8608",
+    "9fa71bf023b928a32cad2959fcf5fee36bb9fbb3732ed6ba659892c079da57e0",
+    "401925c1ac6e2e33847169014115e9344dcaf32d1c1fe386c8fc92768d7b15ad",
+    "215c434d7361a2799557f151ab3b3b80c710a09111339e712a82579f8790f7f2",
+    "34211673816c9ef4729e0259c042ebe3d762fb90ff16c36b42ddfb1c0f9e10e6",
+    "1ea461952d729c0e3dccadd919ee5d121a8125bc7bd5924192495528e24e2afb",
+    "40f561d9befc36d117412f9003d81a2306790e536cec5c36ce540833885f6bd5",
+    "f8eb6808a6c585445cd0db8cb5d048b9cb2d35262fe67f9b512ebc17eb4937b2",
+    "f19df6a1c0a9dccb696764e091d8990734acdff7b39f811a873f7ddf580f92ff"
+];
+
+        function getRandomApiKey() {
+            return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+        }
+        
+        function getRandomApiKey1() {
+            return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
+        }
+        
+       function getUniqueRandomKey(keysArray, storageKey) {
+    if (!keysArray.length) {
+        console.error("⚠️ Error: Array API key kosong!");
+        return null;
+    }
+
+    let newKey;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    // Ambil last key dari localStorage
+    const lastKey = localStorage.getItem(storageKey);
+
+    do {
+        newKey = keysArray[Math.floor(Math.random() * keysArray.length)];
+        attempts++;
+        console.log(`🔍 Attempt ${attempts}: ${newKey}`);
+        
+        if (attempts >= maxAttempts) {
+            console.warn("⚠️ Warning: Maksimum percobaan tercapai, tetap pakai key terakhir.");
+            break;
+        }
+
+    } while (newKey === lastKey);
+
+    console.log(`✅ API key terpilih: ${newKey}`);
+    
+    // Simpan key baru ke localStorage
+    localStorage.setItem(storageKey, newKey);
+
+    return newKey;
+}
+
+// Contoh pemakaian
+const apiKey = getUniqueRandomKey(API_KEYS, "lastApiKey");
+const imgApiKey = getUniqueRandomKey(IMG_API_KEY, "lastImgApiKey");
+
+
+
+        function openCamera() {
+            const input = document.getElementById('imageInput');
+            input.setAttribute('capture', 'environment');
+            input.click();
+        }
+
+        document.getElementById('imageInput').addEventListener('change', () => {
+            const file = document.getElementById('imageInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    uploadImage(file);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadImage(fileInput) {
+            const responseField = document.getElementById("response");
+            try {
+               const selectedImgApiKey = getRandomApiKey1();
+               console.log("selected imgbb api key : ", selectedImgApiKey);
+                const formData = new FormData();
+                formData.append("image", fileInput);
+
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${selectedImgApiKey}`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const imgbbData = await imgbbResponse.json();
+                const imageUrl = imgbbData.data.url;
+                const selectedApiKey = getRandomApiKey();
+                
+
+                const payload = {
+                    model: "meta-llama/Llama-Vision-Free",
+                    messages: [
+                        { role: "system", content: "Anda adalah seorang Analis Teknikal Profesional yang sangat teliti dan objektif. Anda akan menerima sebuah gambar (screenshot) grafik harga (chart) suatu aset finansial. Tugas utama Anda: Pertama, analisis visual mendalam; periksa gambar grafik secara detail dan pastikan Anda membaca skala harga dan waktu dengan akurat. Kedua, identifikasi faktor teknikal kunci: temukan level Support signifikan yang relevan dengan harga saat ini, temukan level Resistance signifikan yang relevan dengan harga saat ini, identifikasi Trend Jangka Pendek/Menengah yang terlihat jelas (Uptrend, Downtrend, Sideways/Konsolidasi), perhatikan Pola Candlestick terakhir atau formasi beberapa candle terakhir di dekat harga penutupan terbaru di gambar, cari Pola Grafik yang mungkin terbentuk (misal: Triangle, Channel, Flag, Head & Shoulders, dll.) jika ada, dan jika ada indikator teknikal di gambar (seperti Moving Average, RSI, MACD), sebutkan sinyal relevan yang diberikannya di sekitar harga terbaru. Ketiga, fokus pada harga terbaru; analisis Anda harus berpusat pada kondisi harga PALING AKHIR yang terlihat jelas di dalam gambar. Keempat, berikan rekomendasi trading (output akhir) berdasarkan keseluruhan analisis teknikal dari gambar tersebut, terutama kondisi di dekat harga terbaru: pilih salah satu Rekomendasi Posisi (LONG atau SHORT), berikan Alasan Singkat (justifikasi teknikal ringkas 1-2 kalimat mengapa Anda merekomendasikan Long atau Short berdasarkan temuan Support/Resistance/Trend/Pola di dekat harga terbaru), tentukan Level Take Profit (TP) spesifik yang logis berdasarkan Resistance (untuk Long) atau Support (untuk Short) terdekat, dan tentukan Level Stop Loss (SL) spesifik yang logis, biasanya ditempatkan sedikit di bawah Support kunci (untuk Long) atau sedikit di atas Resistance kunci (untuk Short). Format output yang diinginkan adalah langsung ke poin utama, tanpa basa-basi, seperti ini: Analisis Teknikal Singkat: Support Kunci Terdekat: [Level Harga]. Resistance Kunci Terdekat: [Level Harga]. Trend Terkini: [Uptrend/Downtrend/Sideways]. Pola/Sinyal Penting Lainnya: [Sebutkan jika ada]. Rekomendasi Berdasarkan Harga Terbaru di Gambar: Rekomendasi: [LONG / SHORT]. Alasan Singkat: [Tulis alasan]. Take Profit (TP): [Level Harga Target]. Stop Loss (SL): [Level Harga Stop]. Penting: Analisis HANYA berdasarkan informasi visual yang ada di dalam gambar, jangan berasumsi atau menggunakan data eksternal. Pastikan level harga TP dan SL yang diberikan adalah angka spesifik. Akurasi pembacaan level harga dari gambar sangat krusial." },
+                        { role: "user", content: [
+                            { type: "text", text: "Analisa chart berikut dan berikan rekomendasi Long/Short, level TP, dan level SL berdasarkan harga terbaru." },
+                            { type: "image_url", image_url: { url: imageUrl } }
+                        ] }
+                    ],
+                    temperature: 0.01,
+                    top_p: 0.7,
+                    top_k: 50,
+                    repetition_penalty: 1
+                };
+
+                const togetherResponse = await fetch(TOGETHER_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${selectedApiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await togetherResponse.json();
+                responseField.style.display = 'block';
+                responseField.textContent = data.choices[0]?.message?.content || "No response received";
+            } catch (error) {
+                console.error("Error:", error);
+                responseField.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        
+
+        
+         let holdTimeout;
+        const responseField = document.getElementById('response');
+
+        responseField.addEventListener('mousedown', () => {
+            holdTimeout = setTimeout(() => {
+                if (confirm('Refresh page?')) location.reload();
+            }, 1000);  // Hold 1 detik buat munculin confirm
+        });
+
+        responseField.addEventListener('mouseup', () => clearTimeout(holdTimeout));
+        responseField.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
+    </script>
+</body>
+</html>
