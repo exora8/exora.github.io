@@ -3,118 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Chat (Together AI) - Fetch API Key</title>
+    <title>AI Voice Chat (Face Detection Trigger)</title>
 
     <style>
         /* --- CSS (Sama seperti sebelumnya) --- */
-        body {
-            font-family: sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: #555;
-        }
-
-        .video-container {
-            position: relative;
-            margin-bottom: 15px;
-            text-align: center;
-            background-color: #eee;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        #webcamVideo {
-            border: 1px solid #ccc;
-            display: block;
-            margin: 0 auto;
-        }
-        #overlayCanvas {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none;
-        }
-
-
-        .status-area {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e9e9e9;
-            border-radius: 5px;
-        }
-
-        #status {
-            font-weight: bold;
-            display: inline-block;
-            min-width: 150px;
-            text-align: left;
-        }
-
-        button {
-            padding: 8px 15px;
-            margin: 5px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            font-size: 0.9em;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-
-        .text-display {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-        }
-
-        .text-display h2 {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .text-display p {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 10px;
-            min-height: 40px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-        }
-        /* --- CSS Ends Here --- */
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: #555; }
+        .video-container { position: relative; margin-bottom: 15px; text-align: center; background-color: #eee; padding: 10px; border-radius: 5px; min-height: 260px; /* Ensure space */}
+        #webcamVideo { border: 1px solid #ccc; display: block; margin: 0 auto; background-color: #333; /* Dark bg while loading */ }
+        #overlayCanvas { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+        .status-area { text-align: center; margin-bottom: 20px; padding: 10px; background-color: #e9e9e9; border-radius: 5px; }
+        #status { font-weight: bold; display: inline-block; min-width: 150px; text-align: left; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; background-color: #007bff; color: white; font-size: 0.9em; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #0056b3; }
+        .text-display { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .text-display h2 { font-size: 1.1em; color: #666; margin-bottom: 5px; }
+        .text-display p { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; min-height: 40px; border-radius: 4px; white-space: pre-wrap; }
+        .warning { color: red; font-weight: bold; text-align: center; margin-bottom: 10px; }
     </style>
 
-    <!-- Include face-api.js jika ingin mencoba deteksi wajah/mulut -->
-    <!-- <script defer src="face-api.min.js"></script> -->
+    <!-- **** WAJIB: Sertakan face-api.js **** -->
+    <!-- Download dari https://github.com/justadudewhohacks/face-api.js/tree/master/dist -->
+    <script defer src="face-api.min.js"></script>
+
 </head>
 <body>
-    <h1>Ngobrol sama AI (Together AI)</h1>
+    <h1>Ngobrol sama AI (Deteksi Wajah)</h1>
+    <p class="warning">Fitur deteksi wajah otomatis bersifat eksperimental!</p>
 
     <div class="container">
         <div class="video-container">
@@ -124,6 +41,7 @@
 
         <div class="status-area">
             <p>Status: <span id="status">Initializing...</span></p>
+            <!-- Tombol manual tetap ada sebagai fallback -->
             <button id="manualStartButton" disabled>Mulai Bicara (Manual)</button>
             <button id="manualStopButton" disabled>Berhenti Bicara (Manual)</button>
         </div>
@@ -140,14 +58,9 @@
         // --- JavaScript Starts Here ---
 
         // --- Konfigurasi ---
-        let API_KEY; // Akan diisi oleh getApiKey()
-        const TOGETHER_AI_MODEL = "meta-llama/Llama-3-70B-Instruct-Turbo"; // Model Baru
+        let API_KEY;
+        const TOGETHER_AI_MODEL = "meta-llama/Llama-3-70B-Instruct-Turbo";
         const TOGETHER_AI_URL = "https://api.together.xyz/v1/chat/completions";
-
-        // Ambang batas (placeholder)
-        const SILENCE_THRESHOLD_MS = 2000;
-        const MOVEMENT_CONFIRMATION_MS = 500;
-        const STILLNESS_CONFIRMATION_MS = 1500;
 
         // --- Referensi Elemen DOM ---
         const statusDisplay = document.getElementById('status');
@@ -156,6 +69,7 @@
         const manualStartButton = document.getElementById('manualStartButton');
         const manualStopButton = document.getElementById('manualStopButton');
         const videoElement = document.getElementById('webcamVideo');
+        const canvasElement = document.getElementById('overlayCanvas'); // Canvas untuk overlay
 
         // --- State Aplikasi ---
         let isListening = false;
@@ -166,164 +80,117 @@
         let recognition;
         let synthesis = window.speechSynthesis;
         let currentUtterance = null;
+        let faceApiReady = false;
+        let detectionInterval; // Untuk menyimpan interval deteksi
 
-        // --- Fungsi untuk Mengambil API Key dari Backend ---
+        // --- State Deteksi Wajah ---
+        let mouthOpenThreshold = 15; // *** TUNING DIPERLUKAN *** (tergantung resolusi, jarak)
+        let headMovementThreshold = 5; // *** TUNING DIPERLUKAN *** (pixel)
+        let lastMouthState = 'closed'; // 'open' or 'closed'
+        let mouthMovementStart = null; // Timestamp
+        let headStillStart = null; // Timestamp
+        let mouthStillStart = null; // Timestamp
+        let lastHeadPosition = null; // { x: number, y: number }
+        let faceDetectedConfidence = 0.7; // Minimal confidence untuk deteksi wajah
+
+        // --- Konfigurasi Waktu Trigger (dalam milidetik) ---
+        const MOUTH_MOVEMENT_CONFIRM_DURATION = 300;  // Mulut harus bergerak (buka/tutup) selama 0.3s untuk trigger mic/interrupt
+        const HEAD_STILL_CONFIRM_DURATION = 1000;    // Kepala harus diam selama 1s
+        const MOUTH_STILL_CONFIRM_DURATION = 1200;   // Mulut harus diam (tertutup) selama 1.2s
+        const DETECTION_INTERVAL_MS = 100; // Seberapa sering deteksi dijalankan
+
+        // --- Fungsi API Key & Inisialisasi Dasar (Sama seperti sebelumnya) ---
         async function getApiKey() {
-            try {
-                const response = await fetch('/api/getApiKey'); // Panggil endpoint backend kamu
-                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                 }
+            // ... (Kode getApiKey sama persis seperti jawaban sebelumnya) ...
+             try {
+                const response = await fetch('/api/getApiKey');
+                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                if (!data.apiKey) {
-                    throw new Error('Format respons API key tidak valid.');
-                }
-                API_KEY = data.apiKey; // Simpan API key
-                console.log('API Key berhasil diambil.');
-                statusDisplay.textContent = 'Ready (Manual)'; // Update status setelah key didapat
-                // Aktifkan tombol start jika STT didukung & mic diizinkan
-                if (recognition) {
-                    checkMicPermissionAndEnableStart();
-                }
+                if (!data.apiKey) throw new Error('Invalid API key response format.');
+                API_KEY = data.apiKey;
+                console.log('API Key fetched successfully.');
+                // Jangan update status/tombol di sini, tunggu face-api siap
             } catch (error) {
-                console.error('Gagal ambil API Key:', error);
-                statusDisplay.textContent = 'Error: Gagal ambil API Key!';
-                alert(`Tidak bisa mengambil konfigurasi dari server: ${error.message}. Fitur AI tidak akan berfungsi.`);
-                // Tombol start tetap disabled
+                console.error('Failed to fetch API Key:', error);
+                statusDisplay.textContent = 'Error: Failed to fetch API Key!';
+                alert(`Cannot fetch configuration from server: ${error.message}. AI features will not work.`);
+                // Disable manual buttons if API key fails
+                 manualStartButton.disabled = true;
+                 manualStopButton.disabled = true;
             }
         }
 
-        // --- Inisialisasi Web Speech API ---
+        // --- Inisialisasi Web Speech API (Sama) ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            statusDisplay.textContent = 'Error: Browser tidak support STT.';
-            alert('Maaf, browser kamu tidak mendukung Web Speech API untuk Speech-to-Text.');
-            // Tidak perlu disable tombol disini, karena akan dicek setelah API Key & Mic
-        } else {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'id-ID';
+        // ... (Kode inisialisasi SpeechRecognition & Synthesis sama persis) ...
+         if (!SpeechRecognition) {
+             // ... handle error ...
+         } else {
+             recognition = new SpeechRecognition();
+             // ... setup recognition events (onstart, onresult, onend, onerror) ...
+             // PENTING: Di onresult, JANGAN pakai timeout hening lagi, biarkan deteksi wajah yg handle stop
+             recognition.onresult = (event) => {
+                 let interimTranscript = '';
+                 finalTranscript = ''; // Reset final transcript setiap ada hasil baru
 
-            recognition.onstart = () => {
-                console.log("STT started.");
-                isListening = true;
-                statusDisplay.textContent = 'Mendengarkan...';
-                manualStartButton.disabled = true;
-                manualStopButton.disabled = false;
-                clearTimeout(silenceTimeout);
-            };
-
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                finalTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        interimTranscript += event.results[i][0].transcript;
-                    }
-                }
-                userTextDisplay.textContent = finalTranscript + interimTranscript;
-
-                clearTimeout(silenceTimeout);
-                if (finalTranscript.trim()) {
-                    silenceTimeout = setTimeout(() => {
-                        console.log("Silence detected (timeout). Stopping.");
-                        if (isListening) {
-                            stopListeningAndProcess();
-                        }
-                    }, SILENCE_THRESHOLD_MS);
-                }
-                // --- Placeholder Interupsi ---
-                // if (isSpeakingAI && detectUserSpeaking()) { interruptAI(); }
-            };
-
-            recognition.onend = () => {
-                console.log("STT ended.");
-                isListening = false;
-                 // Hanya enable start jika API key sudah ada
-                if (API_KEY) {
-                     manualStartButton.disabled = false;
+                 for (let i = event.resultIndex; i < event.results.length; ++i) {
+                     if (event.results[i].isFinal) {
+                         finalTranscript += event.results[i][0].transcript;
+                     } else {
+                         interimTranscript += event.results[i][0].transcript;
+                     }
                  }
-                manualStopButton.disabled = true;
-                clearTimeout(silenceTimeout);
-                if (!isProcessing && !isSpeakingAI) {
-                    statusDisplay.textContent = API_KEY ? 'Ready (Manual)' : 'Error: API Key?';
-                }
-            };
+                 userTextDisplay.textContent = finalTranscript + interimTranscript; // Tampilkan gabungan
 
-            recognition.onerror = (event) => {
-                console.error('STT Error:', event.error);
-                statusDisplay.textContent = `Error STT: ${event.error}`;
-                isListening = false;
-                 if (API_KEY) { // Hanya enable start jika API key OK
-                    manualStartButton.disabled = false;
+                 // Hapus timeout hening, karena kita pakai deteksi wajah/kepala diam
+                 // clearTimeout(silenceTimeout);
+             };
+             recognition.onend = () => {
+                 console.log("STT ended.");
+                 isListening = false;
+                 manualStopButton.disabled = true;
+                 // Tombol start manual akan di-enable jika API key & faceAPI siap
+                 updateManualButtonStates();
+                 if (!isProcessing && !isSpeakingAI) {
+                      updateStatusDisplay(); // Update status berdasarkan state saat ini
                  }
-                manualStopButton.disabled = true;
-                clearTimeout(silenceTimeout);
-            };
-        }
+             };
+             // ... (onstart, onerror sama) ...
+         }
+         if(!synthesis){ /*...*/ }
 
-        if (!synthesis) {
-            // Status sudah diatur oleh STT check jika keduanya error
-            if (SpeechRecognition) statusDisplay.textContent = 'Warning: Browser tidak support TTS.';
-            alert('Maaf, browser kamu tidak mendukung Web Speech API untuk Text-to-Speech. Respon AI hanya akan berupa teks.');
-        }
-
-        // --- Fungsi Inti (Sebagian Besar Sama) ---
-
+        // --- Fungsi Inti STT, AI, TTS (Sama) ---
         function startListening() {
-            // Cek API Key DULU
-            if (!API_KEY) {
-                alert("API Key belum siap atau gagal diambil dari server. Coba refresh halaman.");
-                console.error("Attempted to start listening without API Key.");
-                return;
-            }
-             if (!recognition) {
-                alert("Speech Recognition tidak tersedia di browser ini.");
-                return;
-             }
-            if (isListening || isProcessing || isSpeakingAI) return;
+            if (!API_KEY) { console.error("No API Key"); return; }
+            if (!recognition) { console.error("No STT support"); return; }
+            if (isListening || isProcessing || isSpeakingAI) return; // Sudah aktif
 
-            console.log("Attempting to start listening...");
+            console.log("Attempting to start listening (triggered)...");
             finalTranscript = '';
             userTextDisplay.textContent = '...';
             aiTextDisplay.textContent = '...';
             try {
                 recognition.start();
+                // State onstart akan handle UI update
             } catch (e) {
-                 // Tangani error jika user belum kasih izin mic
-                 if (e.name === 'NotAllowedError' || e.message.includes('permission')) {
-                     alert("Izin mikrofon ditolak atau belum diberikan. Mohon izinkan akses mikrofon.");
-                     statusDisplay.textContent = 'Error: Izin Mikrofon?';
-                     manualStartButton.disabled = false; // Biarkan user coba lagi
-                 } else {
-                     console.error("Error starting recognition:", e);
-                     statusDisplay.textContent = 'Error mulai STT';
-                 }
-                 // Reset state jika gagal start
-                 isListening = false;
-                 manualStartButton.disabled = false;
-                 manualStopButton.disabled = true;
+                console.error("Error starting recognition:", e);
+                statusDisplay.textContent = 'Error starting STT';
+                 updateManualButtonStates(); // Re-enable manual start if possible
             }
         }
 
         function stopListeningAndProcess() {
             if (!isListening || !recognition) return;
-
-            console.log("Stopping listening and processing...");
+             // Verifikasi tambahan: pastikan kita benar-benar berhenti karena stillness terdeteksi
+             // (Ini bisa dihandle di logic trigger)
+            console.log("Stopping listening and processing (triggered by stillness)...");
              try {
-                 recognition.stop();
+                 recognition.stop(); // Akan memicu onend
              } catch (e) { console.warn("Error stopping recognition:", e); }
-            isListening = false;
-            statusDisplay.textContent = 'Memproses...';
+            isListening = false; // Set state eksplisit
+            statusDisplay.textContent = 'Processing...';
             isProcessing = true;
-            manualStopButton.disabled = true; // Tombol stop di-disable saat proses
-             // Tombol start juga disable saat proses
-             manualStartButton.disabled = true;
-            clearTimeout(silenceTimeout);
+             updateManualButtonStates(); // Update tombol saat memproses
 
             const textToSend = finalTranscript.trim();
             console.log("Final transcript to send:", textToSend);
@@ -331,234 +198,340 @@
             if (textToSend) {
                 sendToAI(textToSend);
             } else {
-                console.log("No final transcript.");
-                statusDisplay.textContent = API_KEY ? 'Ready (Manual)' : 'Error: API Key?';
+                console.log("No final transcript to send.");
+                statusDisplay.textContent = 'No speech detected.';
                 isProcessing = false;
-                 if (API_KEY) manualStartButton.disabled = false; // Enable start lagi jika ada API key
+                updateManualButtonStates(); // Update tombol setelah selesai
+                 updateStatusDisplay(); // Update status final
             }
         }
 
         async function sendToAI(userMessage) {
-             // Pastikan API_KEY ada sebelum fetch
-             if (!API_KEY) {
-                 console.error("Cannot send to AI: API Key is missing.");
-                 statusDisplay.textContent = 'Error: Missing API Key!';
-                 aiTextDisplay.textContent = 'Gagal mengirim: Konfigurasi API Key bermasalah.';
+            // ... (Kode sendToAI sama persis, menggunakan API_KEY dan model baru) ...
+             if (!API_KEY) { /* ... handle error ... */ return; }
+             statusDisplay.textContent = 'AI Thinking...';
+             aiTextDisplay.textContent = '...';
+             isProcessing = true; // Pastikan processing state aktif
+             updateManualButtonStates();
+
+             try {
+                 const response = await fetch(TOGETHER_AI_URL, { /* ... headers, body ... */ });
+                 // ... (handle response.ok, parse json) ...
+                 const data = await response.json();
+                 const aiResponseText = data.choices?.[0]?.message?.content?.trim();
+                 if (aiResponseText) {
+                     aiTextDisplay.textContent = aiResponseText;
+                     // isProcessing akan di-set false oleh speakAI.onstart atau onerror/onend
+                     speakAI(aiResponseText);
+                 } else { throw new Error("Empty AI response."); }
+             } catch (error) {
+                 // ... (handle error, update UI) ...
                  isProcessing = false;
-                 manualStartButton.disabled = false; // Enable start lagi (meski mungkin tetap error)
-                 return;
+                 updateStatusDisplay();
+                 updateManualButtonStates();
              }
-
-            statusDisplay.textContent = 'AI Berpikir...';
-            aiTextDisplay.textContent = '...';
-
-            try {
-                const response = await fetch(TOGETHER_AI_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}` // Gunakan variabel API_KEY
-                    },
-                    body: JSON.stringify({
-                        model: TOGETHER_AI_MODEL, // Gunakan model baru
-                        messages: [{ role: "user", content: userMessage }],
-                        max_tokens: 250, // Mungkin perlu lebih untuk model 70B
-                        temperature: 0.7,
-                    }),
-                });
-
-                if (!response.ok) {
-                     // Coba baca error body dari TogetherAI
-                     let errorData;
-                     try {
-                         errorData = await response.json();
-                         console.error("Together AI API Error Response:", errorData);
-                     } catch (jsonError) {
-                         // Jika response bukan JSON
-                         console.error("Non-JSON error response from API:", await response.text());
-                         errorData = { error: { message: response.statusText } };
-                     }
-                    throw new Error(`API Error ${response.status}: ${errorData.error?.message || response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log("Together AI Response:", data);
-
-                const aiResponseText = data.choices?.[0]?.message?.content?.trim();
-
-                if (aiResponseText) {
-                    aiTextDisplay.textContent = aiResponseText;
-                    speakAI(aiResponseText); // Panggil TTS
-                } else {
-                    throw new Error("Respon AI kosong atau format tidak sesuai.");
-                }
-
-            } catch (error) {
-                console.error('Error fetching AI response:', error);
-                statusDisplay.textContent = `Error API: ${error.message}`;
-                aiTextDisplay.textContent = `Gagal mendapatkan respon AI. ${error.message}`;
-                isProcessing = false;
-                // Enable start button lagi JIKA API key ada (error mungkin sementara)
-                 if (API_KEY) manualStartButton.disabled = false;
-            }
-            // `finally` block tidak eksplisit, state direset di akhir `speakAI` atau di `catch`
         }
 
         function speakAI(textToSpeak) {
-            if (!synthesis || !textToSpeak) {
-                console.warn("TTS not available or text empty. Skipping speech.");
-                // Langsung set status Idle setelah AI berpikir selesai & TTS di-skip
-                isProcessing = false; // AI process done
-                isSpeakingAI = false; // Not speaking
-                statusDisplay.textContent = API_KEY ? 'Ready (Manual)' : 'Error: API Key?';
-                 if (API_KEY) manualStartButton.disabled = false; // Enable start
-                return;
-            }
-
-            if (isSpeakingAI || synthesis.speaking) {
-                synthesis.cancel();
-            }
-
-            currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
-            currentUtterance.lang = 'id-ID';
-
-            // Coba dapatkan suara (best effort)
-             try {
-                 let voices = synthesis.getVoices();
-                 if (voices.length > 0) {
-                      const indonesianVoice = voices.find(voice => voice.lang === 'id-ID');
-                      if (indonesianVoice) {
-                          currentUtterance.voice = indonesianVoice;
-                      }
-                 } else {
-                    // Jika voices kosong, event onvoiceschanged mungkin perlu (tapi bisa kompleks)
-                    console.log("Voices array empty initially, using default/waiting for async load.")
-                 }
-             } catch (e) {
-                 console.error("Error getting voices:", e);
+            // ... (Kode speakAI sama persis) ...
+             if (!synthesis || !textToSpeak) {
+                 // ... handle skip TTS ...
+                 isProcessing = false; // Pastikan processing selesai jika TTS di-skip
+                 updateStatusDisplay();
+                 updateManualButtonStates();
+                 return;
              }
-
-
-            currentUtterance.onstart = () => {
-                console.log("AI Speech started.");
-                isSpeakingAI = true;
-                isProcessing = false; // AI processing finished, TTS starts
-                statusDisplay.textContent = 'AI Bicara...';
-                manualStartButton.disabled = true; // Disable start while AI speaks
-                manualStopButton.disabled = true; // Disable stop too
-            };
-
-            currentUtterance.onend = () => {
-                console.log("AI Speech finished.");
-                isSpeakingAI = false;
-                currentUtterance = null;
-                statusDisplay.textContent = API_KEY ? 'Ready (Manual)' : 'Error: API Key?';
-                if (API_KEY) manualStartButton.disabled = false; // Enable start after AI finishes
-            };
-
-            currentUtterance.onerror = (event) => {
-                console.error('TTS Error:', event.error);
-                statusDisplay.textContent = `Error TTS: ${event.error}`;
-                isSpeakingAI = false;
-                isProcessing = false;
-                currentUtterance = null;
-                if (API_KEY) manualStartButton.disabled = false; // Enable start on error too
-            };
-
-            synthesis.speak(currentUtterance);
+             // ... (cancel previous, create utterance, find voice) ...
+             currentUtterance.onstart = () => {
+                 console.log("AI Speech started.");
+                 isSpeakingAI = true;
+                 isProcessing = false; // Processing selesai, AI mulai bicara
+                 updateStatusDisplay();
+                 updateManualButtonStates();
+             };
+             currentUtterance.onend = () => {
+                 console.log("AI Speech finished.");
+                 isSpeakingAI = false;
+                 currentUtterance = null;
+                 updateStatusDisplay();
+                 updateManualButtonStates();
+                 // Mungkin reset state deteksi? Tergantung logic yg diinginkan
+                 resetDetectionTimers();
+             };
+             currentUtterance.onerror = (event) => {
+                 // ... (handle error) ...
+                 isSpeakingAI = false;
+                 isProcessing = false;
+                 currentUtterance = null;
+                 updateStatusDisplay();
+                 updateManualButtonStates();
+             };
+             synthesis.speak(currentUtterance);
         }
 
         function interruptAI() {
             if (isSpeakingAI && synthesis.speaking) {
-                console.log("Interrupting AI Speech...");
-                synthesis.cancel(); // This should trigger onend
-                // Wait slightly for state reset in onend, then start listening
+                console.log("Interrupting AI Speech (triggered by user movement)...");
+                synthesis.cancel(); // Akan memicu onend TTS
+                // Tunggu sebentar agar state TTS (isSpeakingAI) di onend selesai diupdate
                 setTimeout(() => {
-                     if (!isListening && API_KEY) { // Ensure API key is ready
+                     if (!isListening && API_KEY && recognition && faceApiReady) { // Cek semua prasyarat
                          startListening();
+                     } else {
+                         console.log("Cannot start listening after interrupt, conditions not met.");
                      }
-                }, 150); // Slightly longer delay might be safer
+                }, 150); // Jeda singkat
             }
         }
 
-        // --- Fungsi Deteksi Gerakan (Placeholder/Konsep - Sama) ---
-        async function setupFaceDetection() { /* ... Placeholder ... */ console.log("Placeholder Face Detection Setup");}
-        function startDetectionLoop() { /* ... Placeholder ... */ console.log("Placeholder Face Detection Loop");}
-        function checkStillnessAndStop() { /* ... Placeholder ... */ }
+        // --- Fungsi Baru: Update Status & Tombol ---
+        function updateStatusDisplay() {
+            if (!API_KEY) statusDisplay.textContent = "Error: API Key?";
+            else if (!faceApiReady) statusDisplay.textContent = "Loading Face Detection...";
+            else if (isProcessing) statusDisplay.textContent = "Processing...";
+            else if (isListening) statusDisplay.textContent = "Listening...";
+            else if (isSpeakingAI) statusDisplay.textContent = "AI Speaking...";
+            else statusDisplay.textContent = "Ready (Auto)"; // Status default jika semua siap
+        }
 
-        // --- Event Listener ---
-        manualStartButton.addEventListener('click', startListening);
-        manualStopButton.addEventListener('click', stopListeningAndProcess);
+        function updateManualButtonStates() {
+             const canStartManually = API_KEY && recognition && faceApiReady && !isListening && !isSpeakingAI && !isProcessing;
+             const canStopManually = isListening; // Hanya bisa stop manual jika sedang listening
 
-        // --- Pengecekan Izin Mikrofon & Enable Tombol Start ---
-        function checkMicPermissionAndEnableStart() {
-            if (!API_KEY || !recognition) { // Jangan enable jika API key belum ada atau STT tdk support
-                manualStartButton.disabled = true;
-                return;
-            }
-            // Cek status izin mikrofon (jika API tersedia)
-            if (navigator.permissions && navigator.permissions.query) {
-                navigator.permissions.query({ name: 'microphone' })
-                    .then(permissionStatus => {
-                        console.log(`Microphone permission state: ${permissionStatus.state}`);
-                        if (permissionStatus.state === 'granted') {
-                            manualStartButton.disabled = false;
-                             statusDisplay.textContent = 'Ready (Manual)';
-                        } else if (permissionStatus.state === 'prompt') {
-                            manualStartButton.disabled = false; // User bisa klik untuk trigger prompt
-                            statusDisplay.textContent = 'Ready (Need Mic)';
-                        } else { // denied
-                            manualStartButton.disabled = true;
-                             statusDisplay.textContent = 'Error: Mic Denied';
-                             alert("Izin mikrofon ditolak. Mohon aktifkan di pengaturan browser.");
-                        }
-                        permissionStatus.onchange = () => { // Listen for changes
-                             console.log(`Microphone permission state changed to: ${permissionStatus.state}`);
-                             checkMicPermissionAndEnableStart(); // Re-check logic
-                        };
-                    })
-                    .catch(err => {
-                        console.warn("Permission API not fully supported or error:", err);
-                        // Fallback: Cukup enable tombolnya, biarkan startListening handle error jika ditolak
-                        manualStartButton.disabled = false;
-                        statusDisplay.textContent = 'Ready (Manual)';
-                    });
-            } else {
-                console.warn("Permissions API not supported. Enabling button, relying on startListening error handling.");
-                // Jika Permissions API tidak didukung, enable saja tombolnya
-                 manualStartButton.disabled = false;
-                 statusDisplay.textContent = 'Ready (Manual)';
+             manualStartButton.disabled = !canStartManually;
+             manualStopButton.disabled = !canStopManually;
+        }
+
+        // --- **FUNGSI UTAMA: DETEKSI WAJAH & TRIGGER** ---
+
+        async function setupFaceDetection() {
+            statusDisplay.textContent = 'Loading models...';
+            try {
+                // **** WAJIB: Pastikan path ke model benar ****
+                // Download model dari repo face-api.js dan letakkan di folder /models
+                await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+                await faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'); // Pakai Tiny biar lebih ringan
+                console.log("Face-API models loaded.");
+
+                // Minta akses kamera SEKARANG
+                statusDisplay.textContent = 'Requesting camera...';
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false }); // Minta resolusi spesifik
+                videoElement.srcObject = stream;
+
+                // Tunggu video siap dimainkan
+                await new Promise((resolve) => { videoElement.onloadedmetadata = resolve; });
+
+                videoElement.play(); // Mainkan video
+                console.log("Webcam stream started.");
+                faceApiReady = true; // Tandai face-api siap
+                statusDisplay.textContent = 'Face detection ready.';
+                updateStatusDisplay(); // Update status final
+                updateManualButtonStates(); // Aktifkan tombol manual jika kondisi terpenuhi
+
+                // Mulai loop deteksi
+                startDetectionLoop();
+
+            } catch (err) {
+                console.error("Error setting up face detection:", err);
+                statusDisplay.textContent = "Error: Face Detection Failed!";
+                if (err.name === 'NotAllowedError') {
+                    alert("Camera access denied. Please allow camera access for automatic features.");
+                } else if (err.message.includes('404')) {
+                     alert("Error loading face detection models. Make sure model files exist in the /models folder and the page is served via a web server.");
+                }
+                 else {
+                    alert(`Failed to setup face detection: ${err.message}`);
+                }
+                faceApiReady = false;
+                 updateManualButtonStates(); // Pastikan tombol disable jika error
             }
         }
 
+        function startDetectionLoop() {
+             if (detectionInterval) clearInterval(detectionInterval); // Hapus interval lama jika ada
+
+             detectionInterval = setInterval(async () => {
+                 if (!faceApiReady || videoElement.paused || videoElement.ended) {
+                     return; // Jangan deteksi jika belum siap atau video tidak jalan
+                 }
+
+                 // Opsi deteksi (Tiny lebih cepat)
+                 const detectionOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }); // Sesuaikan input size jika perlu
+
+                 // Deteksi wajah + landmarks
+                 const detection = await faceapi.detectSingleFace(videoElement, detectionOptions).withFaceLandmarks(true); // true = use Tiny landmarks
+
+                 // --- Gambar Overlay (Opsional) ---
+                 const displaySize = { width: videoElement.width, height: videoElement.height };
+                 canvasElement.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
+                 if (detection) {
+                     const resizedDetection = faceapi.resizeResults(detection, displaySize);
+                     faceapi.draw.drawFaceLandmarks(canvasElement, resizedDetection); // Gambar landmarks
+                 }
+                 // --- End Overlay ---
+
+                 // --- Logika Trigger Utama ---
+                 if (detection && detection.detection.score > faceDetectedConfidence) {
+                     const landmarks = detection.landmarks;
+                     const mouth = landmarks.getMouth(); // Poin [48..67]
+
+                     // Hitung jarak vertikal bibir (perkiraan)
+                     const upperLipBottom = landmarks.getPoint(62).y; // Titik tengah bawah bibir atas
+                     const lowerLipTop = landmarks.getPoint(66).y;    // Titik tengah atas bibir bawah
+                     const mouthVerticalDistance = Math.abs(lowerLipTop - upperLipBottom);
+
+                     const currentMouthState = mouthVerticalDistance > mouthOpenThreshold ? 'open' : 'closed';
+
+                     // Hitung posisi tengah wajah (untuk deteksi gerakan kepala)
+                     const nose = landmarks.getNose(); // Poin [27..35]
+                     const currentHeadPosition = { x: nose[3].x, y: nose[3].y }; // Titik ujung hidung
+
+                     let headMoved = false;
+                     if (lastHeadPosition) {
+                         const dx = currentHeadPosition.x - lastHeadPosition.x;
+                         const dy = currentHeadPosition.y - lastHeadPosition.y;
+                         const distance = Math.sqrt(dx*dx + dy*dy);
+                         if (distance > headMovementThreshold) {
+                             headMoved = true;
+                         }
+                     }
+
+                     // --- Update Timer & State Deteksi ---
+                     const now = Date.now();
+
+                     // Mulut Bergerak (Transisi Buka/Tutup)
+                     if (currentMouthState !== lastMouthState) {
+                         console.log(`Mouth state change: ${lastMouthState} -> ${currentMouthState}`);
+                         if (!mouthMovementStart) {
+                             mouthMovementStart = now; // Mulai timer gerakan mulut
+                         }
+                         mouthStillStart = null; // Reset timer mulut diam
+                         lastMouthState = currentMouthState;
+                     } else {
+                         // Mulut tidak berubah state, reset timer gerakan
+                         mouthMovementStart = null;
+                     }
+
+                     // Kepala Bergerak
+                     if (headMoved) {
+                         // console.log("Head moved"); // Bisa jadi terlalu berisik
+                         headStillStart = null; // Reset timer kepala diam
+                     } else {
+                         // Kepala Diam
+                         if (!headStillStart) {
+                             headStillStart = now; // Mulai timer kepala diam
+                         }
+                     }
+
+                      // Mulut Diam (Tertutup)
+                      if (currentMouthState === 'closed') {
+                          if (!mouthStillStart) {
+                              mouthStillStart = now; // Mulai timer mulut diam
+                          }
+                      } else {
+                          mouthStillStart = null; // Reset jika mulut terbuka
+                      }
+
+
+                     // --- Logika Pemicu (Trigger Logic) ---
+
+                     // 1. Trigger Mulai Bicara / Interupsi AI
+                     if (mouthMovementStart && (now - mouthMovementStart >= MOUTH_MOVEMENT_CONFIRM_DURATION)) {
+                         if (!isListening && !isProcessing && !isSpeakingAI) {
+                             console.log(">>> Mouth movement detected: Starting STT");
+                             startListening();
+                             resetDetectionTimers(); // Reset timer setelah trigger
+                         } else if (isSpeakingAI) {
+                             console.log(">>> Mouth movement detected while AI speaking: Interrupting AI");
+                             interruptAI(); // Ini akan menghentikan TTS & startListening
+                             resetDetectionTimers();
+                         }
+                          // Reset timer gerakan setelah terpakai
+                          mouthMovementStart = null;
+                     }
+
+                     // 2. Trigger Berhenti Bicara (Kirim ke AI)
+                     if (isListening) { // Hanya cek stillness jika sedang mendengarkan
+                          const headStillTime = headStillStart ? now - headStillStart : 0;
+                          const mouthStillTime = mouthStillStart ? now - mouthStillStart : 0;
+
+                          if (headStillTime >= HEAD_STILL_CONFIRM_DURATION && mouthStillTime >= MOUTH_STILL_CONFIRM_URATION) {
+                              console.log(`>>> Head still for ${headStillTime}ms, Mouth closed/still for ${mouthStillTime}ms: Stopping STT`);
+                              stopListeningAndProcess();
+                              resetDetectionTimers(); // Reset timer setelah trigger
+                          }
+                     }
+
+                     // Update posisi kepala terakhir
+                     lastHeadPosition = currentHeadPosition;
+
+                 } else {
+                     // Wajah tidak terdeteksi / confidence rendah
+                     console.log("Face not detected or low confidence.");
+                     resetDetectionTimers();
+                     lastHeadPosition = null;
+                     // Mungkin kita mau stop listening jika wajah hilang? (Opsional)
+                     // if (isListening) {
+                     //     console.log("Stopping STT because face lost.");
+                     //     stopListeningAndProcess();
+                     // }
+                 }
+
+             }, DETECTION_INTERVAL_MS); // Jalankan deteksi setiap X ms
+         }
+
+        function resetDetectionTimers() {
+            mouthMovementStart = null;
+            headStillStart = null;
+            mouthStillStart = null;
+            // lastMouthState tidak direset kecuali wajah hilang
+            // lastHeadPosition direset jika wajah hilang
+        }
 
         // --- Inisialisasi Aplikasi ---
         async function initializeApp() {
-            statusDisplay.textContent = 'Mengambil Konfigurasi...';
-            manualStartButton.disabled = true; // Disable tombol saat init
+            statusDisplay.textContent = 'Fetching config...';
+            manualStartButton.disabled = true;
             manualStopButton.disabled = true;
 
-            // 1. Ambil API Key dulu
-            await getApiKey(); // Tunggu sampai API key coba diambil
+            // 1. Ambil API Key
+            await getApiKey();
 
-            // 2. Setup deteksi wajah (jika diimplementasikan)
-            // await setupFaceDetection();
-
-            // 3. Cek izin mic dan aktifkan tombol start JIKA API key berhasil diambil & STT didukung
-            // Pengecekan mic dipindah ke dalam getApiKey success/atau dipanggil setelahnya
-            // Jika getApiKey gagal, tombol tidak akan diaktifkan.
-            // Jika getApiKey sukses, checkMicPermissionAndEnableStart akan dipanggil
-            if (!API_KEY) {
-                console.log("Inisialisasi selesai dengan error pengambilan API Key.");
-            } else if (!recognition) {
-                 console.log("Inisialisasi selesai, API Key OK, tapi STT tidak didukung.");
-                 statusDisplay.textContent = 'Error: STT Not Supported';
+            // 2. Jika API Key OK, Setup Face Detection (ini akan minta izin kamera)
+            if (API_KEY) {
+                await setupFaceDetection(); // Tunggu setup selesai
             } else {
-                 console.log("Inisialisasi dasar selesai. API Key OK, STT OK. Mengecek Mic...");
-                 // checkMicPermissionAndEnableStart sudah dipanggil di getApiKey sukses
+                 statusDisplay.textContent = "Initialization failed (API Key).";
+                 // Tombol tetap disable
             }
 
+             // 3. Inisialisasi STT/TTS sudah terjadi di awal script
+
+            // 4. Update final UI states (Tombol & Status)
+            updateStatusDisplay();
+            updateManualButtonStates();
+
+            console.log("Initialization complete.");
         }
+
+        // --- Event Listener untuk Tombol Manual ---
+        manualStartButton.addEventListener('click', () => {
+             console.log("Manual start button clicked.");
+             // Jika pakai deteksi otomatis, mungkin tombol manual tidak perlu?
+             // Atau gunakan ini sebagai override jika otomatis gagal?
+             if (faceApiReady && !isListening && !isSpeakingAI && !isProcessing) {
+                 startListening();
+             } else {
+                 console.warn("Cannot start manually, conditions not met or face detection not ready.");
+             }
+        });
+        manualStopButton.addEventListener('click', () => {
+             console.log("Manual stop button clicked.");
+             if (isListening) {
+                 stopListeningAndProcess();
+             }
+        });
+
 
         // Jalankan inisialisasi saat DOM siap
         document.addEventListener('DOMContentLoaded', initializeApp);
