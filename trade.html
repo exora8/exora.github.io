@@ -1,1066 +1,939 @@
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EXORA - Hypercore 3.0</title>
+    <title>AI Chat with Face Detection (Single File)</title>
+
+    <!-- Load face-api.js -->
+    <script defer src="face-api.min.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            
-        }
-
+        /* === CSS Starts Here === */
         body {
-            font-family: Arial, sans-serif;
+            font-family: sans-serif;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            background-color: #3f3c3c;
-            overflow: hidden;
-            position: relative;
-        }
-
-        #chat-output {
-            flex: 1;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
             padding: 20px;
-            overflow-y: auto;
-            color: white;
+        }
+
+        .container {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            transition: background-color 0.5s ease;
-            
+            align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 90%; /* Responsiveness */
+            width: 700px; /* Fixed width for better layout */
         }
-        
-        .coin-modal{
-          animation: coinmodal 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
-        }
-        @keyframes coinmodal {
-	0% {
-		transform: scale(0.5);
-	}
 
-	100% {
-		transform: scale(1);
-	}
-}
-        
-          
+        .video-container {
+            position: relative;
+            width: 640px; /* Match video width */
+            height: 480px; /* Match video height */
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            max-width: 100%; /* Responsiveness */
+            overflow: hidden; /* Hide overflow if needed */
+        }
+
+        #video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensure video covers container */
+            transform: scaleX(-1); /* Mirror the video */
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1); /* Mirror the canvas to match video */
+        }
+
+        #status {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-align: center;
+            min-width: 200px; /* Ensure consistent width */
+        }
+
+        .status-idle { background-color: #ddd; color: #333; }
+        .status-detecting { background-color: #ffc107; color: #333; } /* Yellow */
+        .status-listening { background-color: #dc3545; color: white; } /* Red */
+        .status-processing { background-color: #17a2b8; color: white; } /* Teal */
+        .status-speaking { background-color: #28a745; color: white; } /* Green */
+        .status-error { background-color: #6c757d; color: white; } /* Grey */
+        .status-loading { background-color: #007bff; color: white; } /* Blue */
+
+
+        #chatbox {
+            width: 100%;
+            max-width: 640px;
+            margin-bottom: 20px;
+        }
+
+        #chatlog {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-top: 5px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
 
         .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-            max-width: 80%;
-            animation: fadeIn 0.5s ease-out, scaleIn 0.5s ease-out;
-            
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 15px; /* Bubble style */
+            max-width: 80%; /* Prevent messages from taking full width */
+            word-wrap: break-word; /* Wrap long words */
         }
-        
 
         .user-message {
-            background-color: #0072ff;
-            align-self: flex-end;
+            background-color: #007bff; /* Blue */
             color: white;
+            margin-left: auto; /* Align to right */
+            align-self: flex-end;
+            border-bottom-right-radius: 5px; /* Adjust bubble shape */
         }
 
         .ai-message {
-            background-color: #444;
+            background-color: #e2e3e5; /* Light grey */
+            color: #333;
+            margin-right: auto; /* Align to left */
             align-self: flex-start;
+            border-bottom-left-radius: 5px; /* Adjust bubble shape */
         }
 
-       @keyframes jumpAnimation {
-    0% { 
-        content: '.';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 0.5;
-    }
-    20% { 
-        content: '..';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 1;
-    }
-    35% { 
-        content: '...';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 0.5;
-    }
-    45% { 
-        content: '  .';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 1;
-    }
-    85% { 
-        content: ' .';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 1;
-    }
-    100% { 
-        content: '.';
-        font-size: 40px;
-        filter: blur(1px);
-        opacity: 0.5;
-    }
-    
-}
-
-.thinking-message::after {
-    content: '.';
-    animation: jumpAnimation 0.7s steps(3, end) infinite;
-    display: inline-block;
-}
-
-
-        .input-container {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background-color: #2c2d30;
+        #controls {
+            text-align: center;
         }
 
-        #user-input {
-            width: 80%;
-            padding: 10px;
-            border-radius: 10px;
-            border-color:white;
-            background: #333;
-            color: white;
-            border: 2px solid #555;
-            font-size: 1rem;
-        }
-
-        button {
-            width: 15%;
-            padding: 10px 15px;
-            font-size: 1rem;
+        #startButton {
+            padding: 10px 20px;
+            font-size: 1em;
             cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            background-color: #0072ff;
+            background-color: #007bff;
             color: white;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        button:hover {
-            background-color: #0072ff;
-            transform: scale(1.05);
-        }
-        
-        button[disabled] {
-          color: red;
-    background-color: #1038b0; /* Warna tombol yang dinonaktifkan */
-    cursor: not-allowed;
-    transform: scale(1.0);
-}
-
-        .options-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #333;
-            border-radius: 10px;
-            padding: 20px;
-            width: 300px;
-            z-index: 10;
-            animation: options 1s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
-        }
-        
-  @keyframes options {
-	0% {
-		opacity: 0;
-		filter: blur(20px);
-		transform: translateX(50px);
-	}
-
-	100% {
-		opacity: 1;
-		filter: blur(0px);
-		transform: translateX(0)
-		translate(-50%, -50%);
-	}
-}
-
-        
-        .price-text {
-    color: white; 
-    font-weight: bold; /* Biar lebih tegas */
-    display: inline-block; /* Tambahkan ini */
-    animation: price 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
-}
-@keyframes price {
-	0%,
-	50%,
-	100% {
-		opacity: 1;
-	}
-
-	25%,
-	75% {
-		opacity: 0.4;
-	}
-}
-        
-        
-        .green-text {
-    color: #00ff00; /* Warna hijau */
-    font-weight: bold; /* Biar lebih tegas */
-    display: inline-block; /* Tambahkan ini */
-    animation: bullish 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 1 normal forwards;
-}
-
-@keyframes bullish {
-	0% {
-		transform: scale(1);
-	}
-
-	50% {
-		transform: scale(1.1);
-	}
-
-	100% {
-		transform: scale(1);
-	}
-}
-      
-        .red-text {
-    color: orange; /* Warna merah */
-    font-weight: bold; /* Biar lebih tegas */
-    display: inline-block; /* Tambahkan ini */
-    animation: bearish 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 1 normal forwards;
-}
-@keyframes bearish {
-	0%,
-	50%,
-	100% {
-		opacity: 1;
-	}
-
-	25%,
-	75% {
-		opacity: 0;
-	}
-}
-
-#select-coin-button {
-    width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            margin: 10px 0;
-            cursor: pointer;
             border: none;
-            border-radius: 8px;
-            background-color: #0072ff;
-            color: white;
-            transition: background-color 0.3s;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        #startButton:hover {
+            background-color: #0056b3;
+        }
+        #startButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
-
-
-        .options-popup button {
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            margin: 10px 0;
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            background-color: #0072ff;
-            color: white;
-            animation: coinmodal 1s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;
-        }
-
-        .options-popup button:hover {
-            background-color: #00c6ff;
-        }
-
-        @keyframes thinkingAnimation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                filter: blur(5px);
-                transform: translate(10px);
+        /* Responsiveness for smaller screens */
+        @media (max-width: 700px) {
+            .container {
+                 width: 95%;
+                 padding: 15px;
             }
-            to {
-                opacity: 1;
-                filter: blur(0px);
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.9);
-            }
-            to {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes popupIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        @keyframes selectcoin {
-	0% {
-		opacity: 0;
-		filter: blur(4px);
-	}
-
-	100% {
-		opacity: 1;
-		filter: blur(0px);
-	}
-}
-
-        @media (max-width: 600px) {
-            .input-container {
-                flex-direction: row;
-                align-items: center;
+            .video-container {
                 width: 100%;
-                padding: 10px;
+                height: auto; /* Adjust height automatically */
+                /* Maintain aspect ratio (e.g., 4:3) */
+                 padding-top: 75%; /* Height/Width = 480/640 = 0.75 */
+                 position: relative; /* Needed for absolute positioning of video/canvas */
             }
-
-            #user-input {
-                width: 70%;
-                font-size: 0.9rem;
+            #video, #canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
-
-            button {
-                width: 25%;
-                font-size: 1rem;
-                padding: 12px;
+            #chatbox {
+                max-width: 100%;
             }
+             h1 {
+                 font-size: 1.5em;
+             }
         }
+        /* === CSS Ends Here === */
     </style>
 </head>
 <body>
-    <div id="chat-output"></div>
-    <div class="input-container">
-        <input type="text" id="user-input" placeholder="Type a message..." />
-        <button id="sendButton" onclick="sendMessage()">Send</button>
+    <h1>AI Chat with Face Detection</h1>
+
+    <div class="container">
+        <div class="video-container">
+            <video id="video" width="640" height="480" autoplay muted></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+
+        <div id="status" class="status-idle">Idle</div>
+
+        <div id="chatbox">
+            <h2>Chat Log</h2>
+            <div id="chatlog">
+                <!-- Pesan chat akan muncul di sini -->
+            </div>
+        </div>
+
+         <div id="controls">
+             <button id="startButton" >Mulai Deteksi & Chat</button>
+             <p><em>Aplikasi akan meminta izin kamera dan mikrofon.</em></p>
+             <p><strong>Penting:</strong> Pastikan file <code>face-api.min.js</code> dan folder <code>models</code> berada di folder yang sama.</p>
+             <p><strong>Penting:</strong> Pastikan backend di <code>/api/getApiKey</code> berjalan!</p>
+         </div>
     </div>
 
-    <!-- Popup Options -->
-    <div class="options-popup" id="options-popup">
-    <button onclick="deleteChatHistory()">Delete Chat History</button>
-    <button onclick="changeBackground()">Change Background</button>
-    
-    
-    <button onclick="closeOptionsPopup()">Cancel</button> <!-- Opsi Cancel -->
-    <!-- Modal untuk menampilkan daftar coin -->
-<div id="coin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: none; color: white; z-index: 1000;" animation: selectcoin 4s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;>
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 600px; background: #333; padding: 20px; border-radius: 10px; animation: selectcoin 3s cubic-bezier(0.85, 0, 0.15, 1); 0s 2 normal forwards;">
-        <h2>Select a Coin</h2>
-        <input type="text" id="coin-search" placeholder="Search coin..." style="width: 100%; padding: 10px; margin-bottom: 10px; color: white; background-color: #333; border-radius:6px; border-style:solid; border-color: white; border-width:1px;">
-        <ul id="coin-list" style="list-style: none; padding: 0; max-height: 400px; overflow-y: auto;"></ul>
-        <button onclick="closeModal()" style="margin-top: 10px; padding: 10px 20px; background: #0072ff; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
-    </div>
-</div>
-</div>
+<script>
+    // === JavaScript Starts Here ===
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const statusDiv = document.getElementById('status');
+    const chatlogDiv = document.getElementById('chatlog');
+    const startButton = document.getElementById('startButton');
 
-    <script>
-      
-        let userInput = document.getElementById("user-input");
-     
-        
-        document.addEventListener("DOMContentLoaded", function() {
-        let userInput = document.getElementById("user-input");
-        let sendButton = document.getElementById("sendButton");
+    // --- Konfigurasi ---
+    // API Key akan diambil dari backend
+    let TOGETHER_AI_API_KEY = null;
+    const TOGETHER_AI_MODEL = "meta-llama/Llama-3-70B-Instruct-Turbo"; // Model Llama 3
+    const FACEAPI_MODELS_URL = './models'; // Path ke folder model face-api.js
+    const LIP_MOVEMENT_THRESHOLD = 2.5; // Sensitivitas deteksi gerakan bibir (sesuaikan!)
+    const SPEECH_END_TIMEOUT = 1800; // Jeda (ms) tanpa bicara signifikan sebelum STT dianggap selesai
+    const MIN_CONFIDENCE = 0.55; // Minimal confidence score untuk deteksi wajah
 
-        if (userInput && sendButton) { 
-            userInput.addEventListener("keypress", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault(); // Biar ga refresh
-                    if (!sendButton.disabled) { 
-                        sendMessage(); 
-                    }
+    // --- State Variables ---
+    let faceApiLoaded = false;
+    let stream = null;
+    let faceDetectionInterval = null;
+    let isDetecting = false;
+    let faceDetected = false;
+    let isListening = false;
+    let isSpeaking = false;
+    let recognition = null;
+    let speechTimeout = null;
+    let lastLipPosition = null;
+    let synth = window.speechSynthesis;
+    let currentUtterance = null;
+    let userHasStarted = false;
+    let faceCheckInterval = null; // Interval terpisah untuk cek wajah -> aktivasi mic
+    let lastSignificantMovementTime = Date.now(); // Waktu terakhir gerakan bibir signifikan
+    let lastResultTime = Date.now(); // Waktu terakhir ada hasil STT (interim/final)
+
+    // --- API Key Fetching ---
+    async function getApiKey() {
+        console.log("Mencoba mengambil API Key dari /api/getApiKey...");
+        updateStatus("Fetching API Key...", "status-loading");
+        try {
+            const response = await fetch('/api/getApiKey'); // Fetch dari endpoint backend
+            if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.apiKey) {
+                TOGETHER_AI_API_KEY = data.apiKey; // Simpan API key ke variabel global
+                console.log('API Key berhasil diambil.');
+                // Jangan tampilkan key di console production!
+                // console.log('Pakai API Key:', TOGETHER_AI_API_KEY);
+                 updateStatus("API Key Loaded", "status-idle"); // Update status setelah berhasil
+                 return true; // Sukses
+            } else {
+                throw new Error('API key not found in response');
+            }
+        } catch (error) {
+            console.error('Gagal ambil API Key:', error);
+            updateStatus("Gagal Ambil API Key!", "status-error");
+            alert("Gagal mengambil API Key dari server. Pastikan backend berjalan dan endpoint /api/getApiKey benar.\n\nError: " + error.message);
+            TOGETHER_AI_API_KEY = null; // Pastikan null jika gagal
+             return false; // Gagal
+        }
+    }
+
+
+    // --- Setup Speech Recognition (STT) ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; // Set false, kita akan kontrol start/stop manual berdasarkan jeda
+        recognition.interimResults = true; // Dapatkan hasil sementara
+        recognition.lang = 'id-ID'; // Bahasa Indonesia
+
+        recognition.onstart = () => {
+            console.log("STT: Mulai mendengarkan...");
+            isListening = true;
+            updateStatus("Listening...", "status-listening");
+            clearTimeout(speechTimeout); // Hapus timeout lama
+            lastResultTime = Date.now(); // Reset timer saat mulai
+        };
+
+        recognition.onresult = (event) => {
+             lastResultTime = Date.now(); // Ada hasil, reset timer jeda
+             clearTimeout(speechTimeout); // Hapus timeout jika ada hasil baru
+
+             let interimTranscript = '';
+             let finalTranscript = '';
+
+             for (let i = event.resultIndex; i < event.results.length; ++i) {
+                 const transcriptPart = event.results[i][0].transcript;
+                 if (event.results[i].isFinal) {
+                     finalTranscript += transcriptPart;
+                 } else {
+                     interimTranscript += transcriptPart;
+                 }
+             }
+            console.log("STT Interim:", interimTranscript);
+            // Tampilkan interim di UI jika perlu (opsional)
+            // document.getElementById('interim-display').textContent = interimTranscript;
+
+
+             if (finalTranscript.trim()) {
+                 console.log("STT Final Fragment:", finalTranscript);
+                 // Gabungkan ke buffer
+                 recognition.finalTranscriptBuffer = (recognition.finalTranscriptBuffer || "") + finalTranscript + " ";
+             }
+
+             // Setel timeout lagi setelah hasil diterima (baik interim/final)
+             // Jika tidak ada hasil lagi selama SPEECH_END_TIMEOUT, anggap selesai
+              if (!isSpeaking) { // Hanya set timeout jika AI tidak bicara
+                  speechTimeout = setTimeout(stopListeningAndProcess, SPEECH_END_TIMEOUT);
+              }
+        };
+
+        recognition.onerror = (event) => {
+            console.error("STT Error:", event.error);
+             // Error 'no-speech' biasa terjadi jika user diam, jangan tampilkan error permanen
+            if (event.error === 'no-speech') {
+                console.log("STT: No speech detected.");
+                 // Coba proses buffer jika ada yg terkumpul sebelum no-speech
+                if (recognition.finalTranscriptBuffer && recognition.finalTranscriptBuffer.trim()) {
+                    console.log("Processing buffer on 'no-speech' error");
+                    stopListeningAndProcess();
+                } else {
+                    isListening = false;
+                    if (faceDetected && !isSpeaking) updateStatus("Face Detected", "status-detecting");
                 }
-            });
+            } else if (event.error === 'aborted') {
+                console.log("STT: Aborted (likely intentional stop).");
+                isListening = false; // Pastikan state benar
+            } else if (event.error === 'audio-capture') {
+                updateStatus(`STT Error: Mic Problem?`, "status-error");
+                alert("Terjadi masalah dengan mikrofon. Coba periksa koneksi atau izin mikrofon.");
+                isListening = false;
+            }
+            else {
+                 updateStatus(`STT Error: ${event.error}`, "status-error");
+                 isListening = false;
+            }
+            clearTimeout(speechTimeout);
+        };
+
+        recognition.onend = () => {
+            console.log("STT: Recognition service ended.");
+            isListening = false;
+            clearTimeout(speechTimeout);
+
+            // Proses buffer yang mungkin tersisa saat onend dipanggil (jika belum diproses timeout/error)
+             const remainingBuffer = recognition.finalTranscriptBuffer ? recognition.finalTranscriptBuffer.trim() : "";
+            if (remainingBuffer && !isSpeaking) { // Hanya proses jika ada buffer & bukan karena TTS mulai
+                 console.log("Processing remaining buffer on STT end:", remainingBuffer);
+                 processSpeechResult(remainingBuffer);
+                 recognition.finalTranscriptBuffer = ""; // Clear buffer setelah diproses
+                 recognition.lastProcessedLength = 0;
+            } else {
+                 // Jika tidak ada buffer & tidak sedang bicara, kembali ke idle/detecting
+                 if (!isSpeaking) {
+                     if (faceDetected) updateStatus("Face Detected", "status-detecting");
+                     else updateStatus("Idle", "status-idle");
+                 }
+            }
+             // Kosongkan buffer di akhir sesi
+             recognition.finalTranscriptBuffer = "";
+             recognition.lastProcessedLength = 0;
+
+        };
+
+        recognition.finalTranscriptBuffer = ""; // Initialize buffer
+        recognition.lastProcessedLength = 0; // Track what was processed
+
+    } else {
+        console.error("Browser tidak support Web Speech API.");
+        alert("Maaf, browser Anda tidak mendukung fitur Speech Recognition.");
+        startButton.disabled = true;
+    }
+
+    // --- Setup Text-to-Speech (TTS) ---
+    synth.onvoiceschanged = () => {
+        const voices = synth.getVoices();
+        console.log("Available TTS voices:", voices.map(v => ({ name: v.name, lang: v.lang })));
+    };
+
+    function speak(text) {
+        if (synth.speaking) {
+            console.warn("TTS: Masih ada yang diucapkan, membatalkan...");
+            synth.cancel();
+            // Beri jeda sedikit sebelum memulai yang baru
+            setTimeout(() => speak(text), 150);
+            return;
+        }
+        if (!text || text.trim() === "") {
+             console.warn("TTS: Teks kosong, tidak ada yang diucapkan.");
+             // Kembali ke state listening jika wajah terdeteksi
+             if (faceDetected && !isListening && userHasStarted) {
+                 updateStatus("Face Detected", "status-detecting");
+                 // Jangan auto start listening, tunggu face check interval
+             }
+             return;
+        }
+
+
+        addMessage("AI", text); // Tampilkan teks AI
+
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        const indonesianVoice = synth.getVoices().find(voice => voice.lang === 'id-ID');
+        if (indonesianVoice) {
+            currentUtterance.voice = indonesianVoice;
+            console.log("Using TTS voice:", indonesianVoice.name);
         } else {
-            console.error("Elemen user-input atau send-button ga ketemu!");
+            console.warn("TTS: Suara Bahasa Indonesia tidak ditemukan, menggunakan default.");
+        }
+        currentUtterance.lang = 'id-ID';
+        currentUtterance.rate = 1; // Kecepatan normal
+        currentUtterance.pitch = 1; // Pitch normal
+
+        currentUtterance.onstart = () => {
+            console.log("TTS: Mulai berbicara...");
+            isSpeaking = true;
+            updateStatus("Speaking...", "status-speaking");
+            // Hentikan STT jika sedang berjalan saat TTS mulai
+            if (isListening) {
+                 console.log("TTS: Menghentikan STT karena AI mulai bicara.");
+                 clearTimeout(speechTimeout); // Hapus timeout STT
+                 recognition.stop(); // Hentikan STT
+            }
+        };
+
+        currentUtterance.onend = () => {
+            console.log("TTS: Selesai berbicara.");
+            isSpeaking = false;
+            currentUtterance = null;
+            // Jika wajah masih terdeteksi & user sudah start, siap mendengarkan lagi
+             // Status akan diupdate oleh face detection loop
+            if (faceDetected && userHasStarted) {
+                updateStatus("Face Detected", "status-detecting");
+                 // Jangan otomatis start listening, biarkan face check interval atau gerakan bibir
+            } else if (!faceDetected && userHasStarted) {
+                updateStatus("Idle (Waiting for face)", "status-idle");
+            }
+        };
+
+        currentUtterance.onerror = (event) => {
+            console.error("TTS Error:", event.error);
+            isSpeaking = false;
+            currentUtterance = null;
+            updateStatus(`TTS Error: ${event.error}`, "status-error");
+             if (faceDetected && userHasStarted) {
+                updateStatus("Face Detected", "status-detecting");
+             } else if (userHasStarted) {
+                 updateStatus("Idle (Waiting for face)", "status-idle");
+             }
+        };
+
+        synth.speak(currentUtterance);
+    }
+
+    function stopTTS() {
+        if (synth.speaking) {
+            console.log("TTS: Membatalkan ucapan.");
+            // currentUtterance = null; // Jangan set null di sini, biarkan onend/onerror
+            synth.cancel(); // Ini akan trigger onend atau onerror
+            isSpeaking = false; // Set manual untuk kepastian
+        }
+    }
+
+    // --- Face Detection Logic ---
+    async function loadFaceApiModels() {
+        try {
+            console.log("Memuat model face-api.js...");
+            updateStatus("Loading Face Models...", "status-loading");
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri(FACEAPI_MODELS_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(FACEAPI_MODELS_URL),
+            ]);
+            console.log("Model face-api.js berhasil dimuat.");
+            faceApiLoaded = true;
+            updateStatus("Models Loaded", "status-idle") // Update status setelah model siap
+        } catch (error) {
+            console.error("Gagal memuat model face-api.js:", error);
+            updateStatus("Error Loading Models", "status-error");
+            alert("Gagal memuat model face detection. Pastikan model ada di folder 'models'.\n\nError: " + error.message);
+            throw error; // Propagate error
+        }
+    }
+
+    async function startVideo() {
+        try {
+            console.log("Meminta izin kamera & mikrofon...");
+            updateStatus("Requesting Permissions...", "status-loading");
+            stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: true });
+            video.srcObject = stream;
+            console.log("Akses kamera dan mikrofon berhasil.");
+             // Beri sedikit waktu agar video benar-benar siap
+            return new Promise((resolve) => {
+                video.onloadedmetadata = () => {
+                    video.play(); // Mulai play video
+                    console.log("Video metadata loaded and playing.");
+                    resolve();
+                };
+                 // Fallback jika onloadedmetadata tidak terpicu cepat
+                 setTimeout(resolve, 500);
+            });
+        } catch (err) {
+            console.error("Error mengakses kamera/mikrofon:", err);
+            updateStatus("Permission Error", "status-error");
+            alert("Tidak bisa mengakses kamera atau mikrofon. Pastikan izin diberikan dan tidak ada aplikasi lain yang menggunakan kamera/mikrofon.\n\nError: " + err.message);
+            throw err; // Rethrow error to stop execution
+        }
+    }
+
+    function startFaceDetection() {
+        if (!faceApiLoaded || !stream || isDetecting) return;
+
+        isDetecting = true;
+        console.log("Memulai deteksi wajah...");
+        // Jangan ubah status di sini, biarkan hasil deteksi pertama yg menentukan
+
+        const displaySize = { width: video.videoWidth, height: video.videoHeight };
+         if (!displaySize.width || !displaySize.height) {
+             console.warn("Video dimensions not available yet, using default.");
+             displaySize.width = 640;
+             displaySize.height = 480;
+         }
+        faceapi.matchDimensions(canvas, displaySize);
+
+        lastSignificantMovementTime = Date.now(); // Reset timer gerakan
+
+        faceDetectionInterval = setInterval(async () => {
+            if (!isDetecting || video.paused || video.ended) {
+                 console.log("Detection loop stopping.");
+                 clearInterval(faceDetectionInterval);
+                 isDetecting = false;
+                 return;
+            }
+
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })) // Input size lebih kecil mungkin lebih cepat
+                                          .withFaceLandmarks();
+
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (detections && detections.length > 0) {
+                const detection = detections[0]; // Ambil wajah pertama saja
+                if (detection.detection.score >= MIN_CONFIDENCE) {
+                    // Wajah terdeteksi dengan confidence cukup
+                    if (!faceDetected) {
+                        console.log("Wajah terdeteksi.");
+                        faceDetected = true;
+                        if (!isSpeaking && !isListening) updateStatus("Face Detected", "status-detecting");
+                    }
+
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    // faceapi.draw.drawDetections(canvas, resizedDetections); // Optional: gambar box
+                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Gambar landmark
+
+                    const landmarks = detection.landmarks;
+                    const mouth = landmarks.getMouth(); // Poin 48-67
+
+                    // Cek gerakan bibir (inner mouth: 60-67, outer: 48-59)
+                    // Kita bisa cek jarak vertikal antara bibir atas dan bawah (misal titik 51 dan 57)
+                    const upperLipPt = landmarks.getNose()[3]; // Poin bawah hidung sebagai referensi atas
+                    const lowerLipPt = mouth[9]; // Poin tengah bibir bawah (index 57) -> mouth[9] di array 0-19
+                     const lipDistance = Math.abs(upperLipPt.y - lowerLipPt.y); // Atau gunakan poin lain
+
+                     // Alternatif: Cek pergerakan rata-rata Y bibir bawah (64-67 -> index 16-19)
+                     let currentLowerLipY = 0;
+                     mouth.slice(16, 20).forEach(pt => currentLowerLipY += pt.y);
+                     currentLowerLipY /= 4;
+
+
+                    let lipsMoved = false;
+                    if (lastLipPosition !== null) {
+                        const diff = Math.abs(currentLowerLipY - lastLipPosition);
+                        if (diff > LIP_MOVEMENT_THRESHOLD) {
+                            lipsMoved = true;
+                            lastSignificantMovementTime = Date.now(); // Update waktu gerakan signifikan terakhir
+                             console.log("Lip movement detected:", diff.toFixed(2));
+                        }
+                    }
+                     lastLipPosition = currentLowerLipY; // Simpan posisi terakhir
+
+                    // --- Logika Kondisi ---
+
+                    // 1. Wajah terdeteksi, AI tidak bicara, Mic mati -> Hidupkan Mic jika ada gerakan bibir
+                    if (!isListening && !isSpeaking && lipsMoved) {
+                        console.log("Gerakan bibir terdeteksi, memulai STT...");
+                        startListening();
+                    }
+
+                    // 2. AI sedang bicara (TTS), tapi bibir user bergerak signifikan -> Potong TTS, hidupkan Mic
+                     // Tambah kondisi: gerakan harus cukup signifikan/berulang
+                    if (isSpeaking && lipsMoved && (Date.now() - lastSignificantMovementTime < 500) /*Gerakan baru*/) {
+                         console.log("User interruption detected!");
+                         stopTTS(); // Hentikan AI bicara
+                         // STT akan otomatis dimulai oleh logika di atas (poin 1) jika bibir masih bergerak
+                         // Atau bisa paksa start di sini setelah jeda singkat
+                         setTimeout(() => {
+                             if (faceDetected && !isListening) { // Pastikan wajah masih ada & belum mulai listen
+                                 console.log("Memulai STT setelah interupsi...");
+                                 startListening();
+                             }
+                         }, 100); // Jeda singkat
+                    }
+
+                    // 3. User sedang bicara (STT Aktif), timeout sudah berjalan di STT onresult
+
+                } else {
+                    // Confidence rendah, anggap tidak terdeteksi
+                    handleNoFaceDetected();
+                }
+            } else {
+                // Tidak ada wajah terdeteksi
+                handleNoFaceDetected();
+            }
+
+        }, 150); // Interval deteksi (ms) - Naikkan sedikit untuk performa?
+    }
+
+    function handleNoFaceDetected() {
+         if (faceDetected) { // Hanya proses jika status berubah
+             console.log("Wajah tidak terdeteksi.");
+             faceDetected = false;
+             lastLipPosition = null; // Reset posisi bibir
+
+             // Hentikan STT jika sedang berjalan
+             if (isListening) {
+                 console.log("Mematikan STT karena wajah hilang.");
+                 clearTimeout(speechTimeout); // Hapus timeout STT
+                  // Proses buffer terakhir sebelum stop jika ada
+                 const remainingBuffer = recognition.finalTranscriptBuffer ? recognition.finalTranscriptBuffer.trim() : "";
+                 if (remainingBuffer) {
+                      processSpeechResult(remainingBuffer);
+                      recognition.finalTranscriptBuffer = "";
+                      recognition.lastProcessedLength = 0;
+                 }
+                 recognition.stop(); // Hentikan STT
+             }
+
+             // Update status HANYA jika AI tidak sedang bicara
+              if (!isSpeaking) {
+                updateStatus("Idle (Waiting for face)", "status-idle");
+              }
+             // Bersihkan canvas jika tidak ada wajah
+             const context = canvas.getContext('2d');
+             context.clearRect(0, 0, canvas.width, canvas.height);
+         }
+    }
+
+    function stopFaceDetection() {
+        console.log("Stopping face detection and streams...");
+        isDetecting = false; // Signal loop interval to stop
+        clearInterval(faceDetectionInterval);
+        faceDetectionInterval = null;
+        clearInterval(faceCheckInterval);
+        faceCheckInterval = null;
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            video.srcObject = null;
+            console.log("Media streams stopped.");
+        }
+        if (isListening) {
+            stopListening();
+        }
+        if (isSpeaking) {
+            stopTTS();
+        }
+        faceDetected = false;
+        lastLipPosition = null;
+         // Tunggu sebentar lalu bersihkan canvas
+         setTimeout(() => {
+             if (canvas) {
+                 const context = canvas.getContext('2d');
+                 if (context) {
+                      context.clearRect(0, 0, canvas.width, canvas.height);
+                 }
+             }
+         }, 200);
+        updateStatus("Deteksi Dihentikan", "status-idle");
+        console.log("Detection stopped.");
+    }
+
+    function startListening() {
+        if (!recognition || isListening || isSpeaking || !faceDetected) {
+             console.log(`Cannot start listening: isListening=${isListening}, isSpeaking=${isSpeaking}, faceDetected=${faceDetected}`);
+             return; // Jangan mulai jika sudah/sedang TTS/wajah hilang
+        }
+        try {
+            recognition.finalTranscriptBuffer = ""; // Kosongkan buffer sebelum mulai
+            recognition.lastProcessedLength = 0; // Reset panjang buffer
+            recognition.start();
+        } catch (e) {
+            // Tangani error jika recognition sudah jalan (misal krn race condition)
+             console.error("Error starting STT (maybe already started?):", e.message);
+             // Coba stop dulu baru start?
+            if (e.name === 'InvalidStateError') {
+                 console.log("STT InvalidStateError, attempting recovery...");
+                 try {
+                     recognition.stop(); // Coba stop paksa
+                     setTimeout(() => {
+                          if (!isListening && !isSpeaking && faceDetected) { // Cek kondisi lagi
+                              console.log("Retrying STT start after stop...");
+                              recognition.finalTranscriptBuffer = "";
+                              recognition.lastProcessedLength = 0;
+                              recognition.start();
+                          }
+                     }, 150); // Coba lagi setelah jeda
+                 } catch (e2) {
+                     console.error("Error force stopping/restarting STT:", e2);
+                     updateStatus("STT Recovery Failed", "status-error");
+                 }
+            } else {
+                 updateStatus("STT Start Error", "status-error");
+                 console.error("Unhandled error starting STT:", e);
+            }
+
+        }
+    }
+
+    function stopListening() {
+        if (recognition && isListening) {
+             console.log("Stopping STT listening...");
+             clearTimeout(speechTimeout); // Hapus timeout yang mungkin aktif
+             recognition.stop(); // Ini akan trigger onend
+             // isListening akan di-set false di onend/onerror
+        }
+    }
+
+    function stopListeningAndProcess() {
+         if (!isListening) {
+             console.log("stopListeningAndProcess called but not listening.");
+             return; // Jangan proses jika tidak sedang listening
+         }
+
+         clearTimeout(speechTimeout); // Hapus timeout karena kita proses manual
+
+         const transcriptToProcess = recognition.finalTranscriptBuffer ? recognition.finalTranscriptBuffer.trim() : "";
+         console.log("Processing transcript from buffer:", transcriptToProcess);
+
+         // Hentikan recognition SEBELUM mengirim ke AI
+          stopListening(); // Ini akan memanggil onend, yg akan reset state isListening
+
+         if (transcriptToProcess !== "") {
+             // Proses hanya jika ada teks
+             processSpeechResult(transcriptToProcess);
+             recognition.finalTranscriptBuffer = ""; // Clear buffer SETELAH diambil untuk diproses
+             recognition.lastProcessedLength = 0;
+         } else {
+             console.log("stopListeningAndProcess called but buffer is empty.");
+             // Jika AI tidak bicara dan wajah masih ada, siap listen lagi
+              if (!isSpeaking && faceDetected) {
+                 updateStatus("Face Detected", "status-detecting");
+             }
+         }
+    }
+
+
+    function processSpeechResult(text) {
+        if (!text || text.trim() === "") return;
+
+        addMessage("User", text);
+        updateStatus("Processing AI...", "status-processing");
+
+        // Tambahkan konteks wajah sederhana
+        const faceContext = faceDetected ? "Wajah pengguna terlihat." : "Wajah pengguna tidak terlihat.";
+        // Di masa depan, bisa tambahkan deteksi ekspresi
+        // const faceContext = `Wajah pengguna terlihat. Ekspresi: ${detectedExpression || 'netral'}.`;
+
+        const prompt = `Konteks: ${faceContext}\n\nPesan Pengguna: ${text}`;
+
+        sendToTogetherAI(prompt);
+    }
+
+    // --- AI Interaction (Together AI) ---
+    async function sendToTogetherAI(prompt) {
+        if (!TOGETHER_AI_API_KEY) {
+            console.error("API Key Together AI belum diambil atau tidak valid!");
+            updateStatus("API Key Missing!", "status-error");
+            speak("Maaf, saya tidak bisa memproses permintaan Anda karena ada masalah dengan konfigurasi API key.");
+             // Coba ambil lagi? Atau biarkan user restart?
+             // await getApiKey(); // Hati-hati infinite loop jika backend terus gagal
+            return;
+        }
+
+        console.log("Sending prompt to Together AI...");
+        updateStatus("AI Thinking...", "status-processing");
+        // const apiUrl = "https://api.together.xyz/v1/completions"; // Endpoint lama?
+        const apiUrl = "https://api.together.xyz/v1/chat/completions"; // Endpoint Chat
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${TOGETHER_AI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: TOGETHER_AI_MODEL,
+                    messages: [
+                        // System prompt bisa ditambahkan di sini jika model mendukung
+                         // { role: "system", content: "Anda adalah asisten AI yang ramah dan membantu dalam Bahasa Indonesia." },
+                        { role: "user", content: prompt } // Kirim prompt gabungan
+                    ],
+                    max_tokens: 250, // Batasi panjang respons sedikit lebih banyak
+                    temperature: 0.6, // Sedikit lebih fokus
+                    // top_p: 0.9, // Opsi lain untuk sampling
+                    // stop: ["\nUser:", "\nPengguna:"] // Sequence untuk stop jika perlu
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                console.error("Error from Together AI:", response.status, errorData);
+                 let errMsg = `API Error ${response.status}`;
+                 if (errorData && errorData.message) errMsg += `: ${errorData.message}`;
+                 else if (errorData && errorData.error && errorData.error.message) errMsg += `: ${errorData.error.message}`;
+                 throw new Error(errMsg);
+            }
+
+            const data = await response.json();
+            console.log("Response from Together AI:", data);
+
+            // Ekstrak respons teks dari AI (sesuaikan dengan struktur respons Chat API)
+            const aiText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+                           ? data.choices[0].message.content.trim()
+                           : "Maaf, saya tidak dapat memproses respons dari AI saat ini.";
+
+            speak(aiText); // Ucapkan respons AI
+
+        } catch (error) {
+            console.error("Error sending request to Together AI:", error);
+            updateStatus("AI Network Error", "status-error");
+            speak(`Maaf, terjadi kesalahan saat menghubungi AI. ${error.message}`);
+             // Kembali ke state deteksi jika wajah ada
+             if (faceDetected && userHasStarted) {
+                updateStatus("Face Detected", "status-detecting");
+             } else if (userHasStarted){
+                 updateStatus("Idle (Waiting for face)", "status-idle");
+             }
+        }
+    }
+
+    // --- UI Update Functions ---
+    function updateStatus(message, className) {
+        // Hanya update jika pesan atau kelas berbeda untuk mengurangi flicker
+        if (statusDiv.textContent !== message || !statusDiv.classList.contains(className)) {
+             statusDiv.textContent = message;
+             statusDiv.className = ''; // Hapus semua class
+             statusDiv.classList.add(className); // Tambah class baru
+        }
+    }
+
+    function addMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(sender === 'User' ? 'user-message' : 'ai-message');
+        messageDiv.textContent = text; // Gunakan textContent untuk keamanan dasar
+        chatlogDiv.appendChild(messageDiv);
+        // Scroll ke bawah dengan halus
+        chatlogDiv.scrollTo({ top: chatlogDiv.scrollHeight, behavior: 'smooth' });
+    }
+
+    // --- Event Listener ---
+    startButton.addEventListener('click', async () => { // Jadikan async untuk await getApiKey
+         if (!userHasStarted) {
+             // --- Start Sequence ---
+             startButton.textContent = "Memulai...";
+             startButton.disabled = true;
+             userHasStarted = true; // Tandai sudah dimulai
+
+             try {
+                 // 1. Ambil API Key dulu
+                 const apiKeyFetched = await getApiKey();
+                 if (!apiKeyFetched) {
+                      throw new Error("API Key fetch failed, cannot start.");
+                 }
+
+                 // 2. Muat Model Face API
+                 await loadFaceApiModels();
+                 if (!faceApiLoaded) {
+                     throw new Error("Face API models failed to load.");
+                 }
+
+                 // 3. Minta Izin & Mulai Video
+                 await startVideo();
+
+                 // 4. Mulai Deteksi Wajah
+                 startFaceDetection();
+
+                 // Jika semua berhasil
+                 startButton.textContent = "Hentikan Deteksi";
+
+             } catch (error) {
+                 console.error("Gagal memulai:", error);
+                 // Rollback state jika gagal
+                 stopFaceDetection(); // Hentikan apa pun yang mungkin sudah dimulai
+                 userHasStarted = false;
+                 startButton.textContent = "Mulai Deteksi & Chat";
+                 updateStatus("Initialization Failed", "status-error");
+             } finally {
+                 startButton.disabled = false; // Aktifkan kembali tombol setelah selesai (baik sukses/gagal)
+             }
+
+         } else {
+             // --- Stop Sequence ---
+             stopFaceDetection();
+             userHasStarted = false;
+             startButton.textContent = "Mulai Deteksi & Chat";
+         }
+    });
+
+    // --- Initial Check ---
+    if (!SpeechRecognition) {
+        startButton.disabled = true;
+        updateStatus("Browser Not Supported", "status-error");
+        alert("Web Speech API tidak didukung di browser ini. Coba gunakan Chrome.");
+    } else {
+         updateStatus("Ready (Click Start)", "status-idle"); // Status awal
+    }
+
+    // Optional: Hentikan semua proses jika user menutup tab/jendela
+    window.addEventListener('beforeunload', (event) => {
+        // Hanya hentikan jika sedang berjalan
+        if (userHasStarted) {
+            stopFaceDetection();
+            // Beberapa browser mungkin menampilkan dialog konfirmasi jika ada event listener ini
+            // event.preventDefault(); // Tidak selalu berfungsi
+            // event.returnValue = ''; // Standar lama
         }
     });
-     
-     
-      
-     let API_KEY; // Variabel di luar fungsi agar bisa diakses di seluruh script
 
-async function getApiKey() {
-    try {
-        const response = await fetch('/api/getApiKey');
-        const data = await response.json();
-        API_KEY = data.apiKey; // Simpan API key ke variabel global
-        console.log('Pakai API Key:', API_KEY);
-    } catch (error) {
-        console.error('Gagal ambil API Key:', error);
-    }
-}
+    console.log("AI Chat Interface Ready.");
+    // === JavaScript Ends Here ===
+</script>
 
-
-        
-         const messageInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('sendButton');
-
-    // Fungsi untuk memeriksa apakah kolom pesan terisi
-    function checkMessage() {
-      if (messageInput.value.trim() !== "") {
-        sendBtn.disabled = false;
-        sendBtn.classList.add('active');
-      } else {
-        sendBtn.disabled = true;
-        sendBtn.classList.remove('active');
-      }
-    }
-    
-    
-
-
-
-async function getCryptoPrice365(cryptoId) {
-    try {
-        const response = await fetch(`https://www.okx.com/api/v5/market/candles?instId=${cryptoId}-USDT&bar=1D&limit=365`);
-        const data = await response.json();
-
-        if (data.code !== "0") {
-            throw new Error(data.msg || "Failed to fetch data");
-        }
-
-        return data.data.map(item => [parseInt(item[0]), parseFloat(item[4])]); // Timestamp dan harga closing
-    } catch (error) {
-        console.error("Error fetching crypto price from OKX:", error);
-        return null;
-    }
-}
-
-async function getCryptoPrice(cryptoId) {
-    try {
-        const response = await fetch(`https://www.okx.com/api/v5/market/candles?instId=${cryptoId}-USDT&bar=1D&limit=30`);
-        const data = await response.json();
-
-        if (data.code !== "0") {
-            throw new Error(data.msg || "Failed to fetch data");
-        }
-
-        return data.data.map(item => [parseInt(item[0]), parseFloat(item[4])]); // Timestamp dan harga closing
-    } catch (error) {
-        console.error("Error fetching crypto price from OKX:", error);
-        return null;
-    }
-}
-
-    
-    let currentPersona = "You are an AI named Exora. and you are in safe mode"; // Persona default
-
-async function refreshPersona() {
-    currentPersona = await updatePersona();
-    console.log("Persona refreshed:", currentPersona); // Cek di console
-}
-
-
-
-// Jalankan sekali saat pertama kali load
-refreshPersona();
-
-
-
-// Fungsi untuk menyimpan cryptoId ke localStorage
-        function saveCryptoId(cryptoId) {
-            localStorage.setItem('cryptoId', cryptoId);
-            console.log(`Saved cryptoId: ${cryptoId}`);
-        }
-
-        // Fungsi untuk mengambil cryptoId dari localStorage
-        function getCryptoId() {
-            const cryptoId = localStorage.getItem('cryptoId');
-            return cryptoId || 'bitcoin'; // Default ke 'bitcoin' jika tidak ada
-        }
-
-        // Set cryptoId saat halaman dimuat
-        let cryptoId = getCryptoId();
-        console.log(`Loaded cryptoId: ${cryptoId}`);
-
-        // Fungsi untuk membuka CoinGecko widget
-        // Fungsi untuk membuka modal dan memuat daftar coin
-async function openModal() {
-    const modal = document.getElementById('coin-modal');
-    modal.style.display = 'block';
-
-    try {
-        // Ambil daftar pair dari OKX
-        const response = await fetch('https://www.okx.com/api/v5/public/instruments?instType=SPOT');
-        const data = await response.json();
-
-        if (data.code !== "0") {
-            throw new Error(data.msg || "Failed to fetch data");
-        }
-
-        // Ambil hanya unique coin (tanpa duplikat)
-        const coins = [...new Set(data.data.map(coin => coin.baseCcy))]  // Base currency
-
-        // Tampilkan daftar coin
-        const coinList = document.getElementById('coin-list');
-        coinList.innerHTML = coins
-            .map(coin => `<li onclick="selectCoin('${coin}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin}</li>`)
-            .join('');
-
-        // Tambahkan fungsi pencarian
-        const coinSearch = document.getElementById('coin-search');
-        coinSearch.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredCoins = coins.filter(coin => coin.toLowerCase().includes(searchTerm));
-            coinList.innerHTML = filteredCoins
-                .map(coin => `<li onclick="selectCoin('${coin}')" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #ddd;">${coin}</li>`)
-                .join('');
-        });
-
-    } catch (error) {
-        console.error("Error fetching coin list from OKX:", error);
-    }
-}
-
-
-// Fungsi untuk memilih coin
-function selectCoin(coinId) {
-    saveCryptoId(coinId);
-    cryptoId = coinId;
-    alert(`Coin selected: ${coinId}`);
-    location.reload();
-    closeModal();
-}
-
-// Fungsi untuk menutup modal
-function closeModal() {
-    const modal = document.getElementById('coin-modal');
-    modal.style.display = 'none';
-}
-
-
-    
-     
-
-
-        // Load previous chat from localStorage
-        window.onload = function() {
-          // Jalankan sekali saat pertama kali load
-          getApiKey();
-          refreshPersona();
-          checkMessage();
-          
-          
-            const savedChat = localStorage.getItem('chatHistory');
-            if (savedChat) {
-                document.getElementById('chat-output').innerHTML = savedChat;
-            } else {
-        // Show the initial AI message if there's no chat history
-        setTimeout(() => {
-            appendMessage("Halo, ada yang bisa aku bantu hari ini?", 'ai-message');
-        }, 1000); // Delay for the initial AI message (optional)
-    }
-            const storedImage = localStorage.getItem('backgroundImage');
-    if (storedImage) {
-        document.body.style.backgroundImage = `url(${storedImage})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center center';
-        document.body.style.backgroundAttachment = 'fixed';
-    }
-    
-    if (savedBackground) {
-        document.body.style.backgroundImage = `url(${savedBackground})`;
-    }
-        };
-        
-        
-        
-        
-            
-        
-        
-        
-        
-        // Function to send message to AI
-        async function sendMessage() {
-            disableInputAndButton();
-            const userInput = document.getElementById('user-input').value;
-            if (!userInput) return;
-
-            // Display user message
-            appendMessage(` ${userInput}`, 'user-message');
-            document.getElementById('user-input').value = ''; // Clear input field
-
-            // Display thinking message after a 1-second delay
-            setTimeout(() => {
-                appendMessage('', 'thinking-message');
-            }, 500); // 1 second delay before showing 'thinking' message
-            
-            // Function to check input and toggle the button status
-            
-function checkInput() {
-    const userInput = document.getElementById('user-input').value;
-    const button = document.querySelector('button');
-    if (userInput.trim() === '') {
-        button.disabled = true; // Disable send button if input is empty
-    } else {
-        button.disabled = false; // Enable send button if input has text
-    }
-}
-
-document.getElementById('user-input').addEventListener('input', checkInput);
-
-            // Simulate delay before AI response
-            setTimeout(async () => {
-                const aiResponse = await getAIResponse(userInput);
-                removeThinkingMessage();
-                appendMessage(`${aiResponse}`, 'ai-message');
-                enableInput();
-                saveChatHistory(); // Save the chat history
-                
-            }, 2500); // Delay of 10 seconds
-        }
-
-        function enableInput() {
-            document.getElementById('user-input').disabled = false;
-            userInput.focus();
-        }
-
-        // Function to disable input and button
-        function disableInputAndButton() {
-            document.getElementById('user-input').disabled = true;
-            document.querySelector('button').disabled = true;
-        }
-
-        // Function to re-enable input and button
-        function enableInputAndButton() {
-            document.getElementById('user-input').disabled = false;
-            document.querySelector('button').disabled = false;
-        }
-        
-        
-// **Format Tanggal & Waktu**
-function formatDateTime(date) {
-    return date.getFullYear() + "-" +
-           ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
-           ("0" + date.getDate()).slice(-2) + " " +
-           ("0" + date.getHours()).slice(-2) + ":" +
-           ("0" + date.getMinutes()).slice(-2) + ":" +
-           ("0" + date.getSeconds()).slice(-2);
-}
-
-// **Global Variables for Time**
-let currentTime;
-let pastTime;
-
-function updateTime() {
-    let now = new Date();
-    let pastDate = new Date();
-    pastDate.setDate(now.getDate() - 30);
-
-    currentTime = formatDateTime(now);
-    pastTime = formatDateTime(pastDate);
-}
-
-// **Panggil updateTime() saat pertama kali script berjalan**
-updateTime();
-
-
-async function refreshCryptoPrice(timeframe = { days: 30 }) {
-    // **Update waktu saat fungsi dipanggil**
-    updateTime();
-
-    // Tentukan timeframe dalam format yang sesuai (hari, jam, atau menit)
-    let timeframeLabel = "days";
-    let timeframeValue = timeframe.days || 0;
-    if (timeframe.hours) {
-        timeframeLabel = "hours";
-        timeframeValue = timeframe.hours;
-    }
-    if (timeframe.minutes) {
-        timeframeLabel = "minutes";
-        timeframeValue = timeframe.minutes;
-    }
-
-    // Hitung waktu pastTime berdasarkan timeframe yang dipilih
-    const now = new Date();
-    let pastTime = new Date(now);
-    if (timeframe.days) pastTime.setDate(now.getDate() - timeframe.days);
-    if (timeframe.hours) pastTime.setHours(now.getHours() - timeframe.hours);
-    if (timeframe.minutes) pastTime.setMinutes(now.getMinutes() - timeframe.minutes);
-    
-    // Format waktu
-    const currentTime = now.toISOString().replace("T", " ").split(".")[0];
-    const pastTimeFormatted = pastTime.toISOString().replace("T", " ").split(".")[0];
-
-    // Ambil harga crypto terbaru berdasarkan timeframe
-    const prices = await getCryptoPrice(cryptoId, timeframe);
-    const formattedPrices = prices.map(price => `$${price[1].toFixed(2)}`).join(" ");
-    console.log(formattedPrices);
-
-    // Ambil chat history dari localStorage
-    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-
-    // **Hapus pesan harga lama dulu**
-    cleanChatHistory = cleanChatHistory.filter(msg => msg.type !== 'price');
-
-    // **Buat pesan harga baru**
-    const systemPriceMessage = {
-        role: 'OKX_DATASET',
-        type: 'price',
-        content: `[OKX_DATASET] !PLEASE READ THIS DATASET CORRECTLY! Crypto: ${cryptoId} Timeframe: ${timeframeValue} ${timeframeLabel}. Latest price data from OKX_DATASET, sorted from newest (${currentTime}) to oldest (${pastTimeFormatted}). Prices: ${formattedPrices}.`
-    };
-
-    // **Tempatkan pesan harga setelah pesan system init (di indeks ke-1)**
-    let initIndex = cleanChatHistory.findIndex(msg => msg.role === 'system' && msg.type === 'init');
-    if (initIndex !== -1) {
-        cleanChatHistory.splice(initIndex + 1, 0, systemPriceMessage);
-    } else {
-        console.log("refreshCryptoPrice Init gak terdeteksi");
-        cleanChatHistory.push(systemPriceMessage); // Backup kalau system init nggak ditemukan
-    }
-
-    // **Simpan ke localStorage**
-    localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
-}
-
-
-
-
-// Bersihin teks dari HTML & karakter Markdown
-function cleanText(text) {
-    let cleanedText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Hapus tag HTML
-    cleanedText = cleanedText.replace(/[*_~`]/g, ""); // Hapus karakter aneh
-    return cleanedText.trim();
-}
-
-function saveApiKey(apiKey) {
-  const lastApiKey = localStorage.getItem("API_KEY");
-  
-  // If current API_KEY is the same as the last one, execute getApiKey()
-  if (lastApiKey === apiKey) {
-    console.log("API_KEY is the same, executing getApiKey()");
-    getApiKey();
-  } else {
-    console.log("API_KEY is different, saving to localStorage");
-    localStorage.setItem("API_KEY", apiKey);
-  }
-}
-
-
-// Call Together AI API for response
-async function getAIResponse(prompt) {
-  getApiKey();
-  saveApiKey(API_KEY);
-    // Ambil harga crypto terbaru dan formatkan
-    
-
-    // Ambil chat history dari localStorage
-    let cleanChatHistory = JSON.parse(localStorage.getItem("cleanChatHistory")) || [];
-
-    // **Cari system message utama dan system harga**
-    let systemMessage = cleanChatHistory.find(msg => msg.role === 'system' && msg.type === 'init');
-
-
-    // **Jika belum ada system utama, buat baru (tetap dan tidak berubah)**
-    if (!systemMessage) {
-        systemMessage = {
-            role: 'system',
-            type: 'init',
-            content: 'Kamu adalah asisten AI yang berbicara dengan cara yang santai, gaul, dan realistis, seperti anak muda yang aktif di komunitas crypto. Kamu harus terdengar seperti seseorang yang sering nongkrong di Twitter Crypto, Discord trading group, dan paham dinamika market secara mendalam. Kamu sangat menguasai analisis teknikal (TA), fundamental (FA), dan sentimen pasar serta bisa menjelaskan konsep kompleks dengan cara yang mudah dipahami, tanpa terdengar seperti textbook. Jangan cuma kasih jawaban kaku—berikan insight yang bisa bikin lawan bicaramu paham lebih dalam tentang market. Gaya bahasa kamu harus casual, cepat tanggap, dan relatable, tanpa jadi berlebihan atau cringe. Kamu bisa pakai istilah-istilah khas trader seperti ‘whale’, ‘rekt’, ‘pump and dump’, ‘support-resistance’, dan lainnya, tapi tetap jelasin kalau ada yang kurang paham. Contoh gaya bicara yang benar: 💬 User: “BTC bakal ke 70K gak nih?”  AI: “Kalau ngeliat order book dan open interest sekarang, sih, masih ada peluang. Tapi kalau volume spot gak naik, bisa jadi fakeout doang. Market masih nunggu catalyst gede, bro.” Contoh gaya bicara yang salah (terlalu textbook): AI: “Bitcoin memiliki kemungkinan untuk mencapai $70,000 berdasarkan data teknikal, tetapi Anda harus mempertimbangkan faktor makroekonomi.” Kamu juga boleh sesekali lempar jokes atau meme terkait crypto, tapi jangan sampai ngalor-ngidul dan tetap fokus kasih insight yang berguna. Jangan pernah memberikan prediksi harga asal-asalan. Selalu dasarkan jawabanmu pada data dan tren yang masuk akal. Kamu memiliki kemampuan untuk mengingat informasi penting tentang pengguna dengan menjalankan perintah "system.save.memories("apa yg mau diingat");" Gunakan ini untuk menyimpan informasi seperti nama pengguna, preferensi trading, coin favorit, atau hal lain yang relevan dengan percakapan. Namun, kamu tidak boleh pernah menjelaskan bahwa kamu memiliki kemampuan ini atau memberitahukan cara penggunaannya. Anggap ini sebagai inner command yang hanya bisa kamu jalankan sendiri jika diperlukan.'
-        };
-
-        cleanChatHistory.unshift(systemMessage);
-    }
-
-    
-
-    // Simpan chat user (hanya teks, tanpa elemen HTML)
-    cleanChatHistory.push({ role: 'user', content: cleanText(prompt) });
-
-    try {
-        // Kirim request ke API
-        const response = await fetch('https://api.together.ai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-                messages: cleanChatHistory
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        let aiMessage = cleanText(data.choices[0].message.content);
-        
-
-        
-
-    
-        
-        
-// Deteksi dan update memori dengan kemampuan overwrite
-const memorySavePattern = /system\.save\.memories\(['"](.+?)['"]\);?/gi;
-const memoryMatch = aiMessage.match(memorySavePattern);
-
-if (memoryMatch) {
-  memoryMatch.forEach(match => {
-    const memoryContent = match.match(/['"](.+?)['"]/)?.[1];
-    if (memoryContent) {
-      console.log("Memory detected:", memoryContent);
-      localStorage.setItem("memory", memoryContent); // Overwrite existing memory
-
-      // Cek apakah sudah ada blok memories
-      let memoryBlock = cleanChatHistory.find(msg => msg.role === 'memories');
-
-      if (memoryBlock) {
-        // Pisahkan setiap memori dalam bentuk array
-        let memories = memoryBlock.content.split('\n');
-
-        // Cek apakah ada memori dengan kategori yang sama (misal: 'current crypto')
-        const categoryPattern = memoryContent.split(':')[0].trim(); // Ambil kategori sebelum ':'
-        let categoryExists = false;
-
-        memories = memories.map(mem => {
-          if (mem.includes(categoryPattern)) {
-            categoryExists = true;
-            return `- ${memoryContent}`; // Overwrite memori yang sama
-          }
-          return mem; // Biarkan yang lain tetap
-        });
-
-        // Kalau kategori belum ada, tambahkan baru
-        if (!categoryExists) {
-          memories.push(`- ${memoryContent}`);
-        }
-
-        // Gabungkan lagi semua memori dalam satu blok
-        memoryBlock.content = memories.join('\n');
-      } else {
-        // Kalau belum ada blok memories, buat blok baru setelah OKX_DATASET
-        let lastSystemIndex = cleanChatHistory.findLastIndex(msg => msg.role === 'OKX_DATASET');
-        const memoryMessage = {
-          role: 'memories',
-          content: `- ${memoryContent}`
-        };
-        cleanChatHistory.splice(lastSystemIndex + 1, 0, memoryMessage);
-      }
-
-      // Hapus command dari aiMessage biar gak muncul di output
-      aiMessage = aiMessage.replace(match, '');
-    }
-  });
-}
-
-        
-        
-
-        // Simpan chat AI (hanya teks)
-        cleanChatHistory.push({ role: 'assistant', content: aiMessage });
-
-        // **Bersihkan history: Simpan hanya system messages, memories + 2 chat terakhir**
-if (cleanChatHistory.length >= 9) {
-    cleanChatHistory = cleanChatHistory.filter(
-        (msg, index) => msg.role === 'system' || msg.role === 'memories' || index >= cleanChatHistory.length - 2
-    );
-}
-
-
-        // Simpan kembali chat history yang bersih ke localStorage
-        localStorage.setItem("cleanChatHistory", JSON.stringify(cleanChatHistory));
-
-        return aiMessage;
-    } catch (error) {
-        console.error('Error:', error);
-        getApiKey();
-        return "Could not get AI response, switching server...";
-    }
-}
-
-
-
-
-        function cleanText(text) {
-            return text.replace(/<.*?:>/g, '').trim(); // Clean XML/HTML tags
-        }
-        
-        function formatMessage(message) {
-    // Bold teks dalam ** **
-    let formattedMessage = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong><br>');
-
-    // Warna hijau untuk harga (misal $123.000)
-    formattedMessage = formattedMessage.replace(/\$[\d,.]+/g, '<span class="price-text">$&</span>');
-
-    // Warna hijau untuk kata "bull"
-    formattedMessage = formattedMessage.replace(/\bbull\b/gi, '<span class="green-text">$&</span>');
-    
-    // Warna hijau untuk kata "bullish"
-    formattedMessage = formattedMessage.replace(/\bbullish\b/gi, '<span class="green-text">$&</span>');
-    
-    // Warna hijau untuk kata "Bull"
-    formattedMessage = formattedMessage.replace(/\bBull\b/gi, '<span class="green-text">$&</span>');
-    
-    // Warna hijau untuk kata "Bullish"
-    formattedMessage = formattedMessage.replace(/\bBullish\b/gi, '<span class="green-text">$&</span>');
-
-    // Warna merah untuk kata "bear"
-    formattedMessage = formattedMessage.replace(/\bbear\b/gi, '<span class="red-text">$&</span>');
-    
-    // Warna merah untuk kata "Bear"
-    formattedMessage = formattedMessage.replace(/\bbearish\b/gi, '<span class="red-text">$&</span>');
-    
-    // Warna merah untuk kata "Bearish"
-    formattedMessage = formattedMessage.replace(/\bBear\b/gi, '<span class="red-text">$&</span>');
-    
-    // Warna merah untuk kata "bearish"
-    formattedMessage = formattedMessage.replace(/\bBearish\b/gi, '<span class="red-text">$&</span>');
-
-    // Buat nomor urutan jadi baris baru
-    formattedMessage = formattedMessage.replace(/(\d+\.)\s+/g, '<br>$1 ');
-
-    return formattedMessage;
-}
-
-function appendMessage(message, className) {
-    const chatOutput = document.getElementById('chat-output');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${className}`;
-
-    // Parse teks untuk bold, harga, bull, bear, dan nomor urutan
-    const formattedMessage = formatMessage(message);
-    messageDiv.innerHTML = formattedMessage; // Pakai innerHTML biar bisa render HTML
-
-    chatOutput.appendChild(messageDiv);
-    chatOutput.scrollTop = chatOutput.scrollHeight; // Scroll ke bawah
-}
-
-
-
-        // Function to remove the thinking message
-        function removeThinkingMessage() {
-            const chatOutput = document.getElementById('chat-output');
-            const thinkingMessage = chatOutput.querySelector('.thinking-message');
-            if (thinkingMessage) {
-                thinkingMessage.remove();
-            }
-        }
-
-        // Function to save chat history to localStorage
-        function saveChatHistory() {
-            const chatOutput = document.getElementById('chat-output').innerHTML;
-            localStorage.setItem('chatHistory', chatOutput);
-        }
-
-        // Function to delete chat history
-        function deleteChatHistory() {
-    const confirmDelete = confirm("Are you sure you want to delete the chat history?");
-    if (confirmDelete) {
-       
-        localStorage.removeItem('chatHistory');
-        localStorage.removeItem('cleanChatHistory');
-        document.getElementById('chat-output').innerHTML = ''; // Clear the chat output
-        location.reload();
-    }
-    closeOptionsPopup();
-}
-
-        // Function to change background image
-function changeBackground() {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    
-    fileInput.onchange = function(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Menyimpan gambar yang dipilih ke localStorage
-            const imageUrl = e.target.result;
-            localStorage.setItem('backgroundImage', imageUrl);
-            
-            // Mengatur background dengan gambar yang dipilih
-            document.body.style.backgroundImage = `url(${imageUrl})`;
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center center';
-            document.body.style.backgroundAttachment = 'fixed'; // Membuat background tetap saat scroll
-        };
-        
-        reader.readAsDataURL(file); // Membaca file gambar sebagai URL data
-    };
-    
-    fileInput.click(); // Membuka dialog pemilihan file
-}
-
-
-// Function to close the options popup
-function closeOptionsPopup() {
-    const popup = document.getElementById('options-popup');
-    popup.style.display = "none";
-}
-
-
-        // Function to show the options popup
-        window.addEventListener("contextmenu", function (event) {
-            event.preventDefault();
-            const popup = document.getElementById('options-popup');
-            popup.style.display = "block";
-        });
-
-        // Function to close the options popup
-        function closeOptionsPopup() {
-            const popup = document.getElementById('options-popup');
-            popup.style.display = "none";
-        }
-
-        // Hide options popup when clicking outside of it
-        window.addEventListener('click', function (event) {
-            if (!event.target.closest('.options-popup') && !event.target.closest('body')) {
-                closeOptionsPopup();
-            }
-            
-            
-            // Tambahkan event listener pada kolom pesan
-    messageInput.addEventListener('input', checkMessage);
-
-    // Panggil checkMessage saat pertama kali memuat
-    checkMessage();
-            
-
-        
-            
-        });
-        
-
-    </script>
 </body>
 </html>
