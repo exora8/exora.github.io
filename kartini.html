@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Call (Smart Mic)</title>
+    <title>AI Voice Call (Smart Mic) v2 - History + Parsing</title>
     <style>
         /* --- CSS Langsung di sini (Tidak ada perubahan signifikan di CSS) --- */
         body {
@@ -188,7 +188,8 @@
 </head>
 <body>
 
-    <h1>AI Voice Call (Smart Mic)</h1>
+    <h1>AI Voice Call (Smart Mic) v2</h1>
+    <p style="font-size:0.9em; color:#666; text-align:center; margin-top:-10px; margin-bottom:15px;">(Dengan History Percakapan & Parsing Output)</p>
 
     <div class="warning">
         ⚠️ PERINGATAN: API Key ada di dalam kode HTML ini. Jangan bagikan file ini! Hanya untuk penggunaan pribadi.
@@ -275,7 +276,6 @@
             const speakerIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
             const thinkingIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-loader"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>`;
 
-
             // Inisialisasi Speech Recognition (STT)
             const recognition = new SpeechRecognition();
             recognition.lang = 'id-ID';
@@ -284,8 +284,15 @@
 
             // State aplikasi
             let isListening = false;
-            let isAISpeaking = false; // <-- State baru: Lacak AI sedang bicara?
+            let isAISpeaking = false;
             let finalTranscript = '';
+
+            // --- [BARU] History Percakapan ---
+            let chatHistory = [
+                 // Selalu mulai dengan system prompt
+                { role: "system", content: "Kamu adalah asisten AI bernama kartini ai yang realistis ramah dan membantu dalam bahasa indonesia. jangan terlalu kaku seperti ai lainnya, jawab dengan singkat jika memungkinkan." }
+            ];
+            // --- [AKHIR BARU] ---
 
             // Fungsi untuk update tampilan tombol
             function updateMicButton(state, text) {
@@ -331,7 +338,6 @@
                 micInfoText.textContent = infoText;
             }
 
-
             // --- Event Listener untuk Speech Recognition ---
             recognition.onstart = () => {
                 console.log('Speech Recognition Dimulai');
@@ -365,34 +371,38 @@
                 const wasListeningState = isListening; // Simpan state sebelum diubah
                 isListening = false; // Set isListening ke false DULU
 
-                // PENTING: Cek apakah recognition berakhir KARENA AI mau bicara?
                 if (isAISpeaking) {
                     console.log('Recognition dihentikan karena AI akan/sedang berbicara.');
-                    // Jangan ubah status/tombol di sini, biarkan `utterance.onstart` yg handle
-                    // Atau pastikan status sesuai
                      updateMicButton('ai_speaking'); // Pastikan tombol nunjukin AI bicara
                      statusDisplay.textContent = 'AI Berbicara...';
-                    return; // Jangan proses transkrip jika diinterupsi AI
+                    return;
                 }
 
-                // Jika berakhir normal (bukan karena AI interrupt)
-                 updateMicButton('idle'); // Tombol kembali ke state idle awal
+                 updateMicButton('idle');
 
-                if (finalTranscript.trim() && wasListeningState) {
-                    console.log('Final Transcript:', finalTranscript.trim());
+                const processedTranscript = finalTranscript.trim(); // Simpan hasil trim
+                if (processedTranscript && wasListeningState) {
+                    console.log('Final Transcript:', processedTranscript);
                     statusDisplay.textContent = 'Memproses ucapan...';
-                    updateMicButton('processing'); // Tombol jadi processing
-                    addToTranscript("User", finalTranscript.trim());
-                    sendToAI(finalTranscript.trim());
+                    updateMicButton('processing');
+                    addToTranscript("User", processedTranscript);
+
+                    // --- [BARU] Tambah ucapan user ke history SEBELUM kirim ke AI ---
+                    chatHistory.push({ role: "user", content: processedTranscript });
+                    console.log("Updated Chat History (User added):", JSON.stringify(chatHistory)); // Log history
+                    // --- [AKHIR BARU] ---
+
+                    sendToAI(); // Tidak perlu kirim teks lagi, krn sdh ada di history
                 } else if (wasListeningState) {
                      statusDisplay.textContent = 'Idle (Tidak ada ucapan terdeteksi)';
                      userSpeechDisplay.textContent = '(Tidak ada ucapan terdeteksi)';
-                     updateMicButton('idle'); // Kembali idle
+                     updateMicButton('idle');
                 } else {
-                    // Jika berhenti tapi tidak dalam state 'listening' (misal di-stop manual cepat)
                     statusDisplay.textContent = 'Idle';
                     updateMicButton('idle');
                 }
+                // Reset final transcript untuk sesi berikutnya
+                finalTranscript = '';
             };
 
             recognition.onerror = (event) => {
@@ -411,54 +421,68 @@
                 updateMicButton('idle', 'Error Mic'); // Update tombol ke idle dgn pesan error
             };
 
+            // --- [BARU] Fungsi Parsing Output AI ---
+            function parseAIOutput(text) {
+                 // Hapus karakter: *, ~, `, :, /, |, \
+                 // Regex: /[*~`:/|\\]/g
+                 // \* : Bintang
+                 // ~  : Tilde
+                 // `  : Backtick
+                 // :  : Titik dua
+                 // /  : Slash
+                 // |  : Pipe
+                 // \\ : Backslash (perlu di-escape di regex)
+                 // g  : Global (ganti semua)
+                 const cleanedText = text.replace(/[*~`:/|\\]/g, '');
+                 // Opsional: Hilangkan spasi berlebih di awal/akhir setelah replace
+                 return cleanedText.trim();
+            }
+            // --- [AKHIR BARU] ---
+
             // --- Fungsi untuk Text-to-Speech (TTS) ---
             function speak(text) {
                 if (SpeechSynthesis.speaking) {
                     console.warn('SpeechSynthesis.speaking - Canceling previous utterance');
                     SpeechSynthesis.cancel();
-                    // Tunggu sebentar sebelum memulai yang baru jika diperlukan,
-                    // tapi biasanya browser menangani antrian/pembatalan.
                 }
 
-                aiResponseDisplay.textContent = text; // Tampilkan teks AI dulu
-                addToTranscript("AI", text);
+                // --- [MODIFIKASI] Tampilkan teks AI YANG SUDAH DI PARSING ---
+                const displayText = text; // text yg diterima sudah diparsing
+                aiResponseDisplay.textContent = displayText;
+                addToTranscript("AI", displayText);
+                // --- [AKHIR MODIFIKASI] ---
 
-                const utterance = new SpeechSynthesisUtterance(text);
+                const utterance = new SpeechSynthesisUtterance(displayText); // Ucapkan teks yg sudah bersih
                 utterance.lang = 'id-ID';
-                utterance.pitch = 1;
-                utterance.rate = 1; // Kecepatan normal
+                utterance.pitch = 1.1;
+                utterance.rate = 1.2;
 
                 utterance.onstart = () => {
                     console.log('--- AI Mulai Bicara ---');
-                    isAISpeaking = true; // <-- Tandai AI mulai bicara
+                    isAISpeaking = true;
                     statusDisplay.textContent = 'AI Berbicara...';
-                    updateMicButton('ai_speaking'); // <-- Update tombol (jadi speaker, tetap bisa diklik)
+                    updateMicButton('ai_speaking');
 
-                    // Jika user sedang berbicara (mic on), hentikan recognition
                     if (isListening) {
                         console.log('AI mulai bicara, menghentikan user recognition...');
-                        recognition.stop(); // Ini akan memicu recognition.onend
+                        recognition.stop();
                     }
                 };
 
                 utterance.onend = () => {
                     console.log('--- AI Selesai Bicara ---');
-                    isAISpeaking = false; // <-- Tandai AI selesai
+                    isAISpeaking = false;
                     statusDisplay.textContent = 'Giliran Anda (Mic Otomatis Aktif)';
-                    updateMicButton('idle', 'Mic Aktif'); // Tombol kembali normal, siap diklik lagi
+                    updateMicButton('idle', 'Mic Aktif'); // Tombol kembali normal
 
-                    // --- SMART MIC ON ---
-                    // Secara otomatis mulai mendengarkan lagi setelah AI selesai
                     console.log('AI selesai, otomatis aktifkan mic...');
-                    if (!isListening) { // Pastikan tidak memulai jika sudah berjalan
+                    if (!isListening) {
                         try {
-                            // Mungkin perlu jeda singkat agar tidak langsung menangkap akhir suara AI? (opsional)
-                            // setTimeout(() => { recognition.start(); }, 100);
-                            recognition.start(); // recognition.onstart akan update tombol ke 'listening'
+                            recognition.start();
                         } catch (e) {
                             console.error("Gagal start recognition otomatis:", e);
                             statusDisplay.textContent = "Gagal aktifkan mic otomatis.";
-                            updateMicButton('idle', 'Mulai Bicara'); // Reset ke state awal jika gagal
+                            updateMicButton('idle', 'Mulai Bicara');
                         }
                     } else {
                         console.log('Mic sudah aktif, tidak perlu start otomatis.');
@@ -467,22 +491,21 @@
 
                 utterance.onerror = (event) => {
                     console.error('SpeechSynthesis Error:', event.error);
-                    isAISpeaking = false; // <-- Tandai AI selesai (karena error)
+                    isAISpeaking = false;
                     statusDisplay.textContent = 'Error saat AI bicara.';
                     aiResponseDisplay.textContent += " (Gagal bicara)";
-                    updateMicButton('idle', 'Error AI Speech'); // Tombol kembali normal
-                    // Jangan otomatis nyalakan mic jika ada error TTS
+                    updateMicButton('idle', 'Error AI Speech');
                 };
 
                 SpeechSynthesis.speak(utterance);
             }
 
             // --- Fungsi untuk Mengirim Teks ke Together AI ---
-            async function sendToAI(text) {
-                updateMicButton('processing', 'AI Berpikir...'); // Tombol jadi processing
+            // --- [MODIFIKASI] Tidak perlu parameter text, karena pakai chatHistory ---
+            async function sendToAI() {
+                updateMicButton('processing', 'AI Berpikir...');
                 statusDisplay.textContent = 'AI Berpikir...';
                 aiResponseDisplay.textContent = '...';
-                // Tombol sudah disabled oleh updateMicButton('processing')
 
                 const apiKey = getRandomApiKey();
                 if (!apiKey) {
@@ -491,20 +514,29 @@
                     return;
                 }
 
+                // --- [MODIFIKASI] Gunakan chatHistory langsung ---
+                // Pastikan tidak mengirim history yang terlalu panjang (opsional, tapi bagus)
+                // Contoh: batasi 10 pesan terakhir + 1 system prompt
+                const maxHistoryLength = 11; // 1 system + 5 pasang user/ai
+                const currentHistory = chatHistory.length <= maxHistoryLength
+                    ? [...chatHistory] // Salin jika belum terlalu panjang
+                    : [chatHistory[0], ...chatHistory.slice(-maxHistoryLength + 1)]; // Ambil system prompt + N pesan terakhir
+
                 const payload = {
                     model: AI_MODEL,
-                    messages: [
-                        { role: "system", content: "Kamu adalah asisten AI bernama kartini ai yang realistis ramah dan membantu dalam bahasa indonesia. jangan terlalu kaku seperti ai lainnya, jawab dengan singkat jika memungkinkan." },
-                        { role: "user", content: text }
-                    ],
-                    max_tokens: 250, // Mungkin bisa dikurangi jika jawaban sering terpotong
-                    temperature: 0.6, // Sedikit lebih kreatif
+                    // Kirim history percakapan yang sudah dikelola
+                    messages: currentHistory,
+                    max_tokens: 250,
+                    temperature: 0.4,
                     top_p: 0.9,
-                    frequency_penalty: 0.5, // Kurangi pengulangan kata
-                    presence_penalty: 0.2, // Dorong topik baru sedikit
+                    frequency_penalty: 0.5,
+                    presence_penalty: 0.2,
                 };
+                // --- [AKHIR MODIFIKASI] ---
 
-                console.log("Mengirim request ke Together AI:", payload);
+                // fetch API mengirim 'payload' yang mana 'messages' nya adalah array JS.
+                // 'JSON.stringify(payload)' secara otomatis mengubah array tsb jadi string JSON yg valid.
+                console.log("Mengirim request ke Together AI dengan history:", JSON.stringify(payload, null, 2)); // Log payload yg dikirim
 
                 try {
                     const response = await fetch(TOGETHER_API_URL, {
@@ -513,7 +545,7 @@
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${apiKey}`
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(payload) // Ini dia JSON.stringify yg dimaksud
                     });
 
                     console.log(`Status Response Together AI: ${response.status} ${response.statusText}`);
@@ -531,9 +563,20 @@
                     console.log("Response JSON dari Together AI diterima.");
 
                     if (data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
-                        const aiReply = data.choices[0].message.content.trim();
-                        console.log("Jawaban AI:", aiReply);
-                        speak(aiReply); // Panggil TTS, TTS akan handle state selanjutnya
+                        const rawAiReply = data.choices[0].message.content.trim();
+                        console.log("Jawaban AI (Mentah):", rawAiReply);
+
+                        // --- [BARU] Parsing output AI ---
+                        const cleanedAiReply = parseAIOutput(rawAiReply);
+                        console.log("Jawaban AI (Bersih):", cleanedAiReply);
+                        // --- [AKHIR BARU] ---
+
+                        // --- [BARU] Tambahkan jawaban AI (yang sudah bersih) ke history ---
+                        chatHistory.push({ role: "assistant", content: cleanedAiReply });
+                        console.log("Updated Chat History (AI added):", JSON.stringify(chatHistory)); // Log history
+                        // --- [AKHIR BARU] ---
+
+                        speak(cleanedAiReply); // Panggil TTS dengan teks yang sudah bersih
                     } else {
                         console.error("Struktur response Together AI tidak sesuai:", data);
                         throw new Error("Format response AI tidak dikenali.");
@@ -543,16 +586,22 @@
                     console.error('Error fetching AI response:', error);
                     statusDisplay.textContent = 'Error koneksi ke AI.';
                     aiResponseDisplay.textContent = `Gagal menghubungi AI: ${error.message}`;
-                    updateMicButton('idle', 'Error Koneksi AI'); // Tombol kembali idle jika error
-                    // Opsional: ucapkan pesan error
-                    // speak("Maaf, terjadi kesalahan saat menghubungi AI.");
+                    updateMicButton('idle', 'Error Koneksi AI');
+
+                    // --- [BARU] Hapus pesan user terakhir dari history jika AI gagal merespon ---
+                    // Ini agar user bisa coba kirim pesan yang sama lagi tanpa duplikasi di history
+                    if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
+                        chatHistory.pop();
+                        console.log("AI Error: Pesan user terakhir dihapus dari history.");
+                    }
+                    // --- [AKHIR BARU] ---
                 }
             }
 
             // --- Fungsi Tambah ke Transkrip ---
             function addToTranscript(speaker, text) {
                 const p = document.createElement('p');
-                p.innerHTML = `<strong>${speaker}:</strong> ${text}`;
+                p.innerHTML = `<strong>${speaker}:</strong> ${text}`; // Tampilkan teks mentah/sudah bersih sesuai konteks
                 transcriptDisplay.appendChild(p);
                 transcriptDisplay.scrollTop = transcriptDisplay.scrollHeight; // Auto scroll
             }
@@ -563,25 +612,21 @@
 
                  if (isAISpeaking) {
                     console.log('User menghentikan AI...');
-                    SpeechSynthesis.cancel(); // Hentikan AI bicara
-                    // utterance.onend akan otomatis terpicu dan menangani state selanjutnya (aktifkan mic)
+                    SpeechSynthesis.cancel();
+                    // utterance.onend akan otomatis terpicu
                     statusDisplay.textContent = 'Idle (Pembicaraan AI dihentikan)';
                  } else if (isListening) {
                     console.log('User menghentikan rekaman...');
-                    recognition.stop(); // Hentikan rekaman manual
-                    // recognition.onend akan terpicu dan menangani state selanjutnya
+                    recognition.stop();
+                    // recognition.onend akan terpicu
                  } else {
-                    // Jika tidak sedang bicara dan tidak sedang mendengar -> Mulai mendengar
                     console.log('User memulai rekaman...');
-                    // Minta izin mikrofon jika belum (penting!)
                     navigator.mediaDevices.getUserMedia({ audio: true })
                         .then(() => {
                             console.log("Izin mic OK, memulai recognition...");
                              try {
                                  recognition.start();
-                                 // recognition.onstart akan update tombol/status
                              } catch (e) {
-                                 // Tangani error jika recognition sudah jalan (jarang terjadi tapi bisa saja)
                                  console.error("Gagal start recognition:", e);
                                  statusDisplay.textContent = "Gagal memulai rekaman.";
                                  updateMicButton('idle', 'Error Start');
@@ -597,11 +642,11 @@
             });
 
             // --- Inisialisasi Awal ---
-            updateMicButton('idle'); // Set state awal tombol
+            updateMicButton('idle');
             statusDisplay.textContent = 'Siap';
             userSpeechDisplay.textContent = '...';
             aiResponseDisplay.textContent = '...';
-            console.log("Aplikasi Voice Call Standalone (Smart Mic) Siap.");
+            console.log("Aplikasi Voice Call Standalone (Smart Mic) v2 Siap.");
              if (API_KEYS.length === 0) {
                  console.warn("PERINGATAN: List API Key kosong!");
                  statusDisplay.textContent = 'Error: API Key kosong!';
@@ -610,6 +655,8 @@
              } else {
                   console.warn("PERINGATAN KEAMANAN: API Key terlihat di kode sumber!");
              }
+             // Tampilkan transkrip awal (hanya system prompt, tapi tidak perlu)
+             // addToTranscript("System", chatHistory[0].content); // Opsional jika ingin menampilkan system prompt
         });
     </script>
 
