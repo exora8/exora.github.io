@@ -3,396 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Chat (Debug STT Response)</title>
+    <title>AI Chat Face Detection v3 (Revised)</title> <!-- Versi baru -->
 
-    <style>
-        /* --- CSS (Sama seperti sebelumnya) --- */
-        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; color: #555; }
-        .video-container { position: relative; margin-bottom: 15px; text-align: center; background-color: #eee; padding: 10px; border-radius: 5px; min-height: 260px; /* Ensure space */}
-        #webcamVideo { border: 1px solid #ccc; display: block; margin: 0 auto; background-color: #333; /* Dark bg while loading */ }
-        #overlayCanvas { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none; }
-        .status-area { text-align: center; margin-bottom: 20px; padding: 10px; background-color: #e9e9e9; border-radius: 5px; }
-        #status { font-weight: bold; display: inline-block; min-width: 150px; text-align: left; }
-        button { padding: 8px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; background-color: #007bff; color: white; font-size: 0.9em; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        button:hover:not(:disabled) { background-color: #0056b3; }
-        .text-display { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        .text-display h2 { font-size: 1.1em; color: #666; margin-bottom: 5px; }
-        .text-display p { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; min-height: 40px; border-radius: 4px; white-space: pre-wrap; }
-        .warning { color: red; font-weight: bold; text-align: center; margin-bottom: 10px; }
-    </style>
-
-    <!-- **** WAJIB: Sertakan face-api.js **** -->
+    <!-- Load face-api.js -->
     <script defer src="face-api.min.js"></script>
 
+    <style>
+        /* === CSS (Sama seperti sebelumnya, tidak perlu diubah) === */
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f0f0; margin: 0; padding: 20px; }
+        .container { display: flex; flex-direction: column; align-items: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 90%; width: 700px; }
+        .video-container { position: relative; width: 640px; height: 480px; margin-bottom: 20px; border: 1px solid #ccc; max-width: 100%; overflow: hidden; }
+        #video { display: block; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scaleX(-1); }
+        #status { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; padding: 8px 15px; border-radius: 5px; text-align: center; min-width: 200px; transition: background-color 0.3s ease, color 0.3s ease; }
+        .status-idle { background-color: #ddd; color: #333; }
+        .status-detecting { background-color: #ffc107; color: #333; }
+        .status-listening { background-color: #dc3545; color: white; }
+        .status-processing { background-color: #17a2b8; color: white; }
+        .status-speaking { background-color: #28a745; color: white; }
+        .status-error { background-color: #6c757d; color: white; }
+        .status-loading { background-color: #007bff; color: white; }
+        #chatbox { width: 100%; max-width: 640px; margin-bottom: 20px; }
+        #chatlog { height: 250px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9; margin-top: 5px; border-radius: 4px; display: flex; flex-direction: column; }
+        .message { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; max-width: 80%; word-wrap: break-word; line-height: 1.4; }
+        .user-message { background-color: #007bff; color: white; margin-left: auto; align-self: flex-end; border-bottom-right-radius: 5px; }
+        .ai-message { background-color: #e2e3e5; color: #333; margin-right: auto; align-self: flex-start; border-bottom-left-radius: 5px; }
+        #controls { text-align: center; }
+        #startButton { padding: 10px 20px; font-size: 1em; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; transition: background-color 0.2s ease; }
+        #startButton:hover:not(:disabled) { background-color: #0056b3; }
+        #startButton:disabled { background-color: #ccc; cursor: not-allowed; }
+        @media (max-width: 700px) {
+            .container { width: 95%; padding: 15px; }
+            .video-container { width: 100%; height: auto; padding-top: 75%; position: relative; }
+            #video, #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+            #chatbox { max-width: 100%; }
+            h1 { font-size: 1.5em; }
+            #chatlog { height: 200px; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Ngobrol sama AI (Debug STT)</h1>
-    <p class="warning">Buka Console (F12) untuk melihat log detail STT (onstart, onerror, onend).</p>
+    <h1>AI Chat Face Detection v3</h1>
 
     <div class="container">
         <div class="video-container">
-            <video id="webcamVideo" width="320" height="240" autoplay muted playsinline></video>
-            <canvas id="overlayCanvas" width="320" height="240"></canvas>
+            <video id="video" width="640" height="480" autoplay muted></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
         </div>
 
-        <div class="status-area">
-            <p>Status: <span id="status">Initializing...</span></p>
-            <button id="manualStartButton" disabled>Mulai Bicara (Manual)</button>
-            <button id="manualStopButton" disabled>Berhenti Bicara (Manual)</button>
+        <div id="status" class="status-idle">Idle</div>
+
+        <div id="chatbox">
+            <h2>Chat Log</h2>
+            <div id="chatlog">
+                <!-- Pesan chat akan muncul di sini -->
+            </div>
         </div>
 
-        <div class="text-display">
-            <h2>Transkrip Kamu:</h2>
-            <p id="user-text">...</p>
-            <h2>Respon AI:</h2>
-            <p id="ai-text">...</p>
-        </div>
+         <div id="controls">
+             <button id="startButton" >Mulai Deteksi & Chat</button>
+             <p><em>Aplikasi akan meminta izin kamera dan mikrofon.</em></p>
+             <p><strong>Penting:</strong> Pastikan file <code>face-api.min.js</code> dan folder <code>models</code> berada di folder yang sama.</p>
+             <p><strong>Penting:</strong> Pastikan backend di <code>/api/getApiKey</code> berjalan!</p>
+         </div>
     </div>
 
-    <script>
-        // --- JavaScript Starts Here ---
+<script>
+    // === JavaScript Starts Here ===
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const statusDiv = document.getElementById('status');
+    const chatlogDiv = document.getElementById('chatlog');
+    const startButton = document.getElementById('startButton');
 
-        // --- Konfigurasi ---
-        let API_KEY;
-        const TOGETHER_AI_MODEL = "meta-llama/Llama-3-70B-Instruct-Turbo";
-        const TOGETHER_AI_URL = "https://api.together.xyz/v1/chat/completions";
+    // --- Konfigurasi ---
+    let TOGETHER_AI_API_KEY = null;
+    const TOGETHER_AI_MODEL = "meta-llama/Llama-3-70B-Instruct-Turbo";
+    const FACEAPI_MODELS_URL = './models';
+    const LIP_MOVEMENT_THRESHOLD = 2.5;
+    const SPEECH_END_TIMEOUT = 1500; // Jeda (ms) TANPA bicara DAN TANPA gerakan bibir sebelum STT selesai
+    const STT_START_GRACE_PERIOD = 1000; // (BARU) Waktu (ms) setelah STT start sebelum cek inactivity
+    const MIN_CONFIDENCE = 0.55;
 
-        // --- Referensi Elemen DOM ---
-        const statusDisplay = document.getElementById('status');
-        const userTextDisplay = document.getElementById('user-text');
-        const aiTextDisplay = document.getElementById('ai-text');
-        const manualStartButton = document.getElementById('manualStartButton');
-        const manualStopButton = document.getElementById('manualStopButton');
-        const videoElement = document.getElementById('webcamVideo');
-        const canvasElement = document.getElementById('overlayCanvas');
+    // --- State Variables ---
+    let faceApiLoaded = false;
+    let stream = null;
+    let faceDetectionInterval = null;
+    let isDetecting = false;
+    let faceDetected = false;
+    let isListening = false;
+    let isSpeaking = false;
+    let recognition = null;
+    let lastLipPosition = null;
+    let synth = window.speechSynthesis;
+    let currentUtterance = null;
+    let userHasStarted = false;
+    let lastSignificantMovementTime = Date.now();
+    let lastResultTime = Date.now();
+    let sttStartTimestamp = 0; // (BARU) Timestamp kapan STT terakhir dimulai
 
-        // --- State Aplikasi ---
-        let isListening = false;
-        let isSpeakingAI = false;
-        let isProcessing = false;
-        let finalTranscript = '';
-        let recognition;
-        let synthesis = window.speechSynthesis;
-        let currentUtterance = null;
-        let faceApiReady = false;
-        let detectionInterval;
-        let stillnessCheckAllowed = true; // Flag untuk masa tenggang stillness check
-
-        // --- State Deteksi Wajah ---
-        let mouthOpenThreshold = 10; // Tune this value
-        let headMovementThreshold = 5; // Tune this value
-        let lastMouthState = 'closed';
-        let mouthMovementStart = null;
-        let headStillStart = null;
-        let mouthStillStart = null;
-        let lastHeadPosition = null;
-        let faceDetectedConfidence = 0.6; // Tune this value
-
-        // --- Konfigurasi Waktu Trigger (ms) ---
-        const MOUTH_MOVEMENT_CONFIRM_DURATION = 300;
-        const HEAD_STILL_CONFIRM_DURATION = 1000;
-        const MOUTH_STILL_CONFIRM_DURATION = 1200;
-        const DETECTION_INTERVAL_MS = 100;
-        const STILLNESS_GRACE_PERIOD_MS = 500; // Jeda 0.5 detik setelah STT start
-
-        // --- Fungsi API Key ---
-        async function getApiKey() {
-            try { /* ... (Kode getApiKey sama) ... */
-                const response = await fetch('/api/getApiKey');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                if (!data.apiKey) throw new Error('Invalid API key response format.');
-                API_KEY = data.apiKey; console.log('API Key fetched.');
-            } catch (error) { /* ... (handle error sama) ... */
-                console.error('Failed to fetch API Key:', error); statusDisplay.textContent = 'Error: No API Key!';
-                alert(`Cannot fetch config: ${error.message}.`); manualStartButton.disabled = true; manualStopButton.disabled = true;
-            }
+    // --- API Key Fetching (Sama) ---
+    async function getApiKey() {
+        console.log("Mencoba mengambil API Key dari /api/getApiKey...");
+        updateStatus("Fetching API Key...", "status-loading");
+        try {
+            const response = await fetch('/api/getApiKey');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            if (data.apiKey) {
+                TOGETHER_AI_API_KEY = data.apiKey;
+                console.log('API Key berhasil diambil.');
+                updateStatus("API Key Loaded", "status-idle");
+                return true;
+            } else throw new Error('API key not found in response');
+        } catch (error) {
+            console.error('Gagal ambil API Key:', error);
+            updateStatus("Gagal Ambil API Key!", "status-error");
+            alert("Gagal mengambil API Key dari server.\nError: " + error.message);
+            TOGETHER_AI_API_KEY = null;
+            return false;
         }
+    }
 
-        // --- Inisialisasi Web Speech API (DENGAN LOG DETAIL) ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            statusDisplay.textContent = 'Error: Browser no support STT.';
-            alert('Browser tidak support Web Speech API (STT).');
-        } else {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'id-ID';
+    // --- Setup Speech Recognition (STT) ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true; // Tetap true untuk alur mic on saat wajah terdeteksi
+        recognition.interimResults = true;
+        recognition.lang = 'id-ID';
 
-            recognition.onstart = () => {
-                // **** LOG PENTING ****
-                console.log("✅✅✅ Speech Recognition ONSTART fired!");
-                isListening = true;
-                // Reset stillness check flag dan mulai timer masa tenggang
-                stillnessCheckAllowed = false;
-                console.log(`[TIMER] Stillness check BLOCKED for ${STILLNESS_GRACE_PERIOD_MS}ms`);
-                setTimeout(() => {
-                    console.log("[TIMER] Stillness check is now ALLOWED.");
-                    stillnessCheckAllowed = true;
-                }, STILLNESS_GRACE_PERIOD_MS);
-                updateStatusDisplay();
-                updateManualButtonStates();
-            };
+        recognition.onstart = () => {
+            console.log(`%c STT: Mulai mendengarkan (Timestamp: ${sttStartTimestamp})`, 'color: blue; font-weight: bold;');
+            // isListening sudah di set true SEBELUM memanggil recognition.start()
+            updateStatus("Listening...", "status-listening");
+            // Timer direset di startListening() sebelum memanggil .start()
+        };
 
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        interimTranscript += event.results[i][0].transcript;
+        recognition.onresult = (event) => {
+            const newResultTime = Date.now();
+            console.log(`STT: onresult received (Time since last result: ${newResultTime - lastResultTime}ms)`);
+            lastResultTime = newResultTime; // Ada hasil baru, reset timer hasil
+
+            let interimTranscript = '';
+            let finalTranscript = '';
+            let currentFinalBuffer = "";
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const transcriptPart = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcriptPart + " ";
+                     currentFinalBuffer += transcriptPart + " ";
+                } else {
+                    interimTranscript += transcriptPart;
+                }
+            }
+
+            if (interimTranscript) console.log("STT Interim:", interimTranscript);
+
+            if (currentFinalBuffer.trim()) {
+                console.log("STT Final Fragment:", currentFinalBuffer.trim());
+                recognition.finalTranscriptBuffer = (recognition.finalTranscriptBuffer || "") + currentFinalBuffer;
+                 console.log("  -> Buffer sekarang:", recognition.finalTranscriptBuffer);
+            }
+        };
+
+        recognition.onerror = (event) => {
+            // Log error dengan lebih detail
+            console.error(`%c STT Error: ${event.error}`, 'color: red; font-weight: bold;', event);
+            if (event.error === 'no-speech') {
+                console.warn("STT: No-speech error (Ignored in continuous).");
+                // Biarkan continuous mode berjalan
+            } else if (event.error === 'aborted') {
+                 // Bisa jadi karena stop manual, atau masalah lain
+                console.warn("STT: Aborted.");
+                 // Jika aborted BUKAN karena stop manual kita (misal krn browser),
+                 // mungkin perlu coba restart jika kondisi memungkinkan?
+                 // Tapi kita set isListening = false di onend, jadi state akan reset.
+            } else if (event.error === 'audio-capture') {
+                updateStatus(`STT Error: Mic Problem?`, "status-error");
+                alert("Terjadi masalah dengan mikrofon.");
+            } else {
+                 updateStatus(`STT Error: ${event.error}`, "status-error");
+            }
+            // onend akan dipanggil setelah error (kecuali 'no-speech'?), yang akan handle state
+        };
+
+        recognition.onend = () => {
+            const endTimestamp = Date.now();
+            const listeningDuration = isListening ? endTimestamp - sttStartTimestamp : 'N/A (was not listening)';
+            console.log(`%c STT: Recognition service ended. (Duration: ${listeningDuration}ms)`, 'color: gray;');
+            // Set isListening false KETIKA service benar-benar berakhir
+            const wasListening = isListening; // Simpan state sebelum diubah
+            isListening = false; // Service sudah berhenti
+
+            // HANYA update status jika user sudah memulai dan AI tidak sedang bicara
+            if (userHasStarted && !isSpeaking) {
+                 if (faceDetected) {
+                     // Jika wajah masih ada, kembali ke 'detecting', siap listen lagi
+                     // jika ada trigger (misal user bicara lagi atau TTS selesai)
+                     updateStatus("Face Detected", "status-detecting");
+                 } else {
+                     updateStatus("Idle (Waiting for face)", "status-idle");
+                 }
+            } else if (!userHasStarted) {
+                updateStatus("Deteksi Dihentikan", "status-idle");
+            }
+             console.log(`   -> State after onend: isListening=${isListening}, faceDetected=${faceDetected}, isSpeaking=${isSpeaking}`);
+        };
+
+        recognition.finalTranscriptBuffer = "";
+
+    } else {
+        console.error("Browser tidak support Web Speech API.");
+        alert("Maaf, browser Anda tidak mendukung fitur Speech Recognition.");
+        startButton.disabled = true;
+    }
+
+    // --- Setup Text-to-Speech (TTS) (Sama) ---
+    synth.onvoiceschanged = () => { /* ... (sama) ... */ };
+    function speak(text) {
+        console.log("Speak function called with text:", text);
+        if (synth.speaking) { /* ... (sama) ... */ }
+        if (!text || text.trim() === "") {
+             console.warn("TTS: Teks kosong.");
+             if (faceDetected && !isListening && userHasStarted) {
+                 console.log("TTS empty, activating STT...");
+                 updateStatus("Face Detected", "status-detecting");
+                 startListening();
+             }
+             return;
+        }
+        addMessage("AI", text);
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        /* ... (setup voice, lang, rate, pitch - sama) ... */
+        const indonesianVoice = synth.getVoices().find(voice => voice.lang === 'id-ID');
+        if (indonesianVoice) currentUtterance.voice = indonesianVoice;
+        currentUtterance.lang = 'id-ID'; currentUtterance.rate = 1; currentUtterance.pitch = 1;
+
+        currentUtterance.onstart = () => {
+            console.log("TTS: Mulai berbicara...");
+            isSpeaking = true; // Set state SEGERA
+            updateStatus("Speaking...", "status-speaking");
+            if (isListening) {
+                 console.log("TTS starts -> Stopping STT");
+                 stopListening(); // Hentikan STT
+            }
+        };
+        currentUtterance.onend = () => {
+            console.log("TTS: Selesai berbicara.");
+            const wasSpeaking = isSpeaking;
+            isSpeaking = false; // Set state SEGERA
+            currentUtterance = null;
+            if (faceDetected && userHasStarted && !isListening && !wasSpeaking /* Hindari jika ada interupsi */) {
+                 console.log("TTS Selesai, mengaktifkan STT...");
+                 updateStatus("Face Detected", "status-detecting");
+                 startListening();
+            } else if (!faceDetected && userHasStarted) {
+                 updateStatus("Idle (Waiting for face)", "status-idle");
+            }
+             console.log(`   -> State after TTS end: isListening=${isListening}, faceDetected=${faceDetected}, isSpeaking=${isSpeaking}`);
+        };
+        currentUtterance.onerror = (event) => {
+            console.error("TTS Error:", event.error);
+            isSpeaking = false;
+            currentUtterance = null;
+            updateStatus(`TTS Error: ${event.error}`, "status-error");
+             if (faceDetected && userHasStarted && !isListening) {
+                 console.log("TTS Error, trying to activate STT...");
+                 updateStatus("Face Detected", "status-detecting");
+                 startListening();
+             } else if (!faceDetected && userHasStarted) {
+                 updateStatus("Idle (Waiting for face)", "status-idle");
+             }
+        };
+        synth.speak(currentUtterance);
+    }
+    function stopTTS() {
+        if (synth.speaking) {
+            console.log("TTS: Membatalkan ucapan (interupsi).");
+            isSpeaking = false; // Set state SEBELUM cancel
+            synth.cancel();
+             console.log(`   -> State after TTS cancel request: isListening=${isListening}, faceDetected=${faceDetected}, isSpeaking=${isSpeaking}`);
+        }
+    }
+
+    // --- Face Detection Logic ---
+    async function loadFaceApiModels() { /* ... (sama) ... */ }
+    async function startVideo() { /* ... (sama) ... */ }
+
+    function startFaceDetection() {
+        if (!faceApiLoaded || !stream || isDetecting) return;
+        isDetecting = true;
+        console.log("Memulai face detection loop...");
+        lastSignificantMovementTime = Date.now(); lastResultTime = Date.now(); // Reset timers saat loop mulai
+        const displaySize = { width: video.videoWidth || 640, height: video.videoHeight || 480 };
+        faceapi.matchDimensions(canvas, displaySize);
+
+        faceDetectionInterval = setInterval(async () => {
+            if (!isDetecting || video.paused || video.ended) {
+                if (isDetecting) console.log("Stopping detection interval (not detecting or video issue).")
+                isDetecting = false; // Pastikan flag mati
+                clearInterval(faceDetectionInterval); // Hentikan interval
+                return;
+            }
+
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+                                          .withFaceLandmarks();
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            let currentFaceDetected = false;
+            let lipsMoved = false;
+
+            if (detections && detections.length > 0 && detections[0].detection.score >= MIN_CONFIDENCE) {
+                currentFaceDetected = true; // Wajah terdeteksi di frame ini
+                const detection = detections[0];
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+                const landmarks = detection.landmarks;
+                const mouth = landmarks.getMouth();
+                let currentLowerLipY = 0;
+                mouth.slice(16, 20).forEach(pt => currentLowerLipY += pt.y);
+                currentLowerLipY /= 4;
+                if (lastLipPosition !== null) {
+                    const diff = Math.abs(currentLowerLipY - lastLipPosition);
+                    if (diff > LIP_MOVEMENT_THRESHOLD) {
+                        lipsMoved = true;
+                        //console.log(`Lip movement detected (${diff.toFixed(1)}), resetting movement timer.`);
+                        lastSignificantMovementTime = Date.now(); // Reset timer HANYA jika bergerak
                     }
                 }
-                // Tampilkan hasil sementara dan final
-                console.log("STT Result: Final='", finalTranscript, "' Interim='", interimTranscript, "'");
-                userTextDisplay.textContent = finalTranscript + interimTranscript;
-            };
+                lastLipPosition = currentLowerLipY;
+            }
 
-            recognition.onend = () => {
-                // **** LOG PENTING ****
-                console.log("⏹️⏹️⏹️ Speech Recognition ONEND fired.");
-                isListening = false;
-                // Pastikan stillness check diizinkan lagi jika STT berhenti karena alasan lain
-                stillnessCheckAllowed = true;
-                updateStatusDisplay();
-                updateManualButtonStates();
-            };
+            // --- Logika Utama berdasarkan status deteksi frame ini ---
+            if (currentFaceDetected) {
+                if (!faceDetected) { // Transisi: Wajah BARU terdeteksi
+                    console.log("Face Detected (Transition)");
+                    faceDetected = true;
+                    if (!isSpeaking && !isListening && userHasStarted) {
+                        console.log("   -> Activating STT on face detection");
+                        startListening(); // Mulai listening
+                    } else {
+                        console.log(`   -> Face detected but not starting STT (speaking=${isSpeaking}, listening=${isListening})`);
+                        if (!isSpeaking && !isListening) updateStatus("Face Detected", "status-detecting");
+                    }
+                }
 
-            recognition.onerror = (event) => {
-                // **** LOG PENTING ****
-                console.error("❌❌❌ Speech Recognition ONERROR fired!", event.error, event.message);
-                isListening = false; // Reset state
-                stillnessCheckAllowed = true; // Izinkan cek lagi jika error
-                let errorMsg = `Error STT: ${event.error}`;
-                if (event.message) errorMsg += ` (${event.message})`;
-                statusDisplay.textContent = errorMsg;
-                alert(`Problem with speech recognition: ${event.error}. Check console (F12) for details.`);
-                updateStatusDisplay(); // Update status
-                updateManualButtonStates();
-            };
+                // --- Kondisi saat Wajah Terdeteksi (faceDetected === true) ---
+                // 1. Interupsi TTS jika bibir bergerak
+                if (isSpeaking && lipsMoved) {
+                    console.log("User interruption detected during TTS!");
+                    stopTTS();
+                    // Beri jeda SANGAT singkat, cek state lagi, baru start STT
+                    setTimeout(() => {
+                        if (faceDetected && !isListening && !isSpeaking && userHasStarted) {
+                            console.log("Restarting STT after TTS interruption.");
+                            startListening();
+                        } else {
+                             console.log(`Not restarting STT post-interrupt: face=${faceDetected}, listen=${isListening}, speak=${isSpeaking}`);
+                        }
+                    }, 75); // Jeda sedikit lebih lama? 75ms
+                }
+
+                // 2. Cek kondisi henti bicara (hanya jika sedang mendengarkan)
+                // console.log(`Checking inactivity: isListening=${isListening}`); // DEBUG
+                if (isListening) {
+                    const timeSinceLastResult = Date.now() - lastResultTime;
+                    const timeSinceLastMovement = Date.now() - lastSignificantMovementTime;
+                    const timeSinceSttStart = Date.now() - sttStartTimestamp;
+
+                    // console.log(`   -> Inactivity timers: Grace=${timeSinceSttStart}, Result=${timeSinceLastResult}, Movement=${timeSinceLastMovement}`); // DEBUG
+
+                    // Kondisi: (Sudah melewati grace period) DAN (lama tidak ada hasil) DAN (lama tidak bergerak)
+                    if (timeSinceSttStart > STT_START_GRACE_PERIOD &&
+                        timeSinceLastResult > SPEECH_END_TIMEOUT &&
+                        timeSinceLastMovement > SPEECH_END_TIMEOUT)
+                    {
+                        console.log(`%c Speech end condition met (Grace=${timeSinceSttStart}, Result=${timeSinceLastResult}, Movement=${timeSinceLastMovement})`, 'color: orange');
+                        const transcriptBuffer = recognition.finalTranscriptBuffer ? recognition.finalTranscriptBuffer.trim() : "";
+                        if (transcriptBuffer !== "") {
+                            console.log("   -> Stopping listening and processing due to inactivity.");
+                            stopListeningAndProcess(transcriptBuffer); // Panggil fungsi proses
+                        } else {
+                             console.log("   -> Inactivity timeout without transcript buffer, stopping listening only.");
+                             stopListening(); // Hanya stop jika buffer kosong
+                             // Reset timer agar tidak langsung re-trigger jika user tetap diam
+                             lastResultTime = Date.now();
+                             lastSignificantMovementTime = Date.now();
+                        }
+                    }
+                }
+
+            } else { // Wajah TIDAK terdeteksi di frame ini
+                if (faceDetected) { // Transisi: Wajah BARU saja hilang
+                    console.log("Face Lost (Transition)");
+                    faceDetected = false;
+                    lastLipPosition = null;
+                    handleNoFaceDetected(); // Panggil handler
+                }
+            }
+
+        }, 150); // Interval deteksi
+    }
+
+    function handleNoFaceDetected() {
+        console.log("Handling face lost...");
+        if (isListening) {
+            console.log("   -> Stopping STT due to face lost.");
+            recognition.finalTranscriptBuffer = ""; // Kosongkan buffer
+            stopListening();
+        }
+        if (!isSpeaking && userHasStarted) {
+           updateStatus("Idle (Waiting for face)", "status-idle");
+        }
+        const context = canvas.getContext('2d');
+        if (context) context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function stopFaceDetection() { // Sedikit penyesuaian cleanup
+        console.log("Stopping face detection and streams...");
+        isDetecting = false; // Signal interval untuk berhenti
+        if (faceDetectionInterval) {
+             clearInterval(faceDetectionInterval);
+             faceDetectionInterval = null;
+             console.log("   -> Detection interval cleared.");
         }
 
-        if (!synthesis) { /* ... (handle TTS support sama) ... */ }
+        handleNoFaceDetected(); // Pastikan STT berhenti
 
-        // --- Fungsi Inti STT, AI, TTS (Tidak banyak berubah) ---
-        function startListening() {
-            if (!API_KEY || !recognition || !faceApiReady) {
-                console.error("Cannot start listening: Prerequisites not met.", { API_KEY: !!API_KEY, recognition: !!recognition, faceApiReady });
-                alert("Cannot start listening. Check API Key, Face Detection, and Mic Permission.");
-                return;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null; video.srcObject = null;
+            console.log("   -> Media streams stopped.");
+        }
+        if (isSpeaking) stopTTS();
+
+        faceDetected = false; lastLipPosition = null;
+        setTimeout(() => { /* ... cleanup canvas ... */ }, 100);
+        updateStatus("Deteksi Dihentikan", "status-idle");
+        console.log("Detection stopped.");
+    }
+
+    function startListening() {
+        if (!recognition || isListening || isSpeaking || !faceDetected || !userHasStarted) {
+             console.warn(`Cannot start listening: isListening=${isListening}, isSpeaking=${isSpeaking}, faceDetected=${faceDetected}, started=${userHasStarted}`);
+             return;
+        }
+        try {
+            console.log('%c Requesting STT start...', 'color: blue');
+            // Set state dan reset SEBELUM memanggil .start()
+            isListening = true; // Asumsi akan berhasil start
+            sttStartTimestamp = Date.now();
+            lastResultTime = sttStartTimestamp; // Reset timer hasil
+            lastSignificantMovementTime = sttStartTimestamp; // Reset timer gerakan
+            recognition.finalTranscriptBuffer = ""; // Kosongkan buffer
+            console.log(`   -> State before start: isListening=${isListening}, timestamp=${sttStartTimestamp}`);
+            recognition.start();
+            // onstart akan konfirmasi dan update UI status
+        } catch (e) {
+             console.error("Error executing recognition.start():", e.message);
+             isListening = false; // Gagal start, reset state
+            if (e.name === 'InvalidStateError') {
+                 console.warn("STT might be in an intermediate state. Ignoring start request.");
+            } else {
+                 updateStatus("STT Start Error", "status-error");
             }
-            if (isListening || isProcessing || isSpeakingAI) {
-                console.warn("Attempted to start listening while already active.");
-                return;
-            }
-            console.log("Attempting to start listening (triggered)...");
-            finalTranscript = '';
-            userTextDisplay.textContent = '...';
-            aiTextDisplay.textContent = '...';
+        }
+    }
+
+    function stopListening() {
+        // Cek apakah recognition object ada DAN kita *berpikir* sedang listening
+        if (recognition && isListening) {
+            console.log('%c Requesting STT stop...', 'color: gray');
             try {
-                recognition.start(); // onstart/onerror akan handle sisanya
+                recognition.stop();
+                // JANGAN set isListening = false di sini. Biarkan onend yg handle.
             } catch (e) {
-                 console.error("Error executing recognition.start():", e);
-                 statusDisplay.textContent = `Error starting STT: ${e.name}`;
-                 alert(`Could not start microphone: ${e.message}. Check permissions.`);
-                 isListening = false;
-                 stillnessCheckAllowed = true; // Izinkan cek lagi jika gagal start
-                 updateManualButtonStates();
-                 updateStatusDisplay();
+                 console.error("Error executing recognition.stop():", e.message);
+                 // Jika stop gagal, state mungkin tidak konsisten. Coba paksa set false?
+                 // isListening = false; // Hati-hati dengan ini
             }
+        } else {
+             // console.log("StopListening called but not currently listening or recognition unavailable.");
         }
+    }
 
-        function stopListeningAndProcess() {
-            // Hanya stop jika memang sedang listening
-            if (!isListening || !recognition) {
-                 console.warn("Attempted to stop listening when not active.");
-                 return;
-            }
-            console.log("Stopping listening and processing...");
-             try {
-                 recognition.stop(); // Akan memicu onend
-             } catch (e) { console.warn("Error stopping recognition:", e); }
-            isListening = false; // Set state langsung
-            isProcessing = true; // Mulai proses
-            stillnessCheckAllowed = true; // Izinkan cek lagi setelah stop
-            updateStatusDisplay();
-            updateManualButtonStates();
-
-            const textToSend = finalTranscript.trim();
-            console.log("Final transcript to send:", textToSend);
-
-            if (textToSend) {
-                sendToAI(textToSend);
-            } else {
-                console.log("No final transcript to send.");
-                isProcessing = false; // Tidak ada yg diproses
-                statusDisplay.textContent = 'No speech detected.';
-                updateStatusDisplay();
-                updateManualButtonStates();
-            }
-        }
-
-        async function sendToAI(userMessage) { /* ... (Kode sendToAI sama) ... */
-            if (!API_KEY) { console.error("No API Key"); /*...*/ return; }
-            statusDisplay.textContent = 'AI Thinking...'; aiTextDisplay.textContent = '...';
-            try {
-                const response = await fetch(TOGETHER_AI_URL, {/*...*/});
-                if (!response.ok) {/*...*/ throw new Error(/*...*/); }
-                const data = await response.json();
-                const aiResponseText = data.choices?.[0]?.message?.content?.trim();
-                if (aiResponseText) { aiTextDisplay.textContent = aiResponseText; speakAI(aiResponseText); }
-                else { throw new Error("Empty AI response."); }
-            } catch (error) {
-                console.error('Error fetching AI response:', error); statusDisplay.textContent = `Error API: ${error.message}`;
-                aiTextDisplay.textContent = `Failed AI response. ${error.message}`; isProcessing = false;
-                updateStatusDisplay(); updateManualButtonStates();
-            }
-        }
-
-        function speakAI(textToSpeak) { /* ... (Kode speakAI sama, termasuk onend reset timer) ... */
-             if (!synthesis || !textToSpeak) { console.warn("TTS skip."); isProcessing = false; updateStatusDisplay(); updateManualButtonStates(); return; }
-             if (isSpeakingAI || synthesis.speaking) { synthesis.cancel(); }
-             currentUtterance = new SpeechSynthesisUtterance(textToSpeak); currentUtterance.lang = 'id-ID';
-             try { let v = synthesis.getVoices(); if(v.length>0){const iv=v.find(vo=>vo.lang==='id-ID'); if(iv) currentUtterance.voice=iv;} } catch(e){}
-             currentUtterance.onstart=()=>{ console.log("AI Speech start."); isSpeakingAI=true; isProcessing=false; updateStatusDisplay(); updateManualButtonStates(); };
-             currentUtterance.onend=()=>{ console.log("AI Speech end."); isSpeakingAI=false; currentUtterance=null; updateStatusDisplay(); updateManualButtonStates(); resetDetectionTimers(); };
-             currentUtterance.onerror=(e)=>{ console.error('TTS Error:', e.error); statusDisplay.textContent = `Error TTS: ${e.error}`; isSpeakingAI=false; isProcessing=false; currentUtterance=null; updateStatusDisplay(); updateManualButtonStates(); };
-             synthesis.speak(currentUtterance);
-        }
-
-        function interruptAI() { /* ... (Kode interruptAI sama) ... */
-            if (isSpeakingAI && synthesis.speaking) { console.log("Interrupting AI..."); synthesis.cancel();
-                setTimeout(() => { if (!isListening && API_KEY && recognition && faceApiReady) { startListening(); } }, 150);
-            }
-        }
-
-        // --- Fungsi Update Status & Tombol (Sama) ---
-        function updateStatusDisplay() { /* ... (Kode updateStatusDisplay sama) ... */
-            let currentStatus = "Unknown";
-            if (!API_KEY) currentStatus = "Error: API Key?";
-            else if (!faceApiReady) currentStatus = "Loading Face Detection...";
-            else if (isProcessing) currentStatus = "Processing...";
-            else if (isListening) currentStatus = "Listening...";
-            else if (isSpeakingAI) currentStatus = "AI Speaking...";
-            else currentStatus = "Ready (Auto)";
-            // Jangan timpa pesan error penting dari STT/TTS/Setup
-            if(!statusDisplay.textContent.toLowerCase().includes("error")) {
-                 statusDisplay.textContent = currentStatus;
-            } else {
-                 console.log("Retaining error message in status display:", statusDisplay.textContent);
-            }
-        }
-        function updateManualButtonStates() { /* ... (Kode updateManualButtonStates sama) ... */
-             const canStartManually = API_KEY && recognition && faceApiReady && !isListening && !isSpeakingAI && !isProcessing;
-             const canStopManually = isListening;
-             manualStartButton.disabled = !canStartManually;
-             manualStopButton.disabled = !canStopManually;
-        }
-
-        // --- Fungsi Deteksi Wajah & Trigger (Dengan Stillness Check yang Dihormati) ---
-        async function setupFaceDetection() { /* ... (Kode setupFaceDetection sama) ... */
-             statusDisplay.textContent = 'Loading models...'; try { await faceapi.nets.tinyFaceDetector.loadFromUri('/models'); await faceapi.nets.faceLandmark68TinyNet.loadFromUri('/models'); console.log("Models loaded."); statusDisplay.textContent = 'Requesting camera...'; const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false }); videoElement.srcObject = stream; await new Promise((resolve) => { videoElement.onloadedmetadata = resolve; }); videoElement.play(); console.log("Webcam started."); faceApiReady = true; statusDisplay.textContent = 'Face detection ready.'; startDetectionLoop(); } catch (err) { console.error("Error setup face detection:", err); faceApiReady = false; /* ... (Error handling lebih detail sama) ... */ } finally { updateStatusDisplay(); updateManualButtonStates(); }
-        }
-
-        function startDetectionLoop() {
-             if (detectionInterval) clearInterval(detectionInterval);
-             detectionInterval = setInterval(async () => {
-                 if (!faceApiReady || videoElement.paused || videoElement.ended) return;
-                 const detectionOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 });
-                 const detection = await faceapi.detectSingleFace(videoElement, detectionOptions).withFaceLandmarks(true);
-                 const displaySize = { width: videoElement.width, height: videoElement.height };
-                 canvasElement.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
-                 if (detection) { const resized = faceapi.resizeResults(detection, displaySize); faceapi.draw.drawFaceLandmarks(canvasElement, resized); }
-
-                 if (detection && detection.detection.score > faceDetectedConfidence && detection.landmarks && detection.landmarks.positions && detection.landmarks.positions.length >= 68) {
-                     const positions = detection.landmarks.positions;
-                     //console.log(`Detection Score: ${detection.detection.score.toFixed(2)}`); // Keep logging low unless needed
-
-                     const upperLipBottom = positions[62].y; const lowerLipTop = positions[66].y;
-                     const mouthVerticalDistance = Math.abs(lowerLipTop - upperLipBottom);
-                     const currentMouthState = mouthVerticalDistance > mouthOpenThreshold ? 'open' : 'closed';
-                     //console.log(`Mouth Dist: ${mouthVerticalDistance.toFixed(1)}, State: ${currentMouthState}, Thresh: ${mouthOpenThreshold}`); // Keep logging low
-
-                     const currentHeadPosition = { x: positions[30].x, y: positions[30].y };
-                     let headMoved = false;
-                     if (lastHeadPosition) { const dx=currentHeadPosition.x-lastHeadPosition.x; const dy=currentHeadPosition.y-lastHeadPosition.y; const dist=Math.sqrt(dx*dx+dy*dy); if (dist > headMovementThreshold) headMoved = true; }
-                     else { /*console.log(`Head Pos Initial: (${currentHeadPosition.x.toFixed(0)}, ${currentHeadPosition.y.toFixed(0)})`);*/ } // Keep logging low
-
-                     const now = Date.now();
-
-                     // --- Update Timer & State (Keep minimal logging) ---
-                     if (currentMouthState !== lastMouthState) { if (!mouthMovementStart) mouthMovementStart = now; mouthStillStart = null; lastMouthState = currentMouthState; } else { mouthMovementStart = null; }
-                     if (headMoved) { headStillStart = null; } else { if (!headStillStart) headStillStart = now; }
-                     if (currentMouthState === 'closed') { if (!mouthStillStart) mouthStillStart = now; } else { mouthStillStart = null; }
-
-                     // --- Logika Pemicu ---
-                     //console.log(`[CHECK] L:${isListening}, P:${isProcessing}, S:${isSpeakingAI}, StillnessAllowed: ${stillnessCheckAllowed}`); // Keep logging low
-
-                     // 1. Trigger Mulai Bicara / Interupsi
-                     if (mouthMovementStart) {
-                         const movementDuration = now - mouthMovementStart;
-                         //console.log(`[CHECK] Mouth Moving Duration: ${movementDuration}ms / ${MOUTH_MOVEMENT_CONFIRM_DURATION}ms`); // Keep logging low
-                         if (movementDuration >= MOUTH_MOVEMENT_CONFIRM_DURATION) {
-                             console.log(`[CONDITION MET] Mouth Movement Duration!`);
-                             if (!isListening && !isProcessing && !isSpeakingAI) { console.log(">>> TRIGGER: Starting STT via Mouth Movement"); startListening(); resetDetectionTimers(); }
-                             else if (isSpeakingAI) { console.log(">>> TRIGGER: Interrupting AI via Mouth Movement"); interruptAI(); resetDetectionTimers(); }
-                             else { /* console.log(`[SKIP TRIGGER START/INTERRUPT] App state not ready`); */ } // Keep logging low
-                             mouthMovementStart = null;
-                         }
-                     }
-
-                     // 2. Trigger Berhenti Bicara (Stillness - Hormati Masa Tenggang)
-                     // **** MODIFIKASI DI SINI ****
-                     if (isListening && stillnessCheckAllowed) { // <<< Hanya cek jika diizinkan
-                         const headStillTime = headStillStart ? now - headStillStart : 0;
-                         const mouthStillTime = mouthStillStart ? now - mouthStillStart : 0;
-                         //console.log(`[CHECK STILLNESS (Allowed)] Head: ${headStillTime}ms/${HEAD_STILL_CONFIRM_DURATION}ms, Mouth: ${mouthStillTime}ms/${MOUTH_STILL_CONFIRM_DURATION}ms`); // Keep logging low
-                         if (headStillTime >= HEAD_STILL_CONFIRM_DURATION && mouthStillTime >= MOUTH_STILL_CONFIRM_DURATION) {
-                             console.log(">>> TRIGGER: Stopping STT via Stillness");
-                             stopListeningAndProcess();
-                             resetDetectionTimers();
-                         }
-                     } else if (isListening && !stillnessCheckAllowed) {
-                         console.log("[CHECK STILLNESS (Blocked)] Waiting for initial grace period."); // Log saat diblokir
-                     }
-
-                     lastHeadPosition = currentHeadPosition;
-
-                 } else {
-                     /* console.log("Face not detected/low conf/incomplete landmarks."); */ // Keep logging low
-                     resetDetectionTimers();
-                     lastHeadPosition = null;
-                 }
-             }, DETECTION_INTERVAL_MS);
+    function stopListeningAndProcess(transcript) {
+         if (!isListening) {
+              console.warn("stopListeningAndProcess called but not listening. Aborting process.");
+              return;
          }
+         console.log("Stopping listening to process transcript:", transcript);
 
-        function resetDetectionTimers() { /* ... (Kode resetDetectionTimers sama) ... */ console.log("[TIMER] Resetting detection timers."); mouthMovementStart = null; headStillStart = null; mouthStillStart = null; }
+         // 1. Hentikan STT
+         stopListening(); // Request stop, onend akan set isListening=false
 
-        // --- Inisialisasi Aplikasi ---
-        async function initializeApp() { /* ... (Kode initializeApp sama, termasuk initial mic check opsional) ... */
-            statusDisplay.textContent = 'Fetching config...'; manualStartButton.disabled = true; manualStopButton.disabled = true;
-            await getApiKey();
-            if (API_KEY && typeof faceapi !== 'undefined') { await setupFaceDetection(); } // Cek faceapi juga
-            else if (!API_KEY) { statusDisplay.textContent = "Init failed (API Key)."; }
-            else { statusDisplay.textContent = "Error: face-api.js?"; alert("face-api.js failed to load."); }
-            updateStatusDisplay(); updateManualButtonStates(); console.log("Init attempt complete.");
-            // Initial mic check optional
-            if (recognition && API_KEY && faceApiReady) { navigator.mediaDevices.getUserMedia({audio: true}).then(s=>{console.log("Initial mic OK.");s.getTracks().forEach(t=>t.stop());}).catch(e=>{console.warn("Initial mic check fail/denied.",e.name);if(e.name==='NotAllowedError'){statusDisplay.textContent="Error: Mic Denied"; alert("Mic access denied.");}}); }
-        }
+         // 2. Proses teks (dilakukan segera, tidak menunggu onend)
+         if (transcript && transcript.trim() !== "") {
+             processSpeechResult(transcript.trim());
+         } else {
+              console.log("Transcript buffer was empty when processing.");
+              // Jika tidak ada yg dikirim ke AI, dan wajah masih ada, siap listen lagi
+              if (faceDetected && !isSpeaking && userHasStarted) {
+                  updateStatus("Face Detected", "status-detecting");
+              }
+         }
+         // Buffer sudah diambil sbg argumen, akan direset di startListening berikutnya
+    }
 
-        // --- Event Listener Tombol Manual (Sama) ---
-        manualStartButton.addEventListener('click', () => { /* ... */ });
-        manualStopButton.addEventListener('click', () => { /* ... */ });
+    function processSpeechResult(text) { /* ... (sama) ... */ }
+    async function sendToTogetherAI(prompt) { /* ... (sama, termasuk error handling & restart STT jika perlu) ... */ }
+    function updateStatus(message, className) { /* ... (sama) ... */ }
+    function addMessage(sender, text) { /* ... (sama) ... */ }
 
-        // Jalankan inisialisasi
-        document.addEventListener('DOMContentLoaded', initializeApp);
+    // --- Event Listener Start/Stop Button (Sama) ---
+    startButton.addEventListener('click', async () => { /* ... (sama) ... */ });
 
-        // --- JavaScript Ends Here ---
-    </script>
+    // --- Initial Check (Sama) ---
+    if (!SpeechRecognition) { /* ... (sama) ... */ }
+    else { updateStatus("Ready (Click Start)", "status-idle"); }
+
+    // --- Cleanup on Close (Sama) ---
+    window.addEventListener('beforeunload', (event) => { if (userHasStarted) stopFaceDetection(); });
+
+    console.log("AI Chat Interface Ready (v3).");
+    // === JavaScript Ends Here ===
+</script>
+
 </body>
 </html>
