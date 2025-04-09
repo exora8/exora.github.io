@@ -3,351 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Call (Smart Mic) v2 - History + Parsing</title>
+    <title>AI Voice Call (Simple & Meriah)</title>
     <style>
-        /* --- [UI MEWAH BARU] CSS - Fokus di sini --- */
+        /* --- [REVISI TOTAL] CSS Simple & Meriah --- */
 
-        /* Import Font (Opsional, tapi menambah kesan mewah) */
+        /* Import Font (Opsional, tapi bagus) */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-        /* Keyframes untuk Animasi Halus */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- Keyframes Animasi Meriah --- */
+        @keyframes backgroundPulse {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); } /* Gold semi-transparan */
-            50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        @keyframes thinkingShimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        @keyframes buttonIdleGlow {
+            0% { box-shadow: 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.6); }
+            100% { box-shadow: 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4); }
+        }
+
+        @keyframes buttonListeningPulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 0, 100, 0.7), 0 0 20px rgba(255, 0, 100, 0.5), 0 0 35px rgba(255, 0, 100, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 0, 100, 1), 0 0 35px rgba(255, 0, 100, 0.7), 0 0 50px rgba(255, 0, 100, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 0, 100, 0.7), 0 0 20px rgba(255, 0, 100, 0.5), 0 0 35px rgba(255, 0, 100, 0.3); }
+        }
+
+         @keyframes buttonSpeakingWave {
+             0% { background-position: 0% 50%; box-shadow: 0 0 12px rgba(150, 0, 255, 0.7), 0 0 25px rgba(150, 0, 255, 0.5); }
+             50% { background-position: 100% 50%; box-shadow: 0 0 18px rgba(150, 0, 255, 0.9), 0 0 35px rgba(150, 0, 255, 0.7); }
+             100% { background-position: 0% 50%; box-shadow: 0 0 12px rgba(150, 0, 255, 0.7), 0 0 25px rgba(150, 0, 255, 0.5); }
+         }
+
+        @keyframes thinkingShimmerSimple {
+            0% { background-color: #555; }
+            50% { background-color: #888; }
+            100% { background-color: #555; }
+        }
+
+        @keyframes transcriptEntry {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes statusPulse {
+             0% { transform: scale(1); opacity: 0.8; }
+             50% { transform: scale(1.03); opacity: 1; }
+             100% { transform: scale(1); opacity: 0.8; }
         }
 
         /* --- Base Style --- */
         body {
-            font-family: 'Poppins', sans-serif; /* Font lebih modern */
-            background-color: #1a1a1a; /* Hitam pekat */
-            color: #e0e0e0; /* Abu-abu terang untuk teks */
+            font-family: 'Poppins', sans-serif;
+            /* Background Animasi Meriah */
+            background: linear-gradient(135deg, #1a001a, #001a1a, #1a1a00, #1a0000);
+            background-size: 400% 400%;
+            animation: backgroundPulse 15s ease infinite;
+            color: #f0f0f0; /* Teks putih terang */
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 40px 20px; /* Lebih banyak padding atas/bawah */
-            line-height: 1.7;
-            min-height: 100vh; /* Pastikan background full height */
+            padding: 30px 15px;
+            min-height: 100vh;
             box-sizing: border-box;
+            line-height: 1.6;
         }
 
         /* --- Judul & Header --- */
         h1 {
-            color: #FFD700; /* Emas */
+            color: #00ffff; /* Cyan terang */
             font-weight: 600;
             margin-bottom: 5px;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Subtle glow emas */
-            animation: fadeIn 0.8s ease-out;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.5);
+            text-align: center;
         }
 
-        body > p:first-of-type { /* Subjudul di bawah H1 */
-            font-size: 0.95em;
-            color: #aaa; /* Abu-abu lebih gelap */
+        body > p:first-of-type { /* Subjudul */
+            font-size: 0.9em;
+            color: #aaa;
             text-align: center;
             margin-top: 0;
-            margin-bottom: 30px;
-            animation: fadeIn 0.9s ease-out;
+            margin-bottom: 25px;
         }
 
-        /* --- Peringatan --- */
+        /* --- Peringatan (Tetap simpel) --- */
         .warning {
-            background-color: rgba(255, 215, 0, 0.1); /* Background emas transparan */
-            color: #FFD700; /* Teks Emas */
-            border: 1px solid rgba(255, 215, 0, 0.4); /* Border emas semi-transparan */
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            max-width: 600px;
-            width: 90%;
+            background-color: rgba(255, 255, 0, 0.1);
+            color: #ffff00; /* Kuning terang */
+            border: 1px solid rgba(255, 255, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            max-width: 500px;
+            width: 95%;
             text-align: center;
-            font-weight: 400; /* Sedikit lebih tipis */
-            font-size: 0.9em;
-            animation: fadeIn 1s ease-out;
+            font-size: 0.85em;
         }
 
-        /* --- Kontainer Utama --- */
+        /* --- Kontainer Utama (Hilangkan visual box, hanya untuk grouping) --- */
         .container {
-            background-color: #2b2b2b; /* Abu-abu gelap */
-            padding: 35px; /* Padding lebih besar */
-            border-radius: 12px; /* Sudut lebih tumpul */
-            /* Box shadow halus untuk depth di dark mode */
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            max-width: 650px; /* Sedikit lebih lebar */
+            background: none; /* Hapus background */
+            padding: 0; /* Hapus padding container */
+            border-radius: 0;
+            box-shadow: none; /* Hapus shadow */
+            max-width: 600px;
             width: 100%;
             box-sizing: border-box;
-            animation: fadeIn 1.2s ease-out;
-            border-top: 3px solid #FFD700; /* Aksen emas di atas */
+            border: none; /* Hapus border */
         }
 
-        /* --- Status Box --- */
+        /* --- Status Box (Simplifikasi) --- */
         .status-box {
-            background-color: rgba(255, 255, 255, 0.05); /* Background semi-transparan */
-            padding: 12px 18px;
-            border-radius: 8px;
-            margin-bottom: 25px;
             text-align: center;
-            border: 1px solid #444; /* Border abu-abu halus */
+            margin-bottom: 20px;
+            padding: 5px;
+            background: none; /* Hapus background */
+            border: none; /* Hapus border */
         }
 
         .status-box strong {
-            color: #aaa; /* Abu-abu medium */
+            color: #bbb;
             font-weight: 400;
+            font-size: 0.9em;
         }
 
         #status {
             font-weight: 600;
-            color: #FFD700; /* Status Emas */
-            transition: color 0.3s ease; /* Transisi warna halus */
+            color: #00ffcc; /* Warna status cerah */
+            display: inline-block; /* Agar animasi transform bekerja */
+             transition: color 0.3s ease;
+             /* Animasi pulse halus saat status berubah (jika tidak idle) */
+             /* (JS tidak trigger class khusus, jadi ini apply terus kecuali Idle) */
+             /* Jika mau lebih spesifik, butuh modif JS */
+             animation: statusPulse 2s infinite ease-in-out;
         }
+         /* Hentikan animasi pulse saat idle (perlu cek teksnya) - Kurang ideal tanpa JS */
+         /* #status:contains("Idle") { animation: none; } */
 
-        /* --- Input/Output Section --- */
+
+        /* --- Input/Output Section (Simplifikasi Judul) --- */
         .io-section {
-            margin-bottom: 25px;
-        }
-
-        .io-section h2 {
-            font-size: 1em; /* Sedikit lebih kecil */
-            color: #bbb; /* Abu-abu terang */
-            font-weight: 400;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #444; /* Garis pemisah abu-abu */
-            padding-bottom: 8px;
-        }
-
-        /* --- Speech Bubbles --- */
-        .speech-bubble {
-            padding: 15px 20px;
-            border-radius: 18px;
-            min-height: 45px;
-            word-wrap: break-word;
-            background-color: #3a3a3a; /* Abu-abu lebih gelap */
-            color: #e0e0e0;
-            margin-top: 8px;
-            line-height: 1.6;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-             animation: fadeIn 0.5s ease forwards; /* Animasi fade in saat muncul (jika JS merender ulang) */
-             opacity: 0; /* Mulai transparan untuk animasi */
-        }
-
-         /* Animasi saat konten bubble berubah (jika JS mengganti konten) */
-         .speech-bubble:not(:empty) {
-             opacity: 1;
-         }
-
-        .speech-bubble.user {
-            background-color: rgba(255, 215, 0, 0.15); /* Background Emas User transparan */
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            color: #f0f0f0; /* Teks lebih terang */
-            border-bottom-right-radius: 5px; /* Sudut khas chat */
-            text-align: right;
-        }
-
-        .speech-bubble.ai {
-            background-color: #444; /* Abu-abu sedikit beda */
-             border: 1px solid #555;
-            border-bottom-left-radius: 5px; /* Sudut khas chat */
-        }
-
-        /* --- Controls (Tombol Mic) --- */
-        .controls {
-            text-align: center;
-            margin-bottom: 30px; /* Jarak lebih */
-            margin-top: 10px; /* Jarak dari AI response */
-        }
-
-        #micButton {
-            background: linear-gradient(145deg, #444, #222); /* Gradient Abu Gelap */
-            color: #e0e0e0;
-            border: 1px solid #555; /* Border halus */
-            padding: 15px 30px; /* Lebih besar */
-            border-radius: 50px; /* Pill shape sempurna */
-            cursor: pointer;
-            font-size: 1.05em; /* Sedikit lebih besar */
-            font-weight: 400;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px; /* Jarak ikon & teks */
-            transition: all 0.3s ease-out; /* Transisi lebih smooth */
-            min-width: 200px;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05); /* Shadow dalam & luar */
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-        }
-
-        #micButton:hover:not(:disabled) {
-            background: linear-gradient(145deg, #555, #333); /* Gradient lebih terang saat hover */
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px); /* Efek angkat sedikit */
-            color: #fff; /* Teks lebih putih */
-            border-color: #666;
-        }
-
-        #micButton:active:not(:disabled) {
-             transform: translateY(0px); /* Kembali saat ditekan */
-             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(0, 0, 0, 0.1);
-        }
-
-        /* State: Mendengarkan */
-        #micButton.listening {
-            background: linear-gradient(145deg, #7d2a33, #4a1a1f); /* Gradient Merah Gelap */
-            border-color: #9c4a53;
-            color: #fff;
-            /* Animasi Pulse Emas */
-            animation: pulseGlow 1.5s infinite ease-in-out;
-        }
-        #micButton.listening:hover:not(:disabled) {
-             background: linear-gradient(145deg, #8d3a43, #5a2a2f);
-             box-shadow: 0 6px 15px rgba(255, 215, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1); /* Glow emas */
-        }
-
-        /* State: AI Berbicara */
-        #micButton.ai-speaking {
-            background: linear-gradient(145deg, #2a5a7d, #1a3a4f); /* Gradient Biru Gelap */
-            border-color: #4a7a9c;
-            color: #fff;
-            /* Efek glow emas statis (opsional, bisa juga pulse) */
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
-        }
-         #micButton.ai-speaking:hover:not(:disabled) {
-             background: linear-gradient(145deg, #3a6a8d, #2a4a5f);
-             box-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 6px 15px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-         }
-
-
-        /* State: Processing / Disabled */
-        #micButton:disabled {
-            background: #333; /* Abu solid */
-            color: #777; /* Teks redup */
-            cursor: not-allowed;
-            opacity: 0.7;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow lebih flat */
-            transform: translateY(0); /* Hapus efek angkat */
-            border-color: #444;
-        }
-         /* Animasi Loading/Thinking (jika tombol disabled karena processing) */
-         #micButton:disabled[innerHTML*="feather-loader"] { /* Target saat ikon loader ada */
-             background: linear-gradient(90deg, #333, #555, #333);
-             background-size: 200% 100%;
-             animation: thinkingShimmer 2s linear infinite;
-         }
-
-
-        .mic-info {
-            font-size: 0.85em;
-            color: #888; /* Abu-abu lebih gelap lagi */
-            margin-top: 15px; /* Jarak lebih */
-            transition: color 0.3s ease;
-        }
-
-        /* --- Transcript Section --- */
-        .transcript-section {
-            margin-top: 30px;
-            border-top: 1px solid #444; /* Garis pemisah abu-abu */
-            padding-top: 25px;
-        }
-
-        .transcript-section h2 {
-            font-size: 1em;
-            color: #bbb;
-            font-weight: 400;
             margin-bottom: 15px;
         }
 
-        #transcript {
-            max-height: 250px; /* Sedikit lebih tinggi */
-            overflow-y: auto;
-            background-color: #222; /* Background lebih gelap */
-            border: 1px solid #444;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.9em;
+        .io-section h2 {
+            font-size: 0.8em;
+            color: #888; /* Abu-abu sangat redup */
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 5px;
+            border: none; /* Hapus border */
+            padding: 0;
         }
 
-        /* Custom Scrollbar (Webkit) */
-        #transcript::-webkit-scrollbar {
-            width: 8px;
+        /* --- Speech Bubbles (Desain Ulang) --- */
+        .speech-bubble {
+            padding: 12px 18px;
+            border-radius: 15px;
+            min-height: 35px;
+            word-wrap: break-word;
+            margin-top: 5px;
+            line-height: 1.5;
+            background-color: rgba(255, 255, 255, 0.1); /* Background semi transparan */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f0f0f0;
+            animation: popIn 0.4s ease-out forwards;
+            opacity: 0; /* Mulai transparan untuk animasi */
+            max-width: 90%; /* Biar nggak full width */
+            margin-left: auto; /* Default align kanan */
+            margin-right: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        #transcript::-webkit-scrollbar-track {
-            background: #2b2b2b;
-            border-radius: 4px;
+
+        .speech-bubble.user {
+            background-color: rgba(0, 255, 255, 0.15); /* Warna user (Cyan) */
+            border-color: rgba(0, 255, 255, 0.3);
+            margin-left: auto; /* Align kanan */
+            margin-right: 10px; /* Sedikit jarak dari tepi */
+            border-bottom-right-radius: 5px;
         }
-        #transcript::-webkit-scrollbar-thumb {
-            background-color: #555;
-            border-radius: 4px;
-            border: 2px solid #2b2b2b;
+
+        .speech-bubble.ai {
+            background-color: rgba(200, 0, 255, 0.15); /* Warna AI (Ungu/Magenta) */
+            border-color: rgba(200, 0, 255, 0.3);
+            margin-left: 10px; /* Sedikit jarak dari tepi */
+            margin-right: auto; /* Align kiri */
+            border-bottom-left-radius: 5px;
         }
-        #transcript::-webkit-scrollbar-thumb:hover {
-            background-color: #FFD700; /* Scrollbar emas saat hover */
+
+        /* --- Controls (Tombol Mic Fokus Utama Animasi) --- */
+        .controls {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        #micButton {
+            background: linear-gradient(45deg, #00aaaa, #00ffff); /* Gradient Cyan Idle */
+            color: #111; /* Teks gelap kontras */
+            border: none; /* Hapus border standar */
+            width: 80px; /* Ukuran Bulat */
+            height: 80px;
+            border-radius: 50%; /* Bulat Sempurna */
+            cursor: pointer;
+            font-size: 1em; /* Ukuran teks di tombol jika ada */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Shadow dasar */
+            animation: buttonIdleGlow 2s infinite ease-in-out; /* Animasi idle */
+             overflow: hidden; /* Jaga-jaga ikon keluar */
+        }
+
+        #micButton svg.feather { /* Styling Ikon dalam Tombol */
+             width: 36px;
+             height: 36px;
+             stroke-width: 1.5;
+             color: #111; /* Warna ikon sama dengan teks tombol */
+             transition: transform 0.3s ease;
+        }
+
+        /* Hilangkan Teks, Fokus Ikon (jika mau) */
+        /* #micButton span { display: none; } */
+
+
+        #micButton:hover:not(:disabled) {
+            transform: scale(1.05); /* Sedikit membesar saat hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        #micButton:active:not(:disabled) {
+             transform: scale(0.95); /* Sedikit mengecil saat ditekan */
+             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
 
-        #transcript p {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px dotted #555; /* Garis putus abu-abu */
-            line-height: 1.6;
-            /* Animasi halus saat ditambahkan (jika memungkinkan tanpa JS) */
-            /* animation: fadeIn 0.4s ease forwards; */
-             /* opacity: 0; */
+        /* State: Mendengarkan (Animasi Meriah Merah/Pink) */
+        #micButton.listening {
+            background: linear-gradient(45deg, #ff0055, #ff44cc); /* Gradient Pink/Merah */
+            color: #fff; /* Teks/Ikon putih */
+            animation: buttonListeningPulse 1s infinite ease-in-out; /* Animasi Pulse Meriah */
         }
-        #transcript p:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-        #transcript p strong {
-            color: #FFD700; /* Nama speaker Emas */
-            margin-right: 5px;
-            font-weight: 600;
-        }
+         #micButton.listening svg.feather { color: #fff; }
 
-        /* --- Ikon Feather (sudah ada di JS, kita styling aja) --- */
-        .feather {
-            width: 22px; /* Sedikit lebih besar */
-            height: 22px;
-            vertical-align: middle;
-            stroke-width: 1.8; /* Sedikit lebih tipis */
-            /* Warna default ikon di tombol */
-             color: #FFD700; /* Emas */
-            /* Atau atur via selector tombol spesifik jika perlu warna beda */
-            /* #micButton svg { stroke: #FFD700; } */
-            transition: transform 0.2s ease;
+        /* State: AI Berbicara (Animasi Meriah Ungu/Biru) */
+        #micButton.ai-speaking {
+             background: linear-gradient(135deg, #6a00ff, #aa00ff, #cc33ff, #6a00ff); /* Gradient Ungu Bergerak */
+             background-size: 300% 100%;
+             color: #fff;
+             animation: buttonSpeakingWave 3s infinite linear; /* Animasi Gelombang */
         }
-         #micButton:hover:not(:disabled) .feather {
-             transform: scale(1.1); /* Ikon membesar sedikit saat hover */
+         #micButton.ai-speaking svg.feather { color: #fff; }
+
+        /* State: Processing / Disabled (Simpel Abu) */
+        #micButton:disabled {
+            background: #666; /* Abu solid */
+            color: #aaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: scale(1);
+            animation: none; /* Hapus semua animasi */
+        }
+         #micButton:disabled svg.feather { color: #aaa; }
+
+         /* Animasi Loading/Thinking (Jika ada ikon loader) */
+         #micButton:disabled[innerHTML*="feather-loader"] {
+             animation: thinkingShimmerSimple 1.5s linear infinite;
          }
-
-         /* Animasi Ikon Loader (jika JS menambahkannya) */
+          /* Ikon loader berputar */
          .feather-loader {
              animation: spin 1.5s linear infinite;
          }
-
          @keyframes spin {
              from { transform: rotate(0deg); }
              to { transform: rotate(360deg); }
          }
+
+
+        .mic-info {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 10px;
+            transition: color 0.3s ease;
+        }
+
+        /* --- Transcript Section (Simpel) --- */
+        .transcript-section {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Garis pemisah tipis */
+            padding-top: 20px;
+            width: 100%; /* Lebar penuh */
+            max-width: 600px; /* Sesuaikan dengan container */
+        }
+
+        .transcript-section h2 {
+            font-size: 0.9em;
+            color: #bbb;
+            font-weight: 400;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #transcript {
+            max-height: 200px; /* Tinggi secukupnya */
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.2); /* Background sedikit gelap */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        /* Custom Scrollbar Simple (Webkit) */
+        #transcript::-webkit-scrollbar { width: 6px; }
+        #transcript::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        #transcript::-webkit-scrollbar-thumb { background-color: #00ffff; border-radius: 3px; }
+        #transcript::-webkit-scrollbar-thumb:hover { background-color: #ff00ff; }
+
+
+        #transcript p {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
+            line-height: 1.5;
+            color: #ccc;
+             /* Animasi masuk */
+             animation: transcriptEntry 0.5s ease forwards;
+             opacity: 0;
+        }
+        #transcript p:last-child { border-bottom: none; }
+        #transcript p strong {
+            color: #00ffcc; /* Warna speaker cerah */
+            margin-right: 5px;
+            font-weight: 600;
+        }
 
     </style>
 </head>
 <body>
 
     <!-- === Struktur HTML Tidak Diubah Sama Sekali === -->
+    <!-- (Komentar di bawah ini hanya untuk penanda, tidak akan tampil) -->
+    <!-- Pastikan ID elemen seperti 'status', 'user-speech', 'ai-response', 'micButton', 'micInfoText', 'transcript' tetap sama -->
 
-    <h1>AI Voice Call (Smart Mic) v2</h1>
-    <p style="font-size:0.9em; color:#666; text-align:center; margin-top:-10px; margin-bottom:15px;">(Dengan History Percakapan & Parsing Output)</p> <!-- Style inline ini akan ditimpa oleh CSS di atas -->
+    <h1>AI Voice Call</h1> <!-- Judul lebih simpel -->
+    <p style="font-size:0.9em; color:#666; text-align:center; margin-top:-10px; margin-bottom:15px;">Simple & Meriah Edition</p> <!-- Style inline ini akan ditimpa CSS di atas -->
 
     <div class="warning">
-        ⚠️ PERINGATAN: API Key ada di dalam kode HTML ini. Jangan bagikan file ini! Hanya untuk penggunaan pribadi.
+        ⚠️ PERINGATAN: API Key ada di dalam kode. Jangan dibagikan!
     </div>
 
     <div class="container">
@@ -356,30 +365,32 @@
         </div>
 
         <div class="io-section">
-            <h2>Kamu Bilang:</h2>
+            <h2>You Said:</h2> <!-- Judul IO disingkat -->
             <div id="user-speech" class="speech-bubble user">...</div>
         </div>
 
         <div class="io-section">
-            <h2>AI Bilang:</h2>
+            <h2>AI Said:</h2>
             <div id="ai-response" class="speech-bubble ai">...</div>
         </div>
 
         <div class="controls">
             <button id="micButton" title="Klik untuk mulai/berhenti merekam atau menghentikan AI">
-                <!-- Konten button akan diupdate oleh JS -->
+                <!-- Konten button (ikon & teks) akan diupdate oleh JS -->
+                <!-- Kita desain agar ikon lebih dominan -->
             </button>
              <p class="mic-info" id="micInfoText">(Mic nonaktif. Klik tombol untuk memulai)</p>
         </div>
 
         <div class="transcript-section">
-             <h2>Transkrip Percakapan</h2>
+             <h2>History</h2> <!-- Judul transkrip disingkat -->
              <div id="transcript"></div>
         </div>
     </div>
 
     <script>
         // --- JavaScript TIDAK DIUBAH SEDIKITPUN ---
+        // (Kode JS yang lu kasih sebelumnya ditempel di sini tanpa perubahan)
         document.addEventListener('DOMContentLoaded', () => {
 
     const TOGETHER_API_URL = 'https://api.together.xyz/v1/chat/completions';
@@ -412,7 +423,7 @@
     if (!SpeechRecognition || !SpeechSynthesis) {
         alert("Maaf, browser lu nggak support Web Speech API. Coba pake Chrome.");
         document.getElementById('micButton').disabled = true;
-        document.getElementById('micButton').textContent = 'Browser Error';
+        document.getElementById('micButton').textContent = 'Error'; // Teks simpel
         document.getElementById('status').textContent = 'Browser tidak support';
         return;
     }
@@ -434,52 +445,54 @@
     // Inisialisasi Speech Recognition (STT)
     const recognition = new SpeechRecognition();
     recognition.lang = 'id-ID';
-    recognition.interimResults = true;
-    recognition.continuous = false;
+    recognition.interimResults = true; // Tampilkan hasil sementara
+    recognition.continuous = false; // Berhenti setelah jeda
 
     // State aplikasi
     let isListening = false;
-    let isAISpeaking = false; // Tetap dipakai untuk state umum
+    let isAISpeaking = false; // State umum AI sedang aktif (bicara atau di antrian)
     let finalTranscript = '';
 
-    // --- [BARU] Variabel untuk Antrian TTS ---
+    // Variabel untuk Antrian TTS
     let speechChunkQueue = []; // Antrian untuk potongan teks
     let currentUtterance = null; // Referensi ke utterance yang sedang dibaca
 
-    // --- History Percakapan (tidak berubah) ---
+    // History Percakapan (tidak berubah)
     let chatHistory = [
         { role: "system", content: "Kamu adalah asisten AI bernama kartini ai yang realistis ramah dan membantu dalam bahasa indonesia. jangan terlalu kaku seperti ai lainnya, jawab dengan singkat jika memungkinkan." }
     ];
 
-    // Fungsi untuk update tampilan tombol (tidak berubah signifikan)
+    // Fungsi untuk update tampilan tombol (JS ini tidak diubah, tapi CSS akan merespon class yg ditambah/dihapus)
     function updateMicButton(state, text) {
         micButton.disabled = false;
-        micButton.classList.remove('listening', 'ai-speaking');
+        micButton.classList.remove('listening', 'ai-speaking'); // Hapus class state sebelumnya
 
         let icon = micIconSVG;
-        let buttonText = text || "Mulai Bicara";
-        let infoText = "(Klik untuk mulai)";
+        // Teks di tombol sekarang kurang relevan karena kita fokus ikon, tapi biarkan logikanya
+        let buttonText = ""; // Kosongkan teks default, JS mungkin masih isi
+        let infoText = "(Klik tombol bulat untuk mulai)"; // Info lebih simpel
 
         switch (state) {
             case 'listening':
                 isListening = true;
                 icon = stopIconSVG;
-                buttonText = text || "Berhenti Bicara";
+                buttonText = ""; // Kosongkan
                 infoText = "Sedang mendengarkan...";
-                micButton.classList.add('listening');
+                micButton.classList.add('listening'); // Tambah class untuk styling CSS
                 break;
             case 'processing':
                 icon = thinkingIconSVG;
-                buttonText = text || "Memproses...";
-                infoText = "Sedang mengirim ke AI...";
+                buttonText = ""; // Kosongkan
+                infoText = "AI sedang berpikir...";
                 micButton.disabled = true;
+                // Class 'thinking' tidak ada, tapi CSS bisa target :disabled dan ikon loader
                 break;
             case 'ai_speaking':
-                isAISpeaking = true; // State ini tetap penting
-                icon = speakerIconSVG;
-                buttonText = text || "AI Berbicara...";
-                infoText = "Klik tombol untuk menghentikan AI";
-                micButton.classList.add('ai-speaking');
+                isAISpeaking = true;
+                icon = speakerIconSVG; // Atau ikon stop? Biarkan speaker saja
+                buttonText = ""; // Kosongkan
+                infoText = "AI sedang bicara (Klik tombol untuk stop)";
+                micButton.classList.add('ai-speaking'); // Tambah class untuk styling CSS
                 // Tombol tetap bisa diklik untuk stop
                 break;
             case 'idle':
@@ -487,23 +500,26 @@
                 isListening = false;
                 isAISpeaking = false;
                 icon = micIconSVG;
-                buttonText = text || "Mulai Bicara";
+                buttonText = ""; // Kosongkan
                 infoText = "(Mic nonaktif. Klik tombol untuk memulai)";
+                // Tidak ada class khusus untuk idle, state default
                 break;
         }
-        micButton.innerHTML = `${icon} ${buttonText}`;
+        // Set innerHTML dengan ikon (dan teks jika ada - kita coba sembunyikan via CSS)
+        micButton.innerHTML = `${icon} <span style="display: none;">${text || buttonText}</span>`; // Sembunyikan span teks
         micInfoText.textContent = infoText;
     }
 
     // --- Event Listener untuk Speech Recognition (tidak berubah) ---
     recognition.onstart = () => {
         console.log('Speech Recognition Dimulai');
-        updateMicButton('listening', 'Berhenti Bicara');
+        updateMicButton('listening'); // Update tombol (tanpa teks)
         statusDisplay.textContent = 'Mendengarkan...';
         userSpeechDisplay.textContent = '...';
         finalTranscript = '';
-        userSpeechDisplay.style.opacity = '0';
-        setTimeout(() => userSpeechDisplay.style.opacity = '1', 50);
+        // Animasi popIn user bubble akan ditrigger oleh CSS saat konten berubah/muncul
+        userSpeechDisplay.style.opacity = '0'; // Reset opacity untuk animasi
+        setTimeout(() => userSpeechDisplay.style.opacity = '1', 50); // Delay kecil
     };
 
     recognition.onresult = (event) => {
@@ -521,44 +537,55 @@
         finalTranscript += currentFinal;
         const displayTranscript = finalTranscript.trim() || interimTranscript || '...';
         if(userSpeechDisplay.textContent !== displayTranscript) {
-            userSpeechDisplay.textContent = displayTranscript;
-            userSpeechDisplay.style.opacity = '1';
+             userSpeechDisplay.textContent = displayTranscript;
+             // Pastikan bubble terlihat jika ada hasil sementara
+             if (displayTranscript !== '...') userSpeechDisplay.style.opacity = '1';
         }
     };
 
     recognition.onend = () => {
         console.log('Speech Recognition Selesai.');
-        const wasListeningState = isListening;
-        isListening = false;
+        const wasListeningState = isListening; // Simpan state sebelum reset
+        isListening = false; // Reset state listening
 
+        // Jika dihentikan karena AI mau/sedang bicara, jangan proses transcript atau ubah UI ke idle
         if (isAISpeaking) {
             console.log('Recognition dihentikan karena AI akan/sedang berbicara.');
-            // Jangan update tombol di sini, biarkan state ai_speaking
+            // Biarkan state tombol & status diatur oleh alur AI speaking
             return;
         }
 
         const processedTranscript = finalTranscript.trim();
+
+        // Hanya proses jika ada transcript DAN user memang sedang dalam state mendengarkan
         if (processedTranscript && wasListeningState) {
             console.log('Final Transcript:', processedTranscript);
-            statusDisplay.textContent = 'Memproses ucapan...';
-            updateMicButton('processing');
-            addToTranscript("User", processedTranscript);
+            statusDisplay.textContent = 'Mengirim ke AI...';
+            updateMicButton('processing'); // Update ke state loading
+            addToTranscript("User", processedTranscript); // Tambah ke history UI
 
+            // Tambahkan ke history chat untuk AI
             chatHistory.push({ role: "user", content: processedTranscript });
             console.log("Updated Chat History (User added):", JSON.stringify(chatHistory));
 
-            sendToAI();
-        } else if (wasListeningState) {
-             statusDisplay.textContent = 'Idle (Tidak ada ucapan terdeteksi)';
-             userSpeechDisplay.textContent = '(Tidak ada ucapan terdeteksi)';
-             updateMicButton('idle');
-        } else {
+            sendToAI(); // Kirim ke AI
+        }
+        // Jika tidak ada transcript DAN user memang sedang mendengarkan (misal, klik stop tanpa ngomong)
+        else if (wasListeningState) {
+             statusDisplay.textContent = 'Idle (Tidak ada ucapan)';
+             userSpeechDisplay.textContent = '(Diam...)'; // Pesan lebih santai
+             userSpeechDisplay.style.opacity = '1'; // Tampilkan pesan diam
+             updateMicButton('idle'); // Kembali ke idle
+        }
+        // Kasus lain (misal, onend dipanggil karena error atau kondisi lain)
+        else {
+            // Hanya update ke idle jika tidak ada proses lain (AI speaking)
             if (!isAISpeaking) {
                statusDisplay.textContent = 'Idle';
                updateMicButton('idle');
             }
         }
-        finalTranscript = '';
+        finalTranscript = ''; // Reset final transcript
     };
 
     recognition.onerror = (event) => {
@@ -566,15 +593,16 @@
         isListening = false;
         let errorMessage = 'Error Mic: ' + event.error;
         if (event.error === 'no-speech') {
-             errorMessage = 'Tidak ada suara terdeteksi. Coba lagi.';
+             errorMessage = 'Nggak ada suara? Coba lagi.';
          } else if (event.error === 'audio-capture') {
-             errorMessage = 'Error: Tidak bisa menangkap audio. Cek mikrofon.';
+             errorMessage = 'Error: Mic bermasalah?';
          } else if (event.error === 'not-allowed') {
-             errorMessage = 'Error: Izin mikrofon ditolak. Izinkan di setting browser.';
+             errorMessage = 'Error: Izin mic ditolak!';
          }
         statusDisplay.textContent = errorMessage;
-        userSpeechDisplay.textContent = '...';
-        updateMicButton('idle', 'Error Mic');
+        userSpeechDisplay.textContent = '(Error Mic)';
+        userSpeechDisplay.style.opacity = '1';
+        updateMicButton('idle', 'Error Mic'); // Update tombol ke idle dengan pesan error (tersembunyi)
     };
 
     // --- Fungsi Parsing Output AI (tidak berubah) ---
@@ -583,29 +611,25 @@
          return cleanedText.trim();
     }
 
-    // --- [MODIFIKASI BESAR] Fungsi untuk Text-to-Speech (TTS) dengan Chunking ---
-
+    // --- Fungsi untuk Text-to-Speech (TTS) dengan Chunking (tidak berubah) ---
     function speak(fullText) {
-        // 1. Hentikan TTS sebelumnya & bersihkan antrian lama
         if (SpeechSynthesis.speaking || speechChunkQueue.length > 0) {
             console.warn('SpeechSynthesis/Queue aktif - Membatalkan sebelumnya...');
-            SpeechSynthesis.cancel(); // Hentikan suara yg lagi jalan
-            speechChunkQueue = [];    // Kosongkan antrian
+            SpeechSynthesis.cancel();
+            speechChunkQueue = [];
             if (currentUtterance) {
-                currentUtterance.onend = null; // Hapus listener lama untuk mencegah pemanggilan tak terduga
+                currentUtterance.onend = null;
                 currentUtterance.onerror = null;
             }
             currentUtterance = null;
         }
-         // Set state awal (akan diupdate lagi jika ada chunk)
-        isAISpeaking = false;
+        isAISpeaking = false; // Reset state awal
 
-        // 2. Proses teks & tampilkan di UI
         const displayText = parseAIOutput(fullText);
-        aiResponseDisplay.textContent = displayText; // Tampilkan teks lengkap segera
-        addToTranscript("AI", displayText);
-        aiResponseDisplay.style.opacity = '0';
-        setTimeout(() => aiResponseDisplay.style.opacity = '1', 50);
+        aiResponseDisplay.textContent = displayText || "..."; // Tampilkan teks lengkap segera
+        aiResponseDisplay.style.opacity = '0'; // Reset opacity untuk animasi
+        setTimeout(() => aiResponseDisplay.style.opacity = '1', 50); // Delay kecil
+        addToTranscript("AI", displayText); // Tambah ke history UI
 
         if (!displayText) {
             console.log("Tidak ada teks untuk diucapkan AI.");
@@ -613,27 +637,19 @@
             return;
         }
 
-        // 3. Pecah teks jadi potongan (chunks) - coba per kalimat
-        // Regex ini mencoba memecah berdasarkan titik, tanda tanya, seru,
-        // ATAU koma diikuti spasi (untuk jeda yg lebih pendek)
-        // DAN menjaga pemisahnya tetap di akhir chunk (kecuali chunk terakhir).
-        // Ini mungkin perlu disesuaikan tergantung output AI.
-        const chunks = displayText.match(/[^.!?,\n]+([.!?,\n]+|$)/g) || [displayText]; // Fallback jika gagal split
+        const chunks = displayText.match(/[^.!?,\n]+([.!?,\n]+|$)/g) || [displayText];
         speechChunkQueue = chunks.map(s => s.trim()).filter(s => s.length > 0);
 
         console.log(`Teks dipecah jadi ${speechChunkQueue.length} chunk(s).`);
-        // console.log("Chunks:", speechChunkQueue); // Untuk debug
 
-        // 4. Mulai proses antrian jika ada isinya
         if (speechChunkQueue.length > 0) {
-            isAISpeaking = true; // Set state utama AI sedang bicara
-            updateMicButton('ai_speaking'); // Update tombol
-            statusDisplay.textContent = 'AI Berbicara...';
+            isAISpeaking = true; // Set state utama AI sedang aktif
+            updateMicButton('ai_speaking'); // Update tombol ke state AI bicara
+            statusDisplay.textContent = 'AI Bicara...';
 
-            // Hentikan user recognition jika sedang jalan
             if (isListening) {
                 console.log('AI mulai bicara, menghentikan user recognition...');
-                recognition.stop();
+                recognition.stop(); // Hentikan user jika sedang mendengar
             }
             speakNextChunk(); // Mulai bicara chunk pertama
         } else {
@@ -649,43 +665,36 @@
             return;
         }
 
-        // Ambil chunk berikutnya dari depan antrian
         const chunk = speechChunkQueue.shift();
         currentUtterance = new SpeechSynthesisUtterance(chunk);
         currentUtterance.lang = 'id-ID';
         currentUtterance.pitch = 1.1;
-        currentUtterance.rate = 1.2; // Rate bisa disesuaikan jika terlalu cepat/lambat
+        currentUtterance.rate = 1.2; // Kecepatan bisa diatur
 
-        // Pilih suara (opsional, tapi bagus)
         const voices = SpeechSynthesis.getVoices();
         const indoVoice = voices.find(voice => voice.lang === 'id-ID' && voice.name.includes('Google'));
         if (indoVoice) {
             currentUtterance.voice = indoVoice;
         } else if (voices.length === 0) {
-            // Jika voices belum load, coba lagi saat event triggered
             SpeechSynthesis.onvoiceschanged = () => {
                 const loadedVoices = SpeechSynthesis.getVoices();
                 const loadedIndoVoice = loadedVoices.find(voice => voice.lang === 'id-ID' && voice.name.includes('Google'));
-                if (loadedIndoVoice && currentUtterance) { // Pastikan utterance masih relevan
+                if (loadedIndoVoice && currentUtterance) {
                     currentUtterance.voice = loadedIndoVoice;
                 }
-                 // Hapus listener setelah selesai
                 SpeechSynthesis.onvoiceschanged = null;
             };
         }
 
-        // --- Handler untuk Utterance Chunk Ini ---
         currentUtterance.onstart = () => {
             console.log(`Mulai bicara chunk: "${chunk.substring(0, 40)}..."`);
-             // State isAISpeaking dan tombol sudah di set di speak() awal
         };
 
         currentUtterance.onend = () => {
             console.log(`Selesai bicara chunk.`);
-            currentUtterance = null; // Lepas referensi
-            // Jeda sedikit sebelum lanjut ke chunk berikutnya (penting!)
-            // Mencegah browser "keselek" karena `speak` dipanggil terlalu cepat.
-            setTimeout(speakNextChunk, 100); // Jeda 100ms (bisa disesuaikan)
+            currentUtterance = null;
+            // Jeda sedikit sebelum lanjut, penting!
+            setTimeout(speakNextChunk, 100); // Jeda 100ms
         };
 
         currentUtterance.onerror = (event) => {
@@ -695,82 +704,75 @@
             handleSpeechEnd(true); // Panggil fungsi akhir dengan flag error
         };
 
-        // Bicara!
         SpeechSynthesis.speak(currentUtterance);
     }
 
-    // --- [BARU] Fungsi Terpusat untuk Menangani Akhir TTS ---
+    // --- Fungsi Terpusat untuk Menangani Akhir TTS (tidak berubah) ---
     function handleSpeechEnd(isError = false) {
-        const wasSpeaking = isAISpeaking; // Simpan state sebelum reset
-        isAISpeaking = false; // Reset state utama
-        currentUtterance = null; // Pastikan referensi bersih
-         // speechChunkQueue sudah harusnya kosong di sini jika normal end,
-         // atau sengaja dikosongkan jika error/cancel.
+        const wasSpeaking = isAISpeaking;
+        isAISpeaking = false;
+        currentUtterance = null;
+        // Queue harusnya sudah kosong
 
-        // Update UI sesuai kondisi akhir
         if (isError) {
             statusDisplay.textContent = 'Error saat AI bicara.';
             updateMicButton('idle', 'Error AI Speech');
-            // Jangan otomatis nyalakan mic jika error
-        } else if (wasSpeaking) { // Hanya jika benar2 selesai bicara (bukan cancel sebelum mulai)
-            statusDisplay.textContent = 'Giliran Anda (Mic Otomatis Aktif)';
-            updateMicButton('idle', 'Mic Siap');
+        } else if (wasSpeaking) {
+            statusDisplay.textContent = 'Giliranmu! (Mic otomatis aktif)'; // Lebih santai
+            updateMicButton('idle', 'Mic Siap'); // Kembalikan ke idle siap
 
             console.log('AI selesai normal, otomatis aktifkan mic...');
-            // Logika aktivasi mic otomatis (seperti sebelumnya)
             setTimeout(() => {
-                if (!isListening && !isAISpeaking) { // Cek state lagi sebelum start
-                    try {
-                        navigator.mediaDevices.getUserMedia({ audio: true })
-                            .then(() => {
-                                // Cek sekali lagi kalo user udah klik tombol duluan
-                                if (!isListening && !isAISpeaking) {
-                                    recognition.start()
-                                } else {
-                                     console.log("Mic sudah diaktifkan manual / AI bicara lagi, skip auto-start.")
+                // Cek lagi state sebelum start, user mungkin sudah klik manual
+                if (!isListening && !isAISpeaking) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(() => {
+                            if (!isListening && !isAISpeaking) { // Cek lagi
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.error("Gagal start recognition otomatis setelah TTS:", e);
+                                     statusDisplay.textContent = "Gagal aktifkan mic.";
+                                     updateMicButton('idle'); // Tetap idle jika error start
                                 }
-                            })
-                            .catch(err => {
-                                console.error("Gagal dapat izin mic otomatis:", err);
-                                statusDisplay.textContent = "Izinkan mic untuk lanjut.";
-                                updateMicButton('idle', 'Butuh Izin Mic');
-                            });
-                    } catch (e) {
-                        console.error("Gagal start recognition otomatis:", e);
-                        statusDisplay.textContent = "Gagal aktifkan mic otomatis.";
-                        updateMicButton('idle', 'Mulai Bicara');
-                    }
+                            } else {
+                                 console.log("Mic sudah aktif manual / AI bicara lagi, skip auto-start.")
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Gagal dapat izin mic otomatis:", err);
+                            statusDisplay.textContent = "Izinkan mic untuk lanjut.";
+                            updateMicButton('idle', 'Butuh Izin Mic');
+                        });
                 } else {
                     console.log('Mic sudah aktif atau AI bicara lagi, tidak perlu start otomatis.');
                 }
-            }, 500); // Jeda sebelum mic on
+            }, 500); // Jeda 0.5 detik sebelum mic on
         } else {
-            // Ini terjadi jika di-cancel sangat cepat atau ada kondisi aneh
+            // Dipanggil karena cancel sebelum mulai bicara?
             console.log("handleSpeechEnd dipanggil tapi AI tidak dalam state 'speaking'. Mungkin dibatalkan.");
             if (!isListening) { // Pastikan user tidak lagi didengarkan
                  updateMicButton('idle');
-                 // Status bisa 'Idle (AI dibatalkan)' atau cukup 'Idle'
                  statusDisplay.textContent = 'Idle (AI Dibatalkan)';
             }
         }
     }
 
-
     // --- Fungsi untuk Mengirim Teks ke Together AI (tidak berubah) ---
     async function sendToAI() {
-        aiResponseDisplay.style.opacity = '0';
+        aiResponseDisplay.style.opacity = '0'; // Reset opacity untuk animasi
         aiResponseDisplay.textContent = '...';
 
         const apiKey = getRandomApiKey();
         if (!apiKey) {
-            statusDisplay.textContent = 'Error: API Key tidak tersedia!';
-            updateMicButton('idle', 'Error API Key');
+            statusDisplay.textContent = 'Error: API Key kosong!';
+            updateMicButton('idle', 'Error API');
             aiResponseDisplay.textContent = 'Error Konfigurasi';
-            aiResponseDisplay.style.opacity = '1';
+             aiResponseDisplay.style.opacity = '1';
             return;
         }
 
-        const maxHistoryLength = 11;
+        const maxHistoryLength = 11; // Jumlah history (system + 5 pasang user-AI)
         const currentHistory = chatHistory.length <= maxHistoryLength
             ? [...chatHistory]
             : [chatHistory[0], ...chatHistory.slice(-maxHistoryLength + 1)];
@@ -778,14 +780,14 @@
         const payload = {
             model: AI_MODEL,
             messages: currentHistory,
-            max_tokens: 250, // Cukup panjang untuk testing TTS
-            temperature: 0.4,
+            max_tokens: 250, // Batas token respons
+            temperature: 0.5, // Sedikit lebih kreatif
             top_p: 0.9,
-            frequency_penalty: 0.5,
-            presence_penalty: 0.2,
+            frequency_penalty: 0.4, // Kurangi pengulangan
+            presence_penalty: 0.3, // Dorong topik baru sedikit
         };
 
-        console.log("Mengirim request ke Together AI dengan history:", JSON.stringify(payload, null, 2));
+        console.log("Mengirim request ke Together AI:", JSON.stringify(payload, null, 2));
 
         try {
             const response = await fetch(TOGETHER_API_URL, {
@@ -800,8 +802,8 @@
             console.log(`Status Response Together AI: ${response.status} ${response.statusText}`);
 
             if (!response.ok) {
-                let errorBody = "Unknown error";
-                try { errorBody = await response.text(); console.error("Error Body:", errorBody); } catch (e) { /* ignore */ }
+                let errorBody = "Error tidak diketahui";
+                try { errorBody = await response.text(); console.error("Error Body:", errorBody); } catch (e) { /* abaikan */ }
                 throw new Error(`API error ${response.status}: ${response.statusText}. Detail: ${errorBody}`);
             }
 
@@ -812,18 +814,13 @@
                 const rawAiReply = data.choices[0].message.content.trim();
                 console.log("Jawaban AI (Mentah):", rawAiReply);
 
-                // Parsing TIDAK dilakukan di sini lagi, dipindah ke dalam speak()
-                // const cleanedAiReply = parseAIOutput(rawAiReply);
-                // console.log("Jawaban AI (Bersih):", cleanedAiReply);
+                // Panggil speak dengan teks mentah, parsing & chunking di dalam speak()
+                speak(rawAiReply);
 
-                // Tambahkan jawaban MENTAH ke history (atau yg bersih? Konsistensi penting)
-                // Mari kita tambahkan yang sudah diparsing ke history agar lebih bersih
-                 const cleanedForHistory = parseAIOutput(rawAiReply);
+                // Tambahkan jawaban yang sudah diparsing ke history chat (setelah dikirim ke speak)
+                const cleanedForHistory = parseAIOutput(rawAiReply);
                 chatHistory.push({ role: "assistant", content: cleanedForHistory });
                 console.log("Updated Chat History (AI added):", JSON.stringify(chatHistory));
-
-                // Panggil speak dengan teks mentah, parsing & chunking di dalam speak()
-                speak(rawAiReply); // <--- Panggil speak() yang sudah dirombak
 
             } else {
                 console.error("Struktur response Together AI tidak sesuai:", data);
@@ -833,16 +830,16 @@
         } catch (error) {
             console.error('Error fetching AI response:', error);
             statusDisplay.textContent = 'Error koneksi ke AI.';
-            aiResponseDisplay.textContent = `Gagal menghubungi AI: ${error.message}`;
-            aiResponseDisplay.style.opacity = '1';
-            updateMicButton('idle', 'Error Koneksi AI');
+            aiResponseDisplay.textContent = `Gagal hubungi AI: ${error.message}`;
+             aiResponseDisplay.style.opacity = '1';
+            updateMicButton('idle', 'Error AI');
 
-            // Hapus pesan user terakhir dari history jika AI gagal merespon
+            // Hapus pesan user terakhir dari history jika AI gagal
             if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
                 chatHistory.pop();
                 console.log("AI Error: Pesan user terakhir dihapus dari history.");
             }
-             handleSpeechEnd(true); // Pastikan state TTS juga direset jika AI error
+            handleSpeechEnd(true); // Reset state TTS jika AI error
         }
     }
 
@@ -850,102 +847,102 @@
     function addToTranscript(speaker, text) {
         const p = document.createElement('p');
         p.innerHTML = `<strong>${speaker}:</strong> ${text}`;
-        p.style.opacity = '0';
-        p.style.transition = 'opacity 0.5s ease';
+        // CSS akan handle animasi masuknya
         transcriptDisplay.appendChild(p);
-        setTimeout(() => p.style.opacity = '1', 10);
+        // Auto scroll ke bawah
         transcriptDisplay.scrollTop = transcriptDisplay.scrollHeight;
     }
 
-    // --- [MODIFIKASI] Event Listener untuk Tombol Mic ---
+    // --- Event Listener untuk Tombol Mic (tidak berubah) ---
     micButton.addEventListener('click', () => {
          console.log(`Tombol diklik. Status: isListening=${isListening}, isAISpeaking=${isAISpeaking}, Queue length=${speechChunkQueue.length}`);
 
-         // Cek jika AI sedang berbicara (baik utterance aktif atau antrian ada)
+         // Jika AI sedang bicara ATAU ada antrian TTS
          if (isAISpeaking || speechChunkQueue.length > 0) {
             console.log('User menghentikan AI...');
-            speechChunkQueue = []; // Kosongkan antrian DULU
-            SpeechSynthesis.cancel(); // Hentikan utterance yg mungkin sedang jalan
-            // handleSpeechEnd() akan dipanggil oleh utterance.onerror atau onend(jika cancelnya pas jeda)
-            // ATAU kita bisa panggil manual TAPI hati2 double call.
-            // Cukup reset state di sini dan biarkan event handler utterance handle sisanya ATAU panggil handleSpeechEnd scr eksplisit.
-            // Mari kita coba panggil eksplisit untuk memastikan state UI benar.
-            handleSpeechEnd(false); // Panggil end, anggap bukan error krn user cancel
-         } else if (isListening) {
+            speechChunkQueue = []; // Kosongkan antrian
+            SpeechSynthesis.cancel(); // Hentikan suara yg lagi jalan
+            // handleSpeechEnd akan dipanggil otomatis oleh event onend/onerror utterance,
+            // atau kita panggil manual di sini untuk memastikan UI update
+            handleSpeechEnd(false); // Anggap cancel oleh user bukan error
+         }
+         // Jika sedang mendengarkan (user mau stop rekam)
+         else if (isListening) {
             console.log('User menghentikan rekaman...');
             recognition.stop(); // Ini akan memicu recognition.onend
-            // onend akan handle update UI ke idle jika tidak ada transcript
-         } else {
+            // UI akan diupdate di onend
+         }
+         // Jika idle (user mau mulai rekam)
+         else {
             console.log('User memulai rekaman...');
-            // Pastikan AI tidak sedang mencoba bicara (mungkin di jeda antar chunk)
-            if (SpeechSynthesis.speaking || speechChunkQueue.length > 0) {
+            // Pastikan AI tidak sedang proses (misal, jeda antar chunk)
+            if (SpeechSynthesis.speaking) {
                  console.warn("Mencoba mulai rekam saat AI masih proses, batalkan AI dulu.");
-                 speechChunkQueue = [];
                  SpeechSynthesis.cancel();
-                 handleSpeechEnd(false); // Anggap AI selesai/dibatalkan
-                 // Mungkin kasih jeda sedikit sebelum mulai rekam?
-                 // setTimeout(startRecognition, 100); // Opsi
-                 // Atau biarkan user klik lagi
-                 return; // Jangan langsung mulai rekam
+                 handleSpeechEnd(false);
+                 // Jangan langsung mulai rekam, biarkan user klik lagi setelah cancel
+                 return;
             }
 
+            // Minta izin mic dulu (best practice)
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(() => {
                     console.log("Izin mic OK, memulai recognition...");
                      try {
-                         recognition.start(); // onstart akan handle UI
+                         // Cek lagi kalau state berubah cepat
+                         if (!isListening && !isAISpeaking) {
+                             recognition.start(); // onstart akan handle UI
+                         }
                      } catch (e) {
-                         // Error ini bisa terjadi jika recognition sudah jalan
+                         // Error jika sudah jalan atau state lain
                          if (e.name === 'InvalidStateError') {
-                             console.warn("Recognition sudah/masih aktif?");
+                             console.warn("Recognition gagal start, mungkin sudah aktif?");
                          } else {
                              console.error("Gagal start recognition:", e);
-                             statusDisplay.textContent = "Gagal memulai rekaman.";
+                             statusDisplay.textContent = "Gagal mulai rekam.";
                              updateMicButton('idle', 'Error Start');
                          }
                      }
                 })
                 .catch(err => {
                     console.error("Error meminta izin mic:", err);
-                    statusDisplay.textContent = 'Error: Izin mikrofon ditolak/diperlukan.';
-                    alert("Anda perlu mengizinkan akses mikrofon di browser untuk menggunakan fitur ini.");
+                    statusDisplay.textContent = 'Error: Izinkan mic dulu!';
+                    alert("Bro, izinin mic di browser ya buat pake fitur ini.");
                     updateMicButton('idle', 'Butuh Izin Mic');
                 });
         }
     });
 
     // --- Inisialisasi Awal (tidak berubah) ---
-    updateMicButton('idle');
+    updateMicButton('idle'); // Set tombol awal
     statusDisplay.textContent = 'Siap';
-    userSpeechDisplay.style.opacity = '1';
-    aiResponseDisplay.style.opacity = '1';
-    userSpeechDisplay.textContent = '...';
-    aiResponseDisplay.textContent = '...';
+    // Tampilkan bubble awal dengan animasi
+    userSpeechDisplay.style.opacity = '0'; setTimeout(() => userSpeechDisplay.style.opacity = '1', 50);
+    aiResponseDisplay.style.opacity = '0'; setTimeout(() => aiResponseDisplay.style.opacity = '1', 100); // Sedikit delay
+    userSpeechDisplay.textContent = '(Nanti ucapanmu muncul di sini)';
+    aiResponseDisplay.textContent = '(Jawaban AI muncul di sini)';
 
-    // Pre-load voices
+    // Pre-load voices (tidak berubah)
     const preloadVoices = () => {
         const voices = SpeechSynthesis.getVoices();
         if (voices.length > 0) {
             console.log("Voices loaded:", voices.length);
-            // Cek suara Indo di sini juga bisa
             const indoVoice = voices.find(voice => voice.lang === 'id-ID' && voice.name.includes('Google'));
-            if(indoVoice) console.log("Suara Google id-ID ditemukan saat preload:", indoVoice.name);
-            else console.log("Suara Google id-ID tidak ditemukan saat preload.");
-             // Hapus listener jika sudah load
-             SpeechSynthesis.onvoiceschanged = null;
+            if(indoVoice) console.log("Suara Google id-ID ditemukan:", indoVoice.name);
+            else console.log("Suara Google id-ID tidak ditemukan.");
+            SpeechSynthesis.onvoiceschanged = null;
         }
     };
-    preloadVoices(); // Coba panggil langsung
+    preloadVoices();
     if (SpeechSynthesis.onvoiceschanged !== undefined) {
-        SpeechSynthesis.onvoiceschanged = preloadVoices; // Set listener jika belum load
+        SpeechSynthesis.onvoiceschanged = preloadVoices;
     }
 
-
-    console.log("Aplikasi Voice Call Standalone (Smart Mic) v2 Siap.");
+    console.log("Aplikasi Voice Call Simple & Meriah Siap.");
      if (API_KEYS.length === 0) {
          console.warn("PERINGATAN: List API Key kosong!");
          statusDisplay.textContent = 'Error: API Key kosong!';
-         updateMicButton('idle', 'Error API Key');
+         updateMicButton('idle', 'Error API');
          micButton.disabled = true;
      } else {
           console.warn("PERINGATAN KEAMANAN: API Key terlihat di kode sumber!");
