@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Call (Luxury Black & Gold)</title>
+    <title>AI Voice Call (Luxury Professional)</title>
     <style>
-        /* --- [REVISI LUXURY v1] CSS Black, Gray, White, Gold --- */
+        /* --- [REVISI LUXURY v2] CSS Professional & Subtle Animations --- */
 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-        /* --- Keyframes Animasi Luxury --- */
-        @keyframes subtleBackgroundShift {
+        /* --- Keyframes Animasi Lebih Halus & Profesional --- */
+        @keyframes luxuryBackgroundShift { /* Animasi background sangat halus */
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -21,59 +21,56 @@
             to { opacity: 1; }
         }
 
-        @keyframes popInElegant {
-            0% { opacity: 0; transform: translateY(15px) scale(0.95); }
+        @keyframes popInSubtle { /* Lebih lembut dari popInElegant */
+            0% { opacity: 0; transform: translateY(8px) scale(0.98); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        @keyframes buttonIdleGlow {
+        @keyframes buttonIdleSubtleGlow { /* Glow lebih halus, tanpa scale pulse */
             0%, 100% {
-                box-shadow: 0 0 8px rgba(218, 165, 32, 0.3), /* Gold Shadow */
-                            0 0 15px rgba(218, 165, 32, 0.2),
-                            inset 0 0 5px rgba(255, 255, 255, 0.05);
-                transform: scale(1);
+                box-shadow: 0 0 6px rgba(218, 165, 32, 0.25), /* Gold Shadow tipis */
+                            0 0 12px rgba(218, 165, 32, 0.15),
+                            inset 0 0 4px rgba(255, 255, 255, 0.03);
             }
             50% {
-                box-shadow: 0 0 15px rgba(218, 165, 32, 0.5), /* Brighter Gold */
-                            0 0 25px rgba(218, 165, 32, 0.3),
-                            inset 0 0 8px rgba(255, 255, 255, 0.1);
-                transform: scale(1.02); /* Subtle pulse */
+                box-shadow: 0 0 10px rgba(218, 165, 32, 0.35), /* Sedikit lebih terang */
+                            0 0 18px rgba(218, 165, 32, 0.2),
+                            inset 0 0 6px rgba(255, 255, 255, 0.06);
             }
         }
 
-        @keyframes buttonListeningPulse {
+        @keyframes listeningBorderPulse { /* Pulse di border & soft glow */
             0%, 100% {
-                box-shadow: 0 0 12px rgba(255, 255, 255, 0.6), /* White Glow */
-                            0 0 25px rgba(255, 255, 255, 0.4),
-                            0 0 0 0px rgba(218, 165, 32, 0.5); /* Gold Ring */
-                transform: scale(1);
+                border-color: rgba(255, 215, 0, 0.7); /* Gold lebih redup */
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), /* White Glow halus */
+                            0 0 18px rgba(255, 255, 255, 0.3);
             }
             50% {
-                box-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                            0 0 40px rgba(255, 255, 255, 0.5),
-                            0 0 0 5px rgba(218, 165, 32, 0.3); /* Expanding Gold Ring */
-                transform: scale(1.05);
+                border-color: rgba(255, 236, 139, 1); /* Gold lebih terang */
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.7),
+                            0 0 25px rgba(255, 255, 255, 0.4);
             }
         }
 
-        @keyframes buttonSpeakingShimmer {
-             0% { background-position: -100% 0; }
-             100% { background-position: 100% 0; }
-        }
+        @keyframes speakingGoldPulseBg { /* Animasi background radial halus */
+             0% { background-position: center center; opacity: 0.8; }
+             50% { background-position: top center; opacity: 1; } /* Gerak sedikit & lebih terang */
+             100% { background-position: center center; opacity: 0.8; }
+         }
 
-        @keyframes thinkingFadePulse {
+        @keyframes thinkingFadePulse { /* Tetap sama, sudah cukup subtle */
             0%, 100% { background-color: #444; opacity: 0.7; }
-            50% { background-color: #666; opacity: 0.9; }
+            50% { background-color: #555; opacity: 0.85; } /* Sedikit lebih jelas */
         }
 
-        @keyframes transcriptSlideUpFadeIn {
+        @keyframes transcriptSlideUpFadeIn { /* Tetap sama */
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes statusPulseGold {
-             0%, 100% { text-shadow: 0 0 4px rgba(218, 165, 32, 0.5); }
-             50% { text-shadow: 0 0 8px rgba(218, 165, 32, 0.8); }
+        @keyframes statusPulseGoldSoft { /* Glow lebih lembut */
+             0%, 100% { text-shadow: 0 0 3px rgba(218, 165, 32, 0.4); }
+             50% { text-shadow: 0 0 6px rgba(218, 165, 32, 0.6); }
         }
 
         /* --- Base Style --- */
@@ -82,29 +79,31 @@
         }
         body {
             font-family: 'Poppins', sans-serif;
-            /* Background Elegan */
-            background: radial-gradient(ellipse at bottom, #222 0%, #111 100%);
-            color: #e0e0e0; /* Off-white default text */
+            /* Background gradasi hitam/abu sangat gelap, animasi halus */
+            background: linear-gradient(270deg, #101010, #181818, #101010);
+            background-size: 400% 400%;
+            animation: luxuryBackgroundShift 35s ease infinite; /* Animasi background lebih lambat */
+            color: #e5e5e5; /* Sedikit lebih terang dari off-white */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 20px 15px;
+            padding: 25px 15px; /* Sedikit lebih banyak padding atas/bawah */
             min-height: 100vh;
             box-sizing: border-box;
-            line-height: 1.6;
+            line-height: 1.7; /* Sedikit lebih lega */
             overflow-x: hidden;
-            animation: fadeInSmooth 1s ease-out; /* Fade in body */
+            animation: fadeInSmooth 1.2s ease-out;
         }
 
-        /* --- Kontainer Utama (Clean) --- */
+        /* --- Kontainer Utama (Tetap Clean) --- */
         .container {
             background: none;
             padding: 0;
             border: none;
             box-shadow: none;
-            max-width: 500px; /* Sedikit lebih ramping */
+            max-width: 520px; /* Sedikit lebih lebar */
             width: 100%;
             box-sizing: border-box;
             display: flex;
@@ -115,256 +114,236 @@
         /* --- Status Box (Minimalis & Elegan) --- */
         .status-box {
             text-align: center;
-            margin-bottom: 10px; /* Sedikit jarak ke tombol */
+            margin-bottom: 15px; /* Jarak lebih pas ke tombol */
             padding: 0;
             background: none;
             border: none;
             font-size: 0.9em;
-            height: 20px; /* Beri sedikit ruang */
+            height: 22px;
         }
         .status-box strong { display: none; }
         #status {
             font-weight: 400;
             color: #DAA520; /* Gold */
             display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px; /* Lebih rounded */
-            background-color: rgba(255, 255, 255, 0.05); /* Background tipis */
-            border: 1px solid rgba(218, 165, 32, 0.2); /* Border gold tipis */
-            transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
-            animation: statusPulseGold 2.5s infinite ease-in-out; /* Animasi glow gold */
+            padding: 3px 12px; /* Padding disesuaikan */
+            border-radius: 15px; /* Lebih rounded lagi */
+            background-color: rgba(255, 255, 255, 0.04); /* Background makin tipis */
+            border: 1px solid rgba(218, 165, 32, 0.15); /* Border gold sangat tipis */
+            transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, text-shadow 0.4s ease;
+            animation: statusPulseGoldSoft 3s infinite ease-in-out; /* Animasi glow gold lebih lembut */
         }
 
-        /* --- Input/Output Section (Clean & Spaced) --- */
+        /* --- Input/Output Section --- */
         .io-section {
-            margin-bottom: 12px; /* Jarak antar bubble */
+            margin-bottom: 14px;
             width: 100%;
             display: flex;
             flex-direction: column;
         }
         .io-section h2 { display: none; }
 
-        /* --- Speech Bubbles (Dark Gray & Elegant) --- */
+        /* --- Speech Bubbles (Darker & Smoother Animation) --- */
         .speech-bubble {
-            padding: 12px 18px; /* Sedikit lebih besar */
-            border-radius: 20px; /* Lebih rounded */
+            padding: 13px 20px; /* Sedikit lebih padding */
+            border-radius: 22px; /* Makin rounded */
             word-wrap: break-word;
-            margin-top: 6px;
-            line-height: 1.5;
-            background-color: #2a2a2a; /* Dark gray */
-            border: 1px solid #444; /* Border abu-abu lebih gelap */
-            color: #e0e0e0;
-            animation: popInElegant 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; /* Animasi muncul elegan */
+            margin-top: 7px;
+            line-height: 1.6;
+            background-color: #222; /* Lebih gelap sedikit */
+            border: 1px solid #383838; /* Border lebih gelap */
+            color: #e5e5e5;
+            animation: popInSubtle 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; /* Animasi muncul lebih halus */
             opacity: 0;
-            max-width: 88%; /* Maks lebar bubble */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            max-width: 90%; /* Bisa sedikit lebih lebar */
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35); /* Shadow lebih dalam */
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.4s ease; /* Transisi lebih lambat */
         }
          .speech-bubble:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-             border-color: #DAA520; /* Border gold on hover */
+             transform: translateY(-4px); /* Hover naik sedikit lebih banyak */
+             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45);
+             border-color: rgba(218, 165, 32, 0.6); /* Border gold lebih jelas saat hover */
+             background-color: #282828; /* Background sedikit terang saat hover */
          }
 
         .speech-bubble.user {
-            background-color: #333; /* Sedikit lebih terang dari AI */
-            border-color: #555;
+            background-color: #262626;
+            border-color: #404040;
             margin-left: auto;
             margin-right: 5px;
-            border-bottom-right-radius: 8px; /* Penyesuaian sudut */
+            border-bottom-right-radius: 8px;
         }
 
         .speech-bubble.ai {
-            background-color: #252525; /* Sedikit lebih gelap */
-            border-color: #404040;
+            background-color: #202020; /* Paling gelap */
+            border-color: #353535;
             margin-left: 5px;
             margin-right: auto;
-            border-bottom-left-radius: 8px; /* Penyesuaian sudut */
+            border-bottom-left-radius: 8px;
         }
-        /* Sedikit animasi nafas saat bubble muncul */
-        .speech-bubble:not(:empty) {
-            /* Bisa ditambahkan keyframe 'subtleBreath' jika diinginkan */
-            /* animation: popInElegant 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, subtleBreath 3s infinite ease-in-out 0.6s; */
-        }
-        /* @keyframes subtleBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.005); } } */
 
-
-        /* --- Controls (Tombol Emas Fokus Utama) --- */
+        /* --- Controls (Tombol Fokus Utama, Tanpa Teks Info) --- */
         .controls {
             text-align: center;
-            margin: 20px 0; /* Jarak lebih jelas */
-            position: relative;
+            margin: 25px 0 15px 0; /* Margin atas lebih, bawah dikurangi krn teks hilang */
+            position: relative; /* Tetap jaga relative jika perlu elemen absolut lain nanti */
         }
 
         #micButton {
-            background: #1a1a1a; /* Background hitam/abu sangat gelap */
+            background: #181818; /* Background lebih gelap */
             color: #DAA520; /* Gold Icon */
-            border: 2px solid #DAA520; /* Border Gold */
-            width: 80px; /* Sedikit lebih besar */
+            border: 2px solid rgba(218, 165, 32, 0.6); /* Border Gold lebih subtle */
+            width: 80px;
             height: 80px;
             border-radius: 50%;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease-out;
-            /* Animasi idle glow gold */
-            animation: buttonIdleGlow 3s infinite ease-in-out;
-            overflow: hidden; /* Penting untuk shimmer effect */
-            position: relative; /* Untuk pseudo element shimmer */
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transisi lebih smooth */
+            animation: buttonIdleSubtleGlow 4s infinite ease-in-out; /* Animasi idle lebih halus & lambat */
+            overflow: hidden;
+            position: relative;
         }
 
         #micButton svg.feather {
-             width: 35px; /* Ikon lebih besar */
+             width: 35px;
              height: 35px;
-             stroke-width: 1.5; /* Lebih tipis, elegan */
+             stroke-width: 1.6; /* Sedikit lebih tebal dari v1, tapi tetap elegan */
              color: inherit;
-             transition: transform 0.3s ease;
-             z-index: 2; /* Di atas shimmer */
-        }
-
-        #micButton::before { /* Efek shimmer (opsional, bisa diaktifkan di hover) */
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; /* Mulai dari kiri */
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent); /* Gold shimmer */
-            transition: none; /* Agar tidak transisi saat hover */
-            z-index: 1;
+             transition: transform 0.4s ease;
+             z-index: 2;
         }
 
         #micButton:hover:not(:disabled) {
-            transform: scale(1.1);
+            transform: scale(1.12); /* Scale hover sedikit lebih besar */
             border-color: #FFEC8B; /* Gold lebih terang */
-            box-shadow: 0 0 20px rgba(218, 165, 32, 0.7), 0 0 35px rgba(218, 165, 32, 0.5);
-            animation-play-state: paused; /* Jeda animasi idle */
+            box-shadow: 0 0 18px rgba(218, 165, 32, 0.5), 0 0 30px rgba(218, 165, 32, 0.3); /* Glow hover lebih kuat tapi tetap soft */
+            animation-play-state: paused;
         }
-        /* Aktifkan shimmer saat hover */
-         /*#micButton:hover:not(:disabled)::before {
-             left: 100%;
-             transition: left 0.7s ease-out;
-         }*/
 
         #micButton:active:not(:disabled) {
-             transform: scale(1.02); /* Tekan halus */
-             filter: brightness(0.9);
+             transform: scale(1.05); /* Tekan lebih halus */
+             filter: brightness(0.85);
         }
 
-        /* State: Mendengarkan (Pulse Putih & Gold Ring) */
+        /* State: Mendengarkan (Pulse Border & Soft Glow) */
         #micButton.listening {
-            background: #222; /* Sedikit terang */
-            border-color: #FFD700; /* Gold terang */
-            color: #fff; /* Ikon putih */
-            animation: buttonListeningPulse 1s infinite ease-in-out;
+            background: #202020;
+            color: #fff;
+            /* Pulse di border & soft glow putih */
+            animation: listeningBorderPulse 1.5s infinite ease-in-out;
+            /* Hapus animasi idle glow bawaan */
+            animation-name: listeningBorderPulse;
         }
-         #micButton.listening svg.feather { color: #fff; }
+         #micButton.listening svg.feather { color: #fff; transform: scale(1.05); } /* Icon sedikit membesar saat listening */
 
-        /* State: AI Berbicara (Gold Shimmer Background) */
+        /* State: AI Berbicara (Background Pulse Gold Halus) */
         #micButton.ai-speaking {
-            background: linear-gradient(90deg, #1a1a1a 0%, #4d3a0a 50%, #1a1a1a 100%); /* Gradient Hitam-Gold-Hitam */
-            background-size: 300% 100%; /* Untuk animasi */
-            color: #fff; /* Ikon putih */
-            border-color: #DAA520; /* Tetap gold */
-            animation: buttonSpeakingShimmer 2s linear infinite;
-            box-shadow: 0 0 15px rgba(218, 165, 32, 0.6);
+            /* Gradient radial dari gold ke hitam, animasi posisi */
+            background: radial-gradient(circle at center, rgba(77, 58, 10, 0.8) 0%, #181818 70%);
+            background-size: 250% 250%; /* Ukuran lebih besar untuk pulse halus */
+            color: #fff;
+            border-color: rgba(218, 165, 32, 0.7); /* Border gold tetap ada */
+            animation: speakingGoldPulseBg 4s infinite ease-in-out; /* Animasi pulse background */
+            box-shadow: 0 0 12px rgba(218, 165, 32, 0.4); /* Glow gold tipis */
+            /* Hapus animasi idle glow bawaan */
+             animation-name: speakingGoldPulseBg;
         }
          #micButton.ai-speaking svg.feather { color: #fff; }
 
         /* State: Processing / Disabled (Grayed Out Elegan) */
         #micButton:disabled {
-            background: #333;
-            border-color: #555;
-            color: #888; /* Ikon abu */
+            background: #303030; /* Lebih gelap dari v1 */
+            border-color: #444;
+            color: #777; /* Abu lebih gelap */
             cursor: not-allowed;
             transform: scale(1);
-            opacity: 0.6;
-            animation: thinkingFadePulse 1.5s linear infinite; /* Pulse abu halus */
+            opacity: 0.5; /* Lebih redup */
+            animation: thinkingFadePulse 1.8s linear infinite; /* Sedikit lebih lambat */
+             /* Hapus animasi idle glow bawaan */
+             animation-name: thinkingFadePulse;
         }
-         #micButton:disabled svg.feather { color: #888; }
+         #micButton:disabled svg.feather { color: #777; }
          .feather-loader { animation: spin 1.5s linear infinite; }
          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+        /* Teks info dihapus */
+        /* .mic-info { display: none; } */
 
-        .mic-info {
-            font-size: 0.8em;
-            color: #888; /* Abu-abu redup */
-            margin-top: 12px; /* Sedikit lebih jauh */
-            transition: color 0.3s ease, opacity 0.3s ease;
-             position: absolute;
-             bottom: -25px; /* Posisi di bawah tombol */
-             left: 50%;
-             transform: translateX(-50%);
-             width: 250px; /* Lebar agar cukup */
-             text-align: center;
-             opacity: 0.8;
-        }
-         #micButton:hover ~ .mic-info {
-             color: #bbb;
-             opacity: 1;
-         }
-
-        /* --- Transcript Section (Minimalis & Clean) --- */
+        /* --- Transcript Section (Lebih Profesional) --- */
         .transcript-section {
-            margin-top: 50px; /* Jarak cukup jauh */
-            border-top: 1px solid #333; /* Garis pemisah tipis */
-            padding-top: 20px;
+            margin-top: 40px; /* Jarak disesuaikan */
+            border-top: 1px solid #282828; /* Garis pemisah sangat tipis */
+            padding-top: 25px;
             width: 100%;
-            max-width: 480px; /* Lebih ramping */
-            opacity: 0.7; /* Default agak transparan */
-            transition: opacity 0.4s ease;
+            max-width: 500px; /* Konsisten dengan container */
+            opacity: 0.8; /* Default agak transparan, lebih jelas dari v1 */
+            transition: opacity 0.5s ease;
         }
          .transcript-section:hover {
              opacity: 1;
          }
 
         .transcript-section h2 {
-            font-size: 0.85em;
-            color: #999;
-            font-weight: 300;
-            margin-bottom: 10px;
+            font-size: 0.8em; /* Lebih kecil, profesional */
+            color: #888; /* Abu-abu netral */
+            font-weight: 400; /* Sedikit lebih tebal */
+            margin-bottom: 15px;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 1.5px; /* Spasi huruf */
+            letter-spacing: 2px; /* Spasi huruf lebih lebar */
         }
 
         #transcript {
-            max-height: 150px; /* Sedikit lebih tinggi */
+            max-height: 160px; /* Sedikit lebih tinggi lagi */
             overflow-y: auto;
-            background-color: rgba(0, 0, 0, 0.2); /* Background transparan gelap */
-            border: 1px solid #282828; /* Border sangat gelap */
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.85em;
+            background-color: rgba(0, 0, 0, 0.15); /* Background lebih gelap */
+            border: 1px solid #252525; /* Border lebih gelap */
+            padding: 12px 18px; /* Padding disesuaikan */
+            border-radius: 10px; /* Sudut lebih tegas */
+            font-size: 0.88em; /* Sedikit lebih besar */
         }
 
         /* Custom Scrollbar Luxury (Webkit) */
-        #transcript::-webkit-scrollbar { width: 6px; }
-        #transcript::-webkit-scrollbar-track { background: #222; border-radius: 3px; }
-        #transcript::-webkit-scrollbar-thumb { background-color: #DAA520; border-radius: 3px; opacity: 0.6; }
-        #transcript::-webkit-scrollbar-thumb:hover { background-color: #FFEC8B; opacity: 0.9;}
+        #transcript::-webkit-scrollbar { width: 5px; } /* Lebih tipis */
+        #transcript::-webkit-scrollbar-track { background: #1f1f1f; border-radius: 3px; }
+        #transcript::-webkit-scrollbar-thumb { background-color: rgba(218, 165, 32, 0.5); border-radius: 3px; }
+        #transcript::-webkit-scrollbar-thumb:hover { background-color: rgba(218, 165, 32, 0.8); }
 
         #transcript p {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Garis putus putih tipis */
-            line-height: 1.5;
-            color: #ccc; /* Teks abu terang */
-             /* Animasi masuk dari bawah */
-             animation: transcriptSlideUpFadeIn 0.7s ease forwards;
-             opacity: 0;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Garis pemisah lebih samar */
+            line-height: 1.6;
+            color: #ccc;
+            animation: transcriptSlideUpFadeIn 0.8s ease forwards; /* Animasi lebih lambat */
+            opacity: 0;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Transisi untuk hover */
+            border-radius: 4px; /* Sedikit radius untuk hover bg */
+            padding-left: 5px; /* Padding kiri untuk hover bg */
+             padding-right: 5px;
+        }
+        #transcript p:hover {
+            background-color: rgba(255, 255, 255, 0.04); /* Highlight background halus */
+            color: #e5e5e5; /* Teks sedikit lebih terang saat hover */
         }
         #transcript p:last-child { border-bottom: none; }
         #transcript p strong {
-            color: #DAA520; /* Speaker Emas */
-            margin-right: 5px;
+            color: #b8860b; /* DarkGoldenrod - Emas lebih tua/profesional */
+            margin-right: 6px;
             font-weight: 600;
+             transition: color 0.3s ease;
         }
+         #transcript p:hover strong {
+             color: #DAA520; /* Kembali ke gold terang saat hover */
+         }
 
     </style>
 </head>
 <body>
 
-    <!-- === Struktur HTML Disederhanakan (Sama seperti V2) === -->
+    <!-- === Struktur HTML (Sama, tapi p#micInfoText dihapus) === -->
 
     <div class="container">
         <!-- Status -->
@@ -372,12 +351,12 @@
             <span id="status">Ready</span>
         </div>
 
-        <!-- Tombol Mic -->
+        <!-- Tombol Mic (Tanpa Teks Info di bawahnya) -->
         <div class="controls">
             <button id="micButton" title="Click to start/stop recording or stop AI">
                 <!-- Icon akan diisi oleh JS -->
             </button>
-             <p class="mic-info" id="micInfoText">(Click the gold button to begin)</p>
+             <!-- <p class="mic-info" id="micInfoText">...</p> --> <!-- Dihapus -->
         </div>
 
         <!-- Bubble Chat -->
@@ -398,7 +377,7 @@
 
     <script>
         // --- JavaScript TIDAK DIUBAH SEDIKITPUN ---
-        // (Tempel kode JS yang sama persis seperti yang lu kasih sebelumnya di sini)
+        // (Tempel kode JS yang sama persis seperti sebelumnya di sini)
         document.addEventListener('DOMContentLoaded', () => {
 
             const TOGETHER_API_URL = 'https://api.together.xyz/v1/chat/completions';
@@ -431,7 +410,7 @@
             if (!SpeechRecognition || !SpeechSynthesis) {
                 alert("Maaf, browser lu nggak support Web Speech API. Coba pake Chrome.");
                 document.getElementById('micButton').disabled = true;
-                document.getElementById('micButton').textContent = 'X'; // Icon error simpel
+                document.getElementById('micButton').textContent = 'X';
                 document.getElementById('status').textContent = 'Browser Error';
                 return;
             }
@@ -442,7 +421,7 @@
             const userSpeechDisplay = document.getElementById('user-speech');
             const aiResponseDisplay = document.getElementById('ai-response');
             const transcriptDisplay = document.getElementById('transcript');
-            const micInfoText = document.getElementById('micInfoText');
+            // const micInfoText = document.getElementById('micInfoText'); // Tidak dipakai lagi
 
             // Ikon SVG (tetap sama, warna diatur CSS)
             const micIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mic"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`;
@@ -471,44 +450,43 @@
             ];
 
             // Fungsi untuk update tampilan tombol (JS TIDAK BERUBAH, hanya class yg di toggle)
-            function updateMicButton(state, text) {
+            function updateMicButton(state) { // Hapus parameter text
                 micButton.disabled = false;
-                micButton.classList.remove('listening', 'ai-speaking'); // Hapus class state
+                micButton.classList.remove('listening', 'ai-speaking');
 
                 let icon = micIconSVG;
-                let infoText = "(Click the gold button)"; // Info text baru
+                // let infoText = ""; // Info text tidak dipakai lagi
 
                 switch (state) {
                     case 'listening':
                         isListening = true;
                         icon = stopIconSVG;
-                        infoText = "Listening...";
-                        micButton.classList.add('listening'); // Tambah class listening
+                        // infoText = "Listening...";
+                        micButton.classList.add('listening');
                         break;
                     case 'processing':
                         icon = thinkingIconSVG;
-                        infoText = "AI is thinking...";
+                        // infoText = "AI is thinking...";
                         micButton.disabled = true;
-                        // Class disabled dihandle CSS via :disabled
                         break;
                     case 'ai_speaking':
                         isAISpeaking = true;
                         icon = speakerIconSVG;
-                        infoText = "AI Speaking (Click to stop)";
-                        micButton.classList.add('ai-speaking'); // Tambah class ai-speaking
+                        // infoText = "AI Speaking (Click to stop)";
+                        micButton.classList.add('ai-speaking');
                         break;
                     case 'idle':
                     default:
                         isListening = false;
                         isAISpeaking = false;
                         icon = micIconSVG;
-                        infoText = "(Click the gold button)";
-                        // Tidak ada class state tambahan
+                        // infoText = "(Click the gold button)";
                         break;
                 }
-                micButton.innerHTML = `${icon}`; // Set ikon
-                micInfoText.textContent = infoText; // Set info text di bawah tombol
-                // Atur warna status sesuai state (optional, bisa juga murni CSS)
+                micButton.innerHTML = `${icon}`;
+                // micInfoText.textContent = infoText; // Tidak diupdate lagi
+
+                // Atur warna status (tetap sama)
                 if(state === 'listening') statusDisplay.style.color = '#FFF';
                 else if(state === 'processing') statusDisplay.style.color = '#AAA';
                 else if(state === 'ai_speaking') statusDisplay.style.color = '#FFF';
@@ -522,7 +500,6 @@
                 statusDisplay.textContent = 'Listening...';
                 userSpeechDisplay.textContent = '...';
                 finalTranscript = '';
-                // Animasi fade-in bubble dikontrol CSS
                 userSpeechDisplay.style.opacity = '0';
                 setTimeout(() => userSpeechDisplay.style.opacity = '1', 50);
             };
@@ -590,10 +567,10 @@
                 else if (event.error === 'not-allowed') errorMessage = 'Mic permission denied!';
 
                 statusDisplay.textContent = errorMessage;
-                statusDisplay.style.color = '#FF6B6B'; // Merah untuk error
+                statusDisplay.style.color = '#FF6B6B';
                 userSpeechDisplay.textContent = '(Mic Err)';
                 userSpeechDisplay.style.opacity = '1';
-                updateMicButton('idle', 'Mic Error');
+                updateMicButton('idle'); // Hanya update state tanpa teks tambahan
             };
 
             // --- Fungsi Parsing Output AI (TIDAK BERUBAH) ---
@@ -617,7 +594,6 @@
 
                 const displayText = parseAIOutput(fullText);
                 aiResponseDisplay.textContent = displayText || "...";
-                 // Animasi fade-in bubble dikontrol CSS
                 aiResponseDisplay.style.opacity = '0';
                 setTimeout(() => aiResponseDisplay.style.opacity = '1', 50);
                 addToTranscript("AI", displayText);
@@ -687,18 +663,18 @@
             }
 
             // --- Fungsi Terpusat untuk Menangani Akhir TTS (TIDAK BERUBAH) ---
-            function handleSpeechEnd(isError = false) {
+             function handleSpeechEnd(isError = false) {
                 const wasSpeaking = isAISpeaking;
                 isAISpeaking = false;
                 currentUtterance = null;
 
                 if (isError) {
                     statusDisplay.textContent = 'AI Speech Error.';
-                    statusDisplay.style.color = '#FF6B6B'; // Merah error
-                    updateMicButton('idle', 'AI Error');
+                    statusDisplay.style.color = '#FF6B6B';
+                    updateMicButton('idle'); // Hanya update state
                 } else if (wasSpeaking) {
-                    statusDisplay.textContent = 'Your Turn!'; // Lebih singkat
-                    updateMicButton('idle', 'Mic Ready');
+                    statusDisplay.textContent = 'Your Turn!';
+                    updateMicButton('idle'); // Hanya update state
                     console.log('AI finished normally, auto-activating mic...');
                     setTimeout(() => {
                         if (!isListening && !isAISpeaking) {
@@ -716,8 +692,8 @@
                                 .catch(err => {
                                     console.error("Failed to get auto mic permission:", err);
                                     statusDisplay.textContent = "Allow mic to continue.";
-                                    statusDisplay.style.color = '#FFA500'; // Oranye warning
-                                    updateMicButton('idle', 'Need Mic Perm');
+                                    statusDisplay.style.color = '#FFA500';
+                                    updateMicButton('idle'); // Hanya update state
                                 });
                         } else console.log('Mic already active or AI speaking again, no auto-start needed.');
                     }, 500);
@@ -726,7 +702,7 @@
                     if (!isListening) {
                          updateMicButton('idle');
                          statusDisplay.textContent = 'AI Cancelled';
-                         statusDisplay.style.color = '#DAA520'; // Kembali gold
+                         statusDisplay.style.color = '#DAA520';
                     }
                 }
             }
@@ -739,7 +715,7 @@
                 if (!apiKey) {
                     statusDisplay.textContent = 'Error: No API Key!';
                     statusDisplay.style.color = '#FF6B6B';
-                    updateMicButton('idle', 'API Err');
+                    updateMicButton('idle'); // Update state
                     aiResponseDisplay.textContent = 'Config Error';
                     aiResponseDisplay.style.opacity = '1';
                     return;
@@ -775,7 +751,7 @@
                     statusDisplay.style.color = '#FF6B6B';
                     aiResponseDisplay.textContent = `AI fetch failed: ${error.message}`;
                     aiResponseDisplay.style.opacity = '1';
-                    updateMicButton('idle', 'AI Conn Err');
+                    updateMicButton('idle'); // Update state
                     if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
                         chatHistory.pop(); console.log("AI Error: Last user message removed from history.");
                     }
@@ -786,16 +762,14 @@
             // --- Fungsi Tambah ke Transkrip (TIDAK BERUBAH) ---
             function addToTranscript(speaker, text) {
                 const p = document.createElement('p');
-                // Potong teks jika terlalu panjang untuk transkrip
                 const shortText = text.length > 150 ? text.substring(0, 150) + "..." : text;
                 p.innerHTML = `<strong>${speaker}:</strong> ${shortText}`;
-                // Animasi masuk dikontrol CSS via #transcript p
                 transcriptDisplay.appendChild(p);
-                transcriptDisplay.scrollTop = transcriptDisplay.scrollHeight; // Auto scroll
+                transcriptDisplay.scrollTop = transcriptDisplay.scrollHeight;
             }
 
             // --- Event Listener untuk Tombol Mic (TIDAK BERUBAH) ---
-            micButton.addEventListener('click', () => {
+             micButton.addEventListener('click', () => {
                  console.log(`Mic Button Clicked. State: isListening=${isListening}, isAISpeaking=${isAISpeaking}, queueLength=${speechChunkQueue.length}`);
                  if (isAISpeaking || speechChunkQueue.length > 0) {
                     console.log('User stopping AI...');
@@ -820,7 +794,7 @@
                                      console.error("Failed to start recognition:", e);
                                      statusDisplay.textContent = "Rec start failed.";
                                      statusDisplay.style.color = '#FF6B6B';
-                                     updateMicButton('idle', 'Start Err');
+                                     updateMicButton('idle'); // Update state
                                     }
                              }
                         })
@@ -829,7 +803,7 @@
                             statusDisplay.textContent = 'Mic permission needed!';
                             statusDisplay.style.color = '#FFA500';
                             alert("Bro, please allow microphone access!");
-                            updateMicButton('idle', 'Need Mic');
+                            updateMicButton('idle'); // Update state
                         });
                 }
             });
@@ -837,10 +811,10 @@
             // --- Inisialisasi Awal (TIDAK BERUBAH, kecuali initial text/opacity) ---
             updateMicButton('idle');
             statusDisplay.textContent = 'Ready';
-            userSpeechDisplay.textContent = '(Your speech will appear here)'; // Placeholder baru
+            userSpeechDisplay.textContent = '(Your speech will appear here)';
             aiResponseDisplay.textContent = '(AI response will appear here)';
-            userSpeechDisplay.style.opacity = '0.5'; // Opacity awal bubble
-            aiResponseDisplay.style.opacity = '0.5';
+            userSpeechDisplay.style.opacity = '0.6'; // Opacity awal bubble lebih subtle
+            aiResponseDisplay.style.opacity = '0.6';
 
             // Pre-load voices (TIDAK BERUBAH)
             const preloadVoices = () => {
@@ -855,12 +829,13 @@
             preloadVoices();
             if (SpeechSynthesis.onvoiceschanged !== undefined) SpeechSynthesis.onvoiceschanged = preloadVoices;
 
-            console.log("AI Voice Call Luxury Edition Ready.");
+            console.log("AI Voice Call Luxury Professional Edition Ready.");
              if (API_KEYS.length === 0) {
                  console.warn("CRITICAL WARNING: API Key list is empty!");
                  statusDisplay.textContent = 'FATAL: No API Keys!';
                  statusDisplay.style.color = '#FF0000';
-                 updateMicButton('idle', 'FATAL'); micButton.disabled = true;
+                 updateMicButton('idle'); // Update state
+                 micButton.disabled = true;
              } else console.warn("SECURITY WARNING: API Keys are visible in the source code!");
 
         });
