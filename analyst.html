@@ -1,385 +1,298 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Exora Analyst</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Narrative Dashboard (Auto-Refresh)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .container {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        h2 {
-            color: #89b4fa;
-            margin-bottom: 20px;
-        }
-        input, button {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-        }
-        
-        button, .file-btn {
-            background-color: #313244;
-            color: #cdd6f4;
-            border: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            width: 200px;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-            display: inline-block;
-            text-align: center;
-            line-height: 1.5;
-            font-size: 16px;
-        }
-        button:hover, .file-btn:hover {
-            background-color: #89b4fa;
-            transform: scale(1.05);
-        }
-        #imagePreview {
-    display: none;
-    margin-top: 10px;
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.5); /* Mulai kecil */
-    opacity: 0; /* Mulai transparan */
-    z-index: 2;
-    animation: popup 0.8s ease-out forwards; /* Animasi aktif langsung */
-}
-
-/* Setelah gambar loaded */
-#imagePreview.show {
-    display: block; 
-    opacity: 1;
-}
-
-/* Animasi scale smooth */
-@keyframes popup {
-    0% {
-      
-        transform: translate(-50%, 350%) scale(0.5);
-        opacity: 0;
-    }
-
-    90% {
-        transform: translate(-50%, -48%) scale(0.99);
-        
-        opacity: 1;
-    }
-    
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-        
-        opacity: 1;
-    }
-}
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 3;
-            pointer-events: none;
-        }
-        #imageInput {
-            display: none;
-        }
-        #response {
-            white-space: pre-wrap;
-            background-color: #181825;
-            padding: 10px;
-            border-radius: 5px;
-            height: 100%;
-            width: 100%;
-            overflow: auto;
-            word-wrap: break-word;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 4;
-            display: none;
-            opacity: 0;
-            animation: typing 1s ease 0s 1 normal forwards;
-        }
-        @keyframes typing {
-	0% {
-		opacity: 0;
-		transform: translate(-50%, 150%);
-	}
-
-	100% {
-		opacity: 1;
-		transform: translate(-50%, -50%);
-	}
-}
-        @media (max-width: 600px) {
-            .file-btn, input, button {
-                width: 80%;
-                padding: 8px;
-            }
-        }
+        /* ... (Keep all CSS styles from the previous version) ... */
+        :root{--bg-color:#121212;--card-bg:#1e1e1e;--text-color:#e0e0e0;--text-muted:#8c8c8c;--border-color:#333;--positive-color:#26a69a;--negative-color:#ef5350;--accent-color:#007bff;--font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;--base-spacing:1rem;--block-gap:6px}html,body{height:100%;margin:0}body{font-family:var(--font-family);background-color:var(--bg-color);color:var(--text-color);padding:var(--base-spacing);line-height:1.5;display:flex;flex-direction:column;min-height:100vh;box-sizing:border-box}h1{color:var(--text-color);text-align:center;margin-bottom:var(--base-spacing);font-weight:300;flex-shrink:0}#loading{font-style:italic;color:var(--accent-color);margin:var(--base-spacing) auto;padding:calc(var(--base-spacing) * .8);background-color:var(--card-bg);border-left:4px solid var(--accent-color);border-radius:4px;text-align:center;max-width:600px;flex-shrink:0}.error-container{margin:var(--base-spacing) auto;padding:var(--base-spacing);background-color:rgba(239,83,80,.1);border:1px solid var(--negative-color);border-radius:4px;max-width:800px;flex-shrink:0}.error-container h3{margin-top:0;color:var(--negative-color);font-size:1.1em}.error-container ul{padding-left:20px;margin-bottom:0;color:var(--negative-color);font-size:.9em;list-style:none}.error-container li::before{content:"❌ ";margin-right:5px}#mainContent{display:flex;flex-grow:1;gap:var(--block-gap);width:100%;padding:var(--block-gap);box-sizing:border-box;background-color:var(--bg-color)}#dominantBlockContainer{flex:0 0 65%;display:flex;min-width:300px}#rightColumnContainer{flex:1 1 35%;display:flex;flex-direction:column;gap:var(--block-gap);min-width:250px}#otherNarrativesList{display:flex;flex-direction:column;gap:var(--block-gap);flex-grow:1}#sidePanelsContainer{display:flex;flex-direction:column;gap:var(--block-gap);flex-shrink:0}.narrative-block{background-color:var(--card-bg);border:1px solid var(--border-color);padding:calc(var(--base-spacing) * .7);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;transition:border-color .2s ease-out;flex-grow:1;box-sizing:border-box;position:relative}.narrative-block:hover{border-color:#777}#dominantBlockContainer .narrative-block{width:100%}#otherNarrativesList .narrative-block{min-height:90px}.narrative-header{font-size:1em;font-weight:500;color:var(--text-color);margin-bottom:4px;word-break:break-word}.narrative-change{font-size:1.3em;font-weight:700;margin-bottom:6px}#dominantBlockContainer .narrative-change{font-size:1.8em}.narrative-details{font-size:.8em;color:var(--text-muted);margin-top:5px;line-height:1.3;z-index:1;position:relative}.sparkline-canvas{position:absolute;bottom:5px;left:5px;right:5px;height:35px;opacity:.4;z-index:0;pointer-events:none}#dominantBlockContainer .sparkline-canvas{height:50px;opacity:.5}.side-panel{background-color:var(--card-bg);border:1px solid var(--border-color);padding:calc(var(--base-spacing) * .6);flex-shrink:0}.side-panel h3{font-size:.9em;font-weight:600;color:var(--text-muted);margin-top:0;margin-bottom:8px;border-bottom:1px solid var(--border-color);padding-bottom:5px}.side-panel ul{list-style:none;padding:0;margin:0;font-size:.85em}.side-panel li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(51,51,51,.5)}.side-panel li:last-child{border-bottom:none}.side-panel .coin-symbol{font-weight:500;color:var(--text-color)}.side-panel .coin-change{font-weight:700}.positive{color:var(--positive-color)}.negative{color:var(--negative-color)}.narrative-block.positive-bg{background-color:rgba(38,166,154,.05)}.narrative-block.negative-bg{background-color:rgba(239,83,80,.05)}.footer-note{text-align:center;font-size:.8em;color:var(--text-muted);margin-top:var(--base-spacing);padding:calc(var(--base-spacing) * .5) 0;border-top:1px solid var(--border-color);width:100%;flex-shrink:0}
     </style>
 </head>
 <body>
-    <div class="container">
-      <label for="imageInput" class="file-btn">Choose File</label>
-        <input type="file" id="imageInput" accept="image/*">
-        <button id="takePicture" onclick="openCamera()">Take Picture</button>
+
+    <h1>Crypto Narrative Dashboard</h1>
+    <div id="loading">Memuat data awal... Ini mungkin butuh waktu agak lama. Dashboard akan refresh otomatis setiap 1 menit.</div>
+    <div id="mainContent" style="display: none;">
+         <div id="dominantBlockContainer"></div>
+         <div id="rightColumnContainer">
+             <div id="otherNarrativesList"></div>
+             <div id="sidePanelsContainer">
+                 <div id="topGainersPanel" class="side-panel">
+                     <h3>Top Gainers (<span class="panel-period"></span>d)</h3>
+                     <ul id="topGainersList"></ul>
+                 </div>
+                 <div id="topLosersPanel" class="side-panel">
+                     <h3>Top Losers (<span class="panel-period"></span>d)</h3>
+                     <ul id="topLosersList"></ul>
+                 </div>
+             </div>
+         </div>
+    </div>
+    <div id="errors" class="error-container" style="display: none;"></div>
+    <div class="footer-note">
+        Data dari CryptoCompare. Blok kiri = Likuiditas tertinggi. Warna = Avg. Perubahan Harga. Grafik = Tren harga avg. ternormalisasi. Periode: <span id="analysis-period"></span> hari. Gainers/Losers berdasarkan koin individual. Refresh otomatis setiap 1 menit.
     </div>
 
-    <img id="imagePreview" />
-    <canvas id="particleCanvas"></canvas>
-    <pre id="response"></pre>
-
     <script>
-      
-      document.body.addEventListener("paste", (e) => {
-    const items = e.clipboardData?.items;
-    if (items) {
-        for (let item of items) {
-            if (item.type.startsWith("image/")) {
-                const blob = item.getAsFile();
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    document.getElementById("imagePreview").src = event.target.result;
-                    uploadImage(blob);  // Pake fungsi upload yang udah ada
-                };
-                reader.readAsDataURL(blob);
-            }
-        }
-    }
-});
+        // --- Konfigurasi ---
+        const ANALYSIS_PERIOD_DAYS = 30;
+        const BASE_CURRENCY = 'USD';
+        const ENABLE_RATE_LIMIT_RETRY = true;
+        const RETRY_DELAY_MS = 10000;
+        const MAX_RETRIES = 1;
+        const TOP_N_MOVERS = 5;
+        const REFRESH_INTERVAL_MS = 60000; // 60000ms = 1 menit
 
+        // --- DAFTAR NARATIF & KOIN (WAJIB DIEDIT MANUAL) ---
+         const NARRATIVES = {
+             // ... (Keep your NARRATIVES list) ...
+             'AI': ['TAO', 'RNDR', 'FET', 'AGIX', 'OCEAN', 'AKT', 'NMR', 'RLC', 'GRT', 'PHA', 'AR', 'IQ', 'CTXC', 'CUDOS', 'ALEPH', 'FORT', 'ORAI', 'CLORE', 'MAN', 'VMINT'],
+             'DeFi': ['UNI', 'LDO', 'AAVE', 'MKR', 'SNX', 'CRV', 'COMP', 'PENDLE', 'GMX', 'DYDX', 'RUNE', 'CAKE', '1INCH', 'SUSHI', 'JOE', 'YFI', 'BAL', 'RDNT', 'UMA', 'VELO'],
+             'GameFi': ['IMX', 'AXS', 'SAND', 'MANA', 'GALA', 'ENJ', 'RON', 'ILV', 'APE', 'PYR', 'BEAM', 'MAGIC', 'YGG', 'SUPER', 'ALICE', 'CHR', 'DAR', 'TLM', 'GHST', 'NAKA'],
+             'RWA': ['ONDO', 'PENDLE', 'MKR', 'SNX', 'POLYX', 'CFG', 'OM', 'TRADE', 'RIO', 'PROPS', 'MPL', 'GFI', 'CTC', 'IXS', 'LAND', 'CPOOL', 'BST', 'LTO', 'NXRA', 'CREDI'],
+             'Layer 1': ['SOL', 'AVAX', 'ADA', 'DOT', 'NEAR', 'APT', 'SUI', 'SEI', 'INJ', 'TIA', 'ETH', 'BTC', 'ATOM', 'FTM', 'ALGO', 'XTZ', 'HBAR', 'EGLD', 'XRP', 'KAS'],
+             'Layer 2': ['OP', 'ARB', 'MATIC', 'STRK', 'MANTA', 'METIS', 'SKL', 'LRC', 'IMX', 'BOBA', 'CELR', 'OMG', 'SYS', 'VLX', 'CART', 'POLIS', 'EDU', 'COMBO', 'STX'],
+             'Meme': ['DOGE', 'SHIB', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'BOME', 'MEME', 'TURBO', 'MOG', 'BABYDOGE', 'ELON', 'PORK', 'TRUMP', 'AIDOGE', 'VOLT', 'BOBO', 'RFD', 'COQ', 'POOH'],
+             'DePIN': ['FIL', 'AR', 'RNDR', 'HNT', 'AKT', 'THETA', 'IOTX', 'STORJ', 'ANKR', 'LPT', 'SC', 'BTT', 'OCEAN', 'RLC', 'CUDOS', 'HONEY', 'ALEPH', 'DIMO', 'DATA', 'GEOD'],
+         };
+        // -----------------------------------------
 
-        function openCamera() {
-            const input = document.getElementById('imageInput');
-            input.setAttribute('capture', 'environment');
-            input.click();
-        }
+        // DOM Elements
+        const loadingDiv = document.getElementById('loading');
+        const mainContentDiv = document.getElementById('mainContent');
+        const dominantContainer = document.getElementById('dominantBlockContainer');
+        const rightColumnContainer = document.getElementById('rightColumnContainer');
+        const otherNarrativesListDiv = document.getElementById('otherNarrativesList');
+        const sidePanelsContainerDiv = document.getElementById('sidePanelsContainer');
+        const topGainersListUl = document.getElementById('topGainersList');
+        const topLosersListUl = document.getElementById('topLosersList');
+        const errorsDiv = document.getElementById('errors');
+        const analysisPeriodSpan = document.getElementById('analysis-period');
+        const panelPeriodSpans = document.querySelectorAll('.panel-period');
+        let chartInstances = {};
+        let isInitialLoad = true; // Flag for initial load vs refresh
+        let refreshTimeoutId = null; // To store the timeout ID if needed later
 
-document.getElementById('imageInput').addEventListener('change', () => {
-    const file = document.getElementById('imageInput').files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = document.getElementById('imagePreview');
-            img.src = e.target.result;
-            img.style.display = 'block';
-            img.onload = () => {
-                img.classList.add('show');
-
-                // Tunggu animasi selesai dulu baru setup canvas
-                setTimeout(() => setupCanvas(img), 800);
-            };
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-function setupCanvas(image) {
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Ambil ukuran image setelah animasi selesai
-    const rect = image.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    canvas.style.position = 'absolute';
-    canvas.style.top = `${rect.top + window.scrollY}px`;
-    canvas.style.left = `${rect.left + window.scrollX}px`;
-    canvas.style.display = 'block';
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    startScanningLight(canvas, ctx);
-}
-
-function startScanningLight(canvas, ctx) {
-    let scanY = -100;
-    const scanSpeed = 3;
-
-    function drawScanningLight() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Cahaya kotak dengan bloom hanya di area gambar
-        const lightWidth = canvas.width * 1.2;
-        const lightHeight = 100;
-        const gradient = ctx.createLinearGradient(0, scanY, 0, scanY + lightHeight);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect((canvas.width - lightWidth) / 2, scanY, lightWidth, lightHeight);
-
-        scanY += scanSpeed;
-        if (scanY > canvas.height) scanY = -100;
-
-        requestAnimationFrame(drawScanningLight);
-    }
-
-    drawScanningLight();
-}
-
-
-
-
-
-
-         const IMG_API_KEY = [
-    "bedc482173ef5ae2ee3d11aff6c751ad",
-    "e289a41a680b3b8e42d47c618ef1a799",
-    "983f47767cae39ddfb0031228296bcda",
-    "02e4e79b8f4f7ef185b2d2492f1b4096",
-    "f7d50fbf59995e894c0d3ece42161f65",
-    "a7a1d267d1b26b88fd43562c0c1ca3ea",
-    "57858a3e433bf19132f376e4b25438af"
-];
-         
-         
-         
-         
-         
-         
-        const TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions";
-        const API_KEYS = [
-    "15b70f2d5532d4056cb40a96dada4f41cd6be5206b3265abaa2bc8c1ce85de1b",
-    "1986fcb80017badcac2c5761e9bc5d9b5b635a57b58573c094c5aaee0f7cad65",
-    "47aacfae02634de54a494b4071c9fb357122f453c3ed25a848e77a32a39c50c2",
-    "11eb49ac44759de26e65730a309d05a82e37a77d3547d94f154bd7a3a66de34d",
-    "cf887a3d000a64a1686d2bb8e392a64b7f46fe131aff4685e5199510106b8608",
-    "9fa71bf023b928a32cad2959fcf5fee36bb9fbb3732ed6ba659892c079da57e0",
-    "401925c1ac6e2e33847169014115e9344dcaf32d1c1fe386c8fc92768d7b15ad",
-    "215c434d7361a2799557f151ab3b3b80c710a09111339e712a82579f8790f7f2",
-    "34211673816c9ef4729e0259c042ebe3d762fb90ff16c36b42ddfb1c0f9e10e6",
-    "1ea461952d729c0e3dccadd919ee5d121a8125bc7bd5924192495528e24e2afb",
-    "40f561d9befc36d117412f9003d81a2306790e536cec5c36ce540833885f6bd5",
-    "f8eb6808a6c585445cd0db8cb5d048b9cb2d35262fe67f9b512ebc17eb4937b2",
-    "f19df6a1c0a9dccb696764e091d8990734acdff7b39f811a873f7ddf580f92ff"
-];
-
-        function getRandomApiKey() {
-            return API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
-        }
-        
-        function getRandomApiKey1() {
-            return IMG_API_KEY[Math.floor(Math.random() * IMG_API_KEY.length)];
-        }
-
-        function openCamera() {
-            const input = document.getElementById('imageInput');
-            input.setAttribute('capture', 'environment');
-            input.click();
-        }
-
-        document.getElementById('imageInput').addEventListener('change', () => {
-            const file = document.getElementById('imageInput').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.getElementById('imagePreview');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    uploadImage(file);
-                };
-                reader.readAsDataURL(file);
-            }
+        // --- Initialize ---
+        document.addEventListener('DOMContentLoaded', () => {
+            analysisPeriodSpan.textContent = ANALYSIS_PERIOD_DAYS;
+            panelPeriodSpans.forEach(span => span.textContent = ANALYSIS_PERIOD_DAYS);
+            analyzeNarratives(); // Start the first analysis
         });
 
-        async function uploadImage(fileInput) {
-            const responseField = document.getElementById("response");
-            try {
-               const selectedImgApiKey = getRandomApiKey1();
-               console.log("selected imgbb api key : ", selectedImgApiKey);
-                const formData = new FormData();
-                formData.append("image", fileInput);
-
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${selectedImgApiKey}`, {
-                    method: "POST",
-                    body: formData
-                });
-
-                const imgbbData = await imgbbResponse.json();
-                const imageUrl = imgbbData.data.url;
-                const selectedApiKey = getRandomApiKey();
-                
-
-                const payload = {
-                    model: "meta-llama/Llama-Vision-Free",
-                    messages: [
-                        { role: "system", content: "You are EXORA VISION, an ELITE TRADING ANALYST designed to extract POWERFUL MARKET INSIGHTS directly from images. Your mission is to deliver the MOST PRECISE and ACTIONABLE ANALYSIS in a SINGLE SHOT. Based PURELY ON VISUAL DATA, you detect CANDLESTICK PATTERNS, TRENDLINES, SUPPORT AND RESISTANCE ZONES, MOMENTUM SHIFTS, and key chart formations such as HEAD AND SHOULDERS, DOUBLE TOPS OR BOTTOMS, FLAGS, TRIANGLES, and more. You identify the STRONGEST POSSIBLE TRADING SETUP by providing a CLEAR, DETAILED BREAKDOWN that includes the OPTIMAL ENTRY POINT, a TIGHTLY SECURED STOP LOSS (SL) to MINIMIZE RISK, and a STRATEGICALLY PLACED TAKE PROFIT (TP) to MAXIMIZE GAINS. Each recommendation must reflect the market’s TRUE MOMENTUM and STRUCTURE, prioritizing HIGH-PROBABILITY TRADES while AVOIDING FALSE SIGNALS. NO EXTERNAL DATA. NO ASSUMPTIONS. NO FABRICATED INSIGHTS. Only the MOST ACCURATE ANALYSIS from the VISUAL CHART. You EXPLAIN WHY the chosen ENTRY, SL, and TP are IDEAL based on PRICE ACTION, TREND STRENGTH, and MARKET BEHAVIOR. Every output is FAST, CLEAR, and UNDENIABLY EFFECTIVE. You READ CHARTS LIKE A MACHINE and THINK LIKE A MASTER TRADER, delivering NOT JUST NUMBERS, but the BEST POSSIBLE TRADING SETUP." },
-                        { role: "user", content: [
-                            { type: "text", text: "Tolong analisa price action dari gambar berikut dengan sangat detail dan teliti. Fokus utama adalah memprediksi arah pergerakan harga untuk beberapa waktu ke depan. Identifikasi dengan jelas: (1) area yang kemungkinan besar akan dikunjungi (visit) sebagai target harga, (2) area yang berpotensi menjadi titik retest (baik support maupun resistance), dan (3) area berbahaya yang berisiko tinggi atau rawan fakeout. Gunakan kombinasi analisis price action, pola harga yang terbentuk (seperti flag, wedge, head & shoulders, double top/bottom), serta indikator teknikal pendukung (contoh: EMA untuk tren, Fibonacci retracement/extension untuk proyeksi target, dan volume analysis untuk kekuatan pergerakan). Pastikan hasil analisa memberikan: (1) Prediksi arah harga utama dan alternatif (bullish/bearish/konsolidasi), (2) Penjelasan logis di setiap level yang disebutkan (kenapa harga kemungkinan besar akan ke sana), (3) Titik entry terbaik dengan konfirmasi yang jelas, dan (4) Strategi manajemen risiko yang spesifik (stop loss, take profit, dan rasio risk-to-reward yang optimal). Selain itu, tentukan target harga yang akan dikunjungi (visit) beserta perkiraan waktu pencapaiannya (contoh: dalam 4 jam, 1 hari, 1 minggu), serta berikan estimasi probability atau persentase kemungkinan terjadinya skenario tersebut (contoh: bullish scenario 70%, bearish scenario 30%). Sesuaikan seluruh analisa dengan timeframe yang terlihat di gambar. Jangan hanya menyajikan kondisi saat ini — berikan proyeksi detail tentang potensi pergerakan berikutnya dan bagaimana trader sebaiknya merespons setiap skenario yang mungkin terjadi." },
-                            { type: "image_url", image_url: { url: imageUrl } }
-                        ] }
-                    ],
-                    temperature: 0.7,
-                    top_p: 0.7,
-                    top_k: 50,
-                    repetition_penalty: 1
-                };
-
-                const togetherResponse = await fetch(TOGETHER_API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${selectedApiKey}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await togetherResponse.json();
-                responseField.style.display = 'block';
-                responseField.textContent = data.choices[0]?.message?.content || "No response received";
-            } catch (error) {
-                console.error("Error:", error);
-                responseField.textContent = `Error: ${error.message}`;
+        async function analyzeNarratives() {
+            // --- UI Handling based on Load Type ---
+            if (isInitialLoad) {
+                console.log("Initial data load starting...");
+                loadingDiv.style.display = 'block';
+                mainContentDiv.style.display = 'none';
+                errorsDiv.style.display = 'none'; // Hide errors initially
+            } else {
+                console.log("Auto-refreshing data...");
+                // No loading indicator, keep content visible
+                // Optionally clear previous errors if desired, or let them persist until next critical error
+                 errorsDiv.style.display = 'none'; // Hide previous errors on refresh
+                 errorsDiv.innerHTML = '';
             }
+
+            // --- Clear dynamic content (always done) ---
+            dominantContainer.innerHTML = '';
+            otherNarrativesListDiv.innerHTML = '';
+            topGainersListUl.innerHTML = '';
+            topLosersListUl.innerHTML = '';
+            // Destroy previous charts before fetching new data
+            Object.values(chartInstances).forEach(chart => {
+                 try { chart.destroy(); } catch(e) { console.warn("Error destroying chart:", e); }
+            });
+            chartInstances = {};
+
+
+            // --- Data Structures & Fetch Loop (same as before) ---
+            let errorMessages = [];
+            const narrativeResults = [];
+            const allFetchedCoins = [];
+            const totalNarratives = Object.keys(NARRATIVES).length;
+            let processedNarratives = 0;
+
+            for (const narrativeName in NARRATIVES) {
+                processedNarratives++;
+                // No loading text update needed on refresh
+                if (isInitialLoad) {
+                    loadingDiv.textContent = `(${processedNarratives}/${totalNarratives}) Menganalisis ${narrativeName}... Fetching data...`;
+                }
+
+                const coinSymbols = NARRATIVES[narrativeName];
+                if (!coinSymbols || coinSymbols.length === 0) continue;
+
+                const coinFetchPromises = coinSymbols.map(symbol =>
+                    fetchCoinDataWithRetry(symbol.toUpperCase(), ANALYSIS_PERIOD_DAYS)
+                        .catch(error => ({ symbol: symbol.toUpperCase(), error: error }))
+                );
+
+                const coinDataResults = await Promise.all(coinFetchPromises);
+                const validCoinDataForNarrative = [];
+
+                coinDataResults.forEach(result => {
+                    if (result && !result.error && result.metrics && result.prices) {
+                        validCoinDataForNarrative.push(result);
+                        allFetchedCoins.push({
+                            symbol: result.symbol,
+                            change: result.metrics.change
+                        });
+                    } else if (result && result.error) {
+                        // Handle FINAL errors (non-rate limit or failed retry)
+                         const symbol = result.symbol;
+                         const error = result.error;
+                         const errorMessageText = error instanceof Error ? error.message : String(error);
+                         const lowerCaseError = errorMessageText.toLowerCase();
+                         const isNotFoundError = lowerCaseError.includes('market does not exist') || lowerCaseError.includes('instrument not found') || lowerCaseError.includes('no data') || (lowerCaseError.includes('data pair') && lowerCaseError.includes('tidak ditemukan')) || lowerCaseError.includes('data historis tidak cukup');
+
+                         if (!isNotFoundError && !lowerCaseError.includes('rate limit')) {
+                             console.error(`Critical error for ${symbol} (final):`, errorMessageText);
+                             errorMessages.push(`<li>Error ${narrativeName} - ${symbol}: ${errorMessageText}</li>`);
+                         } else {
+                              console.log(`Data issue/rate limit fail for ${symbol}, skipping (Final Error: ${errorMessageText})`);
+                         }
+                    }
+                });
+
+                if (validCoinDataForNarrative.length > 0) {
+                    const summaryMetrics = calculateNarrativeAverage(validCoinDataForNarrative.map(d => d.metrics));
+                    const priceTrendData = calculateNarrativePriceTrend(validCoinDataForNarrative.map(d => d.prices));
+                    narrativeResults.push({
+                        name: narrativeName, ...summaryMetrics, priceTrend: priceTrendData,
+                        coinCount: validCoinDataForNarrative.length, totalCoins: coinSymbols.length
+                    });
+                } else if (coinSymbols.length > 0) {
+                     console.warn(`No valid data for narrative ${narrativeName}.`);
+                }
+            } // End narrative loop
+
+
+            // --- Post-Processing: Gainers/Losers (same as before) ---
+            const uniqueCoinChanges = Array.from(new Map(allFetchedCoins.map(item => [item.symbol, item])).values());
+            const validMovers = uniqueCoinChanges.filter(coin => coin.change !== null && isFinite(coin.change));
+            const topGainers = [...validMovers].sort((a, b) => b.change - a.change).slice(0, TOP_N_MOVERS);
+            const topLosers = [...validMovers].sort((a, b) => a.change - b.change).slice(0, TOP_N_MOVERS);
+
+
+            // --- Display Results (always done) ---
+            if (narrativeResults.length > 0 || topGainers.length > 0 || topLosers.length > 0) {
+                 displayLayout(narrativeResults);
+                 displayTopMovers(topGainers, topLosers);
+                 // Render charts *after* blocks are in the DOM
+                 narrativeResults.forEach(result => {
+                      if (result.priceTrend && result.priceTrend.length > 1) {
+                         const canvasId = `chart-${result.name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                         const isPositive = result.avgChange > 0;
+                         renderSparkline(canvasId, result.priceTrend, isPositive);
+                      }
+                 });
+                 // Make sure main content is visible (especially after initial load)
+                 mainContentDiv.style.display = 'flex';
+            } else {
+                 // Show error message if nothing could be processed
+                 errorsDiv.innerHTML = '<h3>Analisis Gagal</h3><p>Tidak ada data naratif atau koin yang berhasil dianalisis.</p>';
+                 errorsDiv.style.display = 'block';
+                 mainContentDiv.style.display = 'none'; // Hide content if analysis totally fails
+            }
+
+            // Hide loading div after initial load is complete
+            if (isInitialLoad) {
+                loadingDiv.style.display = 'none';
+            }
+
+
+            // --- Display Critical Errors (if any) ---
+            if (errorMessages.length > 0) {
+                 const maxErrorsToShow = 15;
+                 const displayedErrors = errorMessages.slice(0, maxErrorsToShow);
+                 const hiddenErrorCount = errorMessages.length - displayedErrors.length;
+                 errorsDiv.innerHTML = `<h3>Beberapa Error Kritis Terjadi:</h3><ul>${displayedErrors.join('')}</ul>`;
+                 if (hiddenErrorCount > 0) errorsDiv.innerHTML += `<p style='font-size:0.8em;color:var(--text-muted);margin-top:10px;'>(${hiddenErrorCount} error kritis lain tidak ditampilkan. Cek console.)</p>`;
+                 errorsDiv.style.display = 'block';
+             }
+
+            // --- Schedule Next Refresh ---
+            isInitialLoad = false; // Mark initial load as complete
+            clearTimeout(refreshTimeoutId); // Clear previous timeout just in case
+            refreshTimeoutId = setTimeout(analyzeNarratives, REFRESH_INTERVAL_MS);
+            console.log(`Refresh complete. Next refresh scheduled in ${REFRESH_INTERVAL_MS / 1000} seconds.`);
+
+        } // End analyzeNarratives
+
+
+        // --- Helper Functions (fetchCoinDataWithRetry, processApiResponse, calculateMetrics, etc.) ---
+        // --- (Keep ALL helper functions exactly the same as the previous version) ---
+        async function fetchCoinDataWithRetry(symbol, limit, retries = MAX_RETRIES) { /* ...unchanged... */
+            const url = `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${symbol}&tsym=${BASE_CURRENCY}&limit=${limit}`;
+             try {
+                 const response = await fetch(url);
+                 const responseData = await response.json();
+                 return processApiResponse(symbol, response, responseData);
+             } catch (error) {
+                 const errorMessageText = error instanceof Error ? error.message : String(error);
+                 const lowerCaseError = errorMessageText.toLowerCase();
+                 const isRateLimitError = lowerCaseError.includes('rate limit') || lowerCaseError.includes('upgrade your account');
+                 if (ENABLE_RATE_LIMIT_RETRY && isRateLimitError && retries > 0) {
+                     console.warn(`Rate limit hit for ${symbol}. Waiting ${RETRY_DELAY_MS / 1000}s before retry (${retries} left)...`);
+                     await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+                     console.log(`Retrying fetch for ${symbol}...`);
+                     try {
+                         const retryResponse = await fetch(url);
+                         const retryResponseData = await retryResponse.json();
+                         return processApiResponse(symbol, retryResponse, retryResponseData);
+                     } catch (retryError) {
+                          console.error(`Retry failed for ${symbol}:`, retryError);
+                          throw retryError;
+                     }
+                 } else {
+                     throw error;
+                 }
+             }
+         }
+         function processApiResponse(symbol, response, responseData) { /* ...unchanged... */
+             if (responseData.Response === 'Error' && responseData.Message && responseData.Message.toLowerCase().includes('market does not exist')) { throw new Error(`Data pair ${symbol}/${BASE_CURRENCY} tidak ditemukan.`); }
+             if (!response.ok || responseData.Response === 'Error') {
+                  const message = responseData?.Message || `HTTP error! status: ${response.status}`;
+                  if(message.toLowerCase().includes('rate limit') || message.toLowerCase().includes('upgrade your account')){ throw new Error(`Rate limit error for ${symbol}: ${message}`); }
+                 throw new Error(`Gagal fetch ${symbol}: ${message}`);
+             }
+             if (!responseData.Data || !responseData.Data.Data || responseData.Data.Data.length < 2) {
+                  if(responseData.Data && responseData.Data.Data && responseData.Data.Data.length < 2){ throw new Error(`Data historis tidak cukup untuk ${symbol} (min 2 hari).`); }
+                  else { throw new Error(`Format data tidak sesuai atau tidak ada data untuk ${symbol}.`); }
+             }
+             const metrics = calculateMetrics(responseData.Data.Data, symbol);
+             if (metrics === null) { throw new Error(`Gagal kalkulasi metrik ${symbol}.`); }
+             const prices = responseData.Data.Data.filter(d => d.close > 0).map(d => ({ time: d.time * 1000, close: d.close })).sort((a, b) => a.time - b.time);
+             if (prices.length < 2) { throw new Error(`Data harga valid tidak cukup untuk grafik ${symbol}.`); }
+             metrics.symbol = symbol; return { metrics, prices, symbol };
+         }
+        function calculateMetrics(historicalData, symbol) { /* ...unchanged... */
+            const validData = historicalData.filter(d => d.close > 0 && d.volumeto >= 0).sort((a,b)=> a.time - b.time); if (validData.length < 2) return null; const prices = validData.map(d => d.close); const volumes = validData.map(d => d.volumeto); const dailyChanges = []; for (let i = 1; i < prices.length; i++) dailyChanges.push((prices[i] - prices[i-1]) / prices[i-1]); if (dailyChanges.length === 0) return null; const avgChange = dailyChanges.reduce((sum, change) => sum + change, 0) / dailyChanges.length; const variance = dailyChanges.reduce((sum, change) => sum + Math.pow(change - avgChange, 2), 0) / dailyChanges.length; const volatility = Math.sqrt(variance) * 100; const totalVolume = volumes.reduce((sum, vol) => sum + vol, 0); const averageLiquidity = totalVolume / validData.length; const startPrice = validData[0].close; const endPrice = validData[validData.length - 1].close; const priceChange = ((endPrice - startPrice) / startPrice) * 100; return { volatility: isNaN(volatility) ? 0 : volatility, liquidity: isNaN(averageLiquidity) ? 0 : averageLiquidity, change: isNaN(priceChange) ? 0 : priceChange };
+         }
+        function calculateNarrativeAverage(coinMetricsList) { /* ...unchanged... */
+             const numCoins = coinMetricsList.length; if (numCoins === 0) return { avgVolatility: 0, avgLiquidity: 0, avgChange: 0 }; const totalVolatility = coinMetricsList.reduce((sum, m) => sum + (isNaN(m.volatility)?0:m.volatility), 0); const totalLiquidity = coinMetricsList.reduce((sum, m) => sum + (isNaN(m.liquidity)?0:m.liquidity), 0); const totalChange = coinMetricsList.reduce((sum, m) => sum + (isNaN(m.change)?0:m.change), 0); return { avgVolatility: totalVolatility / numCoins, avgLiquidity: totalLiquidity / numCoins, avgChange: totalChange / numCoins };
+         }
+        function calculateNarrativePriceTrend(coinPriceSeriesList) { /* ...unchanged... */
+             if (!coinPriceSeriesList || coinPriceSeriesList.length === 0) return []; const dailyAggregates = new Map(); coinPriceSeriesList.forEach(series => { series.forEach(point => { const dayTimestamp = new Date(point.time).setUTCHours(0,0,0,0); if (!dailyAggregates.has(dayTimestamp)) { dailyAggregates.set(dayTimestamp, {sum:0, count:0}); } const current = dailyAggregates.get(dayTimestamp); current.sum += point.close; current.count += 1; }); }); const averagedPrices = []; let minAvg = Infinity, maxAvg = -Infinity; dailyAggregates.forEach((value, key) => { const avgPrice = value.sum / value.count; averagedPrices.push({ time: key, avgPrice }); if (avgPrice < minAvg) minAvg = avgPrice; if (avgPrice > maxAvg) maxAvg = avgPrice; }); averagedPrices.sort((a, b) => a.time - b.time); const range = maxAvg - minAvg; const normalizedTrend = averagedPrices.map(p => ({ time: p.time, normalized: range > 0 ? (p.avgPrice - minAvg) / range : 0.5 })); return normalizedTrend.map(p => p.normalized);
+         }
+        function displayLayout(narrativeResults) { /* ...unchanged... */
+            dominantContainer.innerHTML = ''; otherNarrativesListDiv.innerHTML = ''; if (narrativeResults.length === 0) return; narrativeResults.sort((a, b) => b.avgLiquidity - a.avgLiquidity); narrativeResults.forEach((result, index) => { const block = createNarrativeBlockElement(result); if (index === 0) { dominantContainer.appendChild(block); } else { otherNarrativesListDiv.appendChild(block); } });
         }
-        
-        
+        function displayTopMovers(gainers, losers) { /* ...unchanged... */
+             topGainersListUl.innerHTML = ''; topLosersListUl.innerHTML = ''; gainers.forEach(coin => { const li = document.createElement('li'); li.innerHTML = `<span class="coin-symbol">${coin.symbol}</span><span class="coin-change positive">+${coin.change.toFixed(2)}%</span>`; topGainersListUl.appendChild(li); }); losers.forEach(coin => { const li = document.createElement('li'); li.innerHTML = `<span class="coin-symbol">${coin.symbol}</span><span class="coin-change negative">${coin.change.toFixed(2)}%</span>`; topLosersListUl.appendChild(li); }); document.getElementById('topGainersPanel').style.display = gainers.length > 0 ? 'block' : 'none'; document.getElementById('topLosersPanel').style.display = losers.length > 0 ? 'block' : 'none';
+        }
+        function createNarrativeBlockElement(result) { /* ...unchanged... */
+            const block = document.createElement('div'); block.classList.add('narrative-block'); const changeClass = result.avgChange > 0.01 ? 'positive' : (result.avgChange < -0.01 ? 'negative' : 'neutral'); const bgClass = result.avgChange > 0.01 ? 'positive-bg' : (result.avgChange < -0.01 ? 'negative-bg' : ''); if(bgClass) block.classList.add(bgClass); const formattedLiquidity = result.avgLiquidity.toLocaleString('en-US', { style: 'currency', currency: BASE_CURRENCY, notation: 'compact', maximumFractionDigits: 1 }); const canvasId = `chart-${result.name.replace(/[^a-zA-Z0-9]/g, '-')}`; block.innerHTML = `<div><div class="narrative-header">${result.name}</div><div class="narrative-change ${changeClass}">${result.avgChange > 0 ? '+' : ''}${result.avgChange.toFixed(2)}%</div></div><canvas id="${canvasId}" class="sparkline-canvas"></canvas><div class="narrative-details">Avg Liq: ${formattedLiquidity}/d   Vol: ${result.avgVolatility.toFixed(2)}%<br>Coins: ${result.coinCount}/${result.totalCoins}</div>`; return block;
+         }
+        function renderSparkline(canvasId, normalizedData, isPositive) { /* ...unchanged... */
+             const ctx = document.getElementById(canvasId); if (!ctx) { console.error(`Canvas element not found: ${canvasId}`); return; } const chartColor = isPositive ? 'rgba(38, 166, 154, 0.8)' : 'rgba(239, 83, 80, 0.8)'; if (chartInstances[canvasId]) { try { chartInstances[canvasId].destroy(); } catch(e){console.warn("Error destroying chart:", e);} } try { chartInstances[canvasId] = new Chart(ctx, { type: 'line', data: { labels: normalizedData.map((_, i) => i), datasets: [{ label: 'Trend', data: normalizedData, borderColor: chartColor, borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false }, tooltip: { enabled: false } }, layout: { } } }); } catch (error) { console.error(`Error creating chart for ${canvasId}:`, error); }
+         }
 
-        
-         let holdTimeout;
-        const responseField = document.getElementById('response');
-
-        responseField.addEventListener('mousedown', () => {
-            holdTimeout = setTimeout(() => {
-                if (confirm('Refresh page?')) location.reload();
-            }, 1000);  // Hold 1 detik buat munculin confirm
-        });
-
-        responseField.addEventListener('mouseup', () => clearTimeout(holdTimeout));
-        responseField.addEventListener('mouseleave', () => clearTimeout(holdTimeout));
     </script>
+
 </body>
 </html>
