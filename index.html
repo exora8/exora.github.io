@@ -1,234 +1,772 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Exora Artificial Intelligence</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBYTE - Solusi Digital Inovatif</title>
     <style>
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: #0d0d0d;
-            color: white;
-            overflow: hidden;
+        :root {
+            --primary-bg: #08080A; /* Hampir hitam murni */
+            --secondary-bg: #121214; /* Sedikit lebih terang */
+            --card-bg: #1A1A1C;
+            --text-light: #EAEAEA;
+            --text-muted: #777;
+            --accent-blue: #007AFF; /* iOS Blue, cerah dan modern */
+            --accent-blue-hover: #005CE6;
+            --border-color: #28282A;
+            --shadow-color-light: rgba(0, 122, 255, 0.15);
+            --shadow-color-dark: rgba(0, 0, 0, 0.3);
+            --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --transition-speed-fast: 0.2s;
+            --transition-speed-normal: 0.4s;
+            --transition-cubic: cubic-bezier(0.645, 0.045, 0.355, 1); /* easing umum untuk animasi UI */
         }
-        video {
+
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Untuk smooth scroll pada anchor link */
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* Mencegah horizontal scroll karena animasi */
+        }
+
+        /* Preloader */
+        .preloader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            z-index: -2;
+            background-color: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s var(--transition-cubic), visibility 0.5s var(--transition-cubic);
         }
-        #introVideo {
-            z-index: 0;
-            opacity: 1;
-            transition: opacity 2s ease-out;
+        .preloader.loaded {
+            opacity: 0;
+            visibility: hidden;
         }
-        .navbar {
-            width: 100%;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+
+        .container {
+            width: 90%;
+            max-width: 1100px; /* Sedikit lebih ramping */
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        header {
+            background-color: rgba(8, 8, 10, 0.85); /* Background sedikit transparan saat scroll */
+            backdrop-filter: blur(10px); /* Efek glassmorphism */
+            padding: 0.9rem 0; /* Header lebih tipis */
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color var(--transition-speed-fast) ease;
+        }
+
+        header .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            background-color: rgba(0, 0, 0, 0.70);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(12px);
         }
-        .navbar a {
-            color: white;
+
+        header .logo {
+            color: var(--text-light);
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
             text-decoration: none;
-            margin: 0 15px;
-            font-size: 18px;
+            text-transform: uppercase;
         }
-        .navbar a.register, .navbar a.login {
-            border: 1px solid #00aaff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            
+
+        nav ul {
+            list-style: none;
+            display: flex;
         }
-        .navbar a.register {
-            background-color: #00aaff;
+
+        nav ul li {
+            margin-left: 22px;
         }
-        .navbar a.login {
-            margin-left: 10px;
-        }
-        .nav-links{
-          transform: translate(-50px,0px);
+
+        nav ul li a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 8px;
+            border-radius: 4px;
+            transition: color var(--transition-speed-fast) ease;
+            position: relative;
         }
         
-        .logo {
-            width: 12vh;
-            height: auto;
-            z-index: 2;
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            display: block;
+            margin-top: 5px;
+            left: 50%; /* Mulai dari tengah */
+            transform: translateX(-50%);
+            background: var(--accent-blue);
+            transition: width var(--transition-speed-fast) var(--transition-cubic);
         }
-        #introVideo {
-            z-index: 0;
+
+        nav ul li a:hover::after,
+        nav ul li a.active::after {
+            width: 100%;
         }
-        #loopVideo {
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            color: var(--text-light);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 85vh; /* Lebih tinggi */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+            overflow: hidden; /* Untuk animasi partikel jika ditambahkan */
+        }
+
+        .hero::before { /* Overlay gradien */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(8, 8, 10, 0.8), rgba(8, 8, 10, 1)),
+                        url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHRlY2hub2xvZ3klMjBtaW5pbWFsfGVufDB8fDB8fHww&auto=format&fit=crop&w=1000&q=60') no-repeat center center/cover;
             z-index: -1;
+            filter: brightness(0.7); /* Sedikit meredupkan background image */
         }
         
-       .floating-tab {
-            position: fixed;
-        padding: 1rem;
-        background: rgba(30, 30, 30, 0.7);
-        backdrop-filter: blur(10px);
-        color: white;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s ease;
-        animation: float 4s ease-in-out infinite;
+        .hero-content {
+            max-width: 750px;
         }
-        .floating-tab:hover {
-          transition: all 0.3s ease;
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 31, 63, 0.6);
+
+        .hero h2 {
+            font-size: 3.2rem; /* Lebih besar dan impactful */
+            margin-bottom: 25px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-light);
+            animation: fadeInDown 1s var(--transition-cubic) 0.2s backwards;
         }
-        @keyframes fadeInSlide {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            color: var(--text-muted);
+            animation: fadeInUp 1s var(--transition-cubic) 0.5s backwards;
+        }
+
+        .btn {
+            display: inline-flex; /* Untuk align icon dan text */
+            align-items: center;
+            background-color: var(--accent-blue);
+            color: #fff;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 6px; /* Sedikit lebih rounded */
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color var(--transition-speed-fast) ease, transform var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+            position: relative;
+            overflow: hidden; /* Untuk efek ripple atau shine */
+            border: none; /* Pastikan tombol tidak punya border default */
+            cursor: pointer;
+        }
+        .btn .btn-text {
+            margin-right: 8px;
+        }
+        .btn .btn-icon {
+            display: inline-block;
+            transition: transform var(--transition-speed-fast) var(--transition-cubic);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-blue-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 122, 255, 0.3);
+        }
+        .btn:hover .btn-icon {
+            transform: translateX(3px);
+        }
+
+        .hero .btn {
+             animation: fadeInUpBtn 1s var(--transition-cubic) 0.8s backwards;
+        }
+        
+        /* Animasi untuk Hero */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUpBtn { /* Delay berbeda untuk button */
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+
+        /* Sections */
+        section {
+            padding: 80px 0;
+            overflow: hidden; /* Mencegah konten animasi keluar batas */
+        }
+
+        .section-title { /* Mengganti class .section-title */
+            text-align: center;
+            font-size: 2.3rem;
+            color: var(--text-light);
+            margin-bottom: 50px;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px; /* Lebih pendek */
+            height: 3px;
+            background-color: var(--accent-blue);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        
+        /* Animasi Reveal on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s var(--transition-cubic), transform 0.8s var(--transition-cubic);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        /* Bisa tambahkan lebih banyak class delay */
+
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 25px; /* Gap lebih rapat */
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            transition: transform var(--transition-speed-normal) var(--transition-cubic), 
+                        box-shadow var(--transition-speed-normal) var(--transition-cubic);
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Hapus box-shadow awal, tambahkan saat hover atau reveal */
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px) scale(1.02); /* Efek hover lebih dinamis */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 15px var(--shadow-color-light);
+        }
+        
+        .service-card.visible { /* Shadow muncul saat visible */
+             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .service-card-image-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .service-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s var(--transition-cubic); /* Transisi zoom lebih lama */
+        }
+
+        .service-card:hover .service-card-image {
+            transform: scale(1.1); /* Zoom lebih subtle */
+        }
+
+        .service-card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-card h3 {
+            color: var(--text-light);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+        
+        .service-card .btn { /* Ini adalah link <a>, bukan button form */
+            margin-top: auto;
+            align-self: flex-start;
+            padding: 10px 22px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        /* About Us Section */
+        #about {
+            background-color: var(--secondary-bg);
+        }
+        #about .container > p { /* Target p langsung di dalam container */
+            text-align: center;
+            max-width: 750px;
+            margin: 0 auto 20px auto;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+         #about .container > p:first-of-type {
+            color: var(--text-light);
+            font-size: 1.2rem;
+            font-weight: 500; /* Sedikit lebih tebal */
+         }
+
+        /* Contact Section */
+        .contact-form { /* Ini adalah elemen <form> */
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+        }
+        .contact-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .contact-form input[type="text"],
+        .contact-form input[type="email"],
+        .contact-form textarea {
+            width: 100%;
+            padding: 14px; /* Padding input lebih besar */
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--secondary-bg);
+            color: var(--text-light);
+            font-size: 0.95rem;
+            transition: border-color var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
+        }
+        .contact-form input[type="text"]:focus,
+        .contact-form input[type="email"]:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--shadow-color-light); /* Box shadow focus lebih jelas */
+        }
+        .contact-form textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+        .contact-form button[type="submit"].btn { /* Target spesifik tombol submit di form */
+            width: 100%; 
+            justify-content: center; 
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--secondary-bg);
+            color: var(--text-muted);
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+        }
+        footer p {
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h2 { font-size: 2.8rem; }
+            .hero p { font-size: 1.15rem; }
+            .section-title { font-size: 2rem; }
+            header .logo { font-size: 1.6rem; }
+            nav ul li a { font-size: 0.85rem; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 10px; }
+            header { padding: 0.8rem 0; }
+            header .container { flex-direction: row; /* Kembalikan ke row, tapi handle menu mobile jika perlu */ }
+            /* Untuk menu mobile yang proper, biasanya butuh JS tambahan untuk toggle */
+            /* Untuk simplisitas, kita sembunyikan nav atau buat dia scrollable */
+            nav {
+                 /* Untuk kasus navigasi simpel, bisa jadi seperti ini di mobile */
+                overflow-x: auto;
+                white-space: nowrap;
+                /* Batasi lebar agar tidak mendorong logo */
+                /* Ini perlu disesuaikan dengan lebar logo Anda */
+                /* max-width: calc(100% - 120px);  Contoh jika logo 100px + margin */
+                -webkit-overflow-scrolling: touch; /* Untuk scrolling halus di iOS */
+                scrollbar-width: none; /* Firefox */
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            nav::-webkit-scrollbar { /* Chrome, Safari, Opera */
+                display: none;
             }
+
+            header .logo { margin-bottom: 0; font-size: 1.5rem;}
+
+            .hero { min-height: 75vh; padding: 60px 15px;}
+            .hero h2 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; }
+            .services-grid { grid-template-columns: 1fr; gap: 20px; }
+            .service-card-image-wrapper { height: 180px; }
+            .service-card h3 { font-size: 1.2rem; }
+            .contact-form { padding: 25px; }
+            section { padding: 60px 0; }
         }
+        @media (max-width: 480px) {
+             nav ul li { margin-left: 15px;}
+             nav ul li a { padding: 6px; font-size: 0.8rem;}
+             .hero h2 {font-size: 1.8rem;}
+             .hero p {font-size: 0.9rem;}
+             .btn {padding: 12px 24px; font-size: 0.9rem;}
+        }
+
     </style>
 </head>
-<body style="display: none;">
-    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: black; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; z-index: 1000;">
-        Loading Exora AI...
+<body>
+
+    <div class="preloader">
+        <div class="spinner"></div>
     </div>
 
-    <video id="loopVideo" autoplay muted loop playsinline></video>
-    <video id="introVideo" autoplay muted playsinline></video>
+    <header>
+        <div class="container">
+            <a href="#hero" class="logo">ORBYTE</a>
+            <nav>
+                <ul>
+                    <li><a href="#hero" class="active">Beranda</a></li>
+                    <li><a href="#services">Layanan</a></li>
+                    <li><a href="#about">Tentang</a></li>
+                    <li><a href="#contact">Kontak</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <div class="navbar">
-        <div class="logo">
-            <img class="logo" src="https://raw.githubusercontent.com/exora8/exora_ai_web/refs/heads/main/text-1738486901277.png">
+    <main>
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <h2>Solusi Digital Terdepan, Inovasi Tanpa Batas.</h2>
+                <p>Dari perbaikan presisi hingga keamanan akun, Orbyte hadir untuk memberdayakan pengalaman digital Anda dengan kualitas dan kepercayaan.</p>
+                <a href="#services" class="btn">
+                    <span class="btn-text">Jelajahi Layanan</span>
+                    <span class="btn-icon">→</span> <!-- Panah kanan HTML entity -->
+                </a>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="container">
+                <h2 class="section-title reveal">Layanan Premium ORBYTE</h2>
+                <div class="services-grid">
+                    <!-- Tambahkan class 'reveal' dan 'reveal-delay-X' untuk staggered animation -->
+                    <div class="service-card reveal" tabindex="0">
+                        <div class="service-card-image-wrapper">
+                            <img src="https://i.pinimg.com/736x/78/21/0d/78210dcf7f8677a925171bea9c3d677b.jpg" alt="Perbaikan Handphone Profesional" class="service-card-image">
+                        </div>
+                        <div class="service-card-content">
+                            <h3>Perbaikan Handphone</h3>
+                            <p>Teknisi ahli kami menangani berbagai kerusakan hardware & software dengan sparepart berkualitas tinggi untuk hasil optimal.</p>
+                            <a href="#contact" class="btn"> <!-- Ini link ke section kontak, bukan tombol form -->
+                                <span class="btn-text">Konsultasi</span>
+                                <span class="btn-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="service-card reveal reveal-delay-1" tabindex="0">
+                        <div class="service-card-image-wrapper">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhzK-wAiFsX7saG8BUW334Yj8azKvLrr7A2TK07lNTi5CoXZZ8GLRFsNqjCLBCLT5GDiA&usqp=CAU" alt="Jual Sparepart Original" class="service-card-image">
+                        </div>
+                        <div class="service-card-content">
+                            <h3>Sparepart Original & OEM</h3>
+                            <p>Temukan LCD, baterai, dan komponen lainnya dengan jaminan kualitas dan garansi untuk performa perangkat yang tahan lama.</p>
+                             <a href="#contact" class="btn"> <!-- Ini link ke section kontak, bukan tombol form -->
+                                <span class="btn-text">Cek Stok</span>
+                                <span class="btn-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="service-card reveal reveal-delay-2" tabindex="0">
+                        <div class="service-card-image-wrapper">
+                            <img src="https://i.ytimg.com/vi/rU9rLDG5sRs/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAId7fFzSnZ3E9R4UtBMBnoOSewcQ" alt="Beli Akun Game" class="service-card-image">
+                        </div>
+                        <div class="service-card-content">
+                            <h3>Jual Beli Akun Game</h3>
+                            <p>Transaksi akun game (Mobile Legends, Valorant, dll) aman, cepat, dan terpercaya. Pilihan akun beragam menanti Anda.</p>
+                             <a href="#contact" class="btn"> <!-- Ini link ke section kontak, bukan tombol form -->
+                                <span class="btn-text">Lihat Akun</span>
+                                <span class="btn-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="service-card reveal reveal-delay-3" tabindex="0">
+                        <div class="service-card-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWNjb3VudCUyMHJlY292ZXJ5fGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Recovery Akun Lupa Password" class="service-card-image">
+                        </div>
+                        <div class="service-card-content">
+                            <h3>Recovery Akun Profesional</h3>
+                            <p>Lupa password akun sosial media, email, atau game? Kami bantu proses pemulihan akun Anda dengan metode yang efektif.</p>
+                            <a href="#contact" class="btn"> <!-- Ini link ke section kontak, bukan tombol form -->
+                                <span class="btn-text">Mulai Proses</span>
+                                <span class="btn-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="container">
+                <h2 class="section-title reveal">Tentang ORBYTE</h2>
+                <p class="reveal reveal-delay-1">ORBYTE adalah partner terpercaya Anda dalam dunia digital. Kami berdedikasi untuk menyediakan layanan perbaikan perangkat, penyediaan sparepart berkualitas, transaksi akun game yang aman, serta solusi pemulihan akun dengan standar profesionalisme tertinggi.</p>
+                <p class="reveal reveal-delay-2">Dengan fokus pada kualitas, integritas, dan kepuasan pelanggan, kami berkomitmen untuk menjadi yang terdepan dalam inovasi layanan digital.</p>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <h2 class="section-title reveal">Hubungi Tim Kami</h2>
+                <!-- Perubahan pada tag form: hilangkan action dan method standar jika hanya ke WA -->
+                <form class="contact-form reveal reveal-delay-1" id="whatsappForm">
+                    <label for="name">Nama Lengkap Anda:</label>
+                    <input type="text" id="name" name="name" required>
+
+                    <label for="email">Alamat Email Aktif:</label>
+                    <input type="email" id="email" name="email" required>
+                    
+                    <label for="phone">Nomor Telepon (Opsional):</label>
+                    <input type="text" id="phone" name="phone">
+
+                    <label for="service_type">Layanan yang Diminati:</label>
+                    <input type="text" id="service_type" name="service_type" placeholder="cth: Perbaikan iPhone 11, Beli Akun Valorant, dll.">
+                    
+                    <label for="message">Detail Kebutuhan atau Pertanyaan Anda:</label>
+                    <textarea id="message" name="message" required></textarea>
+
+                    <!-- Tombol tetap button type="submit" agar validasi HTML5 berjalan -->
+                    <button type="submit" class="btn">
+                        <span class="btn-text">Kirim via WhatsApp</span> <!-- Ubah teks tombol -->
+                        <span class="btn-icon">→</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© <span id="currentYear"></span> ORBYTE. Innovative Digital Solutions. All Rights Reserved.</p>
         </div>
-        <div class="nav-links">
-          <a href="https://exora.vercel.app/chat.html">Analyze Now!</a>
-          <a href="https://exora.vercel.app/whitepaper.html">Whitepaper</a>
-            <a href="https://www.tiktok.com/@exoraai">Tiktok</a>
-            <a href="https://instagram.com/exoraai">Instagram</a>
-            <a href="https://x.com/FallenStarX8">Community</a>
-        </div>
-    </div>
+    </footer>
 
     <script>
-        const introVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222224221.mp4';
-        const loopVideoSrc = 'https://github.com/exora8/exora_ai_web/raw/refs/heads/main/lv_0_20250222225948.mp4';
-        const introVideo = document.getElementById('introVideo');
-        const loopVideo = document.getElementById('loopVideo');
-        const loadingScreen = document.getElementById('loadingScreen');
-
-        loopVideo.src = loopVideoSrc;
-        introVideo.src = introVideoSrc;
-
-        let videosLoaded = 0;
-        function videoLoaded() {
-            videosLoaded++;
-            if (videosLoaded === 2) {
-                document.body.style.display = 'block';
-                loadingScreen.style.display = 'none';
-                createFloatingTabs();
-            }
-        }
-
-        introVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
-        loopVideo.addEventListener('canplaythrough', videoLoaded, { once: true });
-
-        introVideo.addEventListener('timeupdate', () => {
-            const fadeDuration = 2;
-            const remainingTime = introVideo.duration - introVideo.currentTime;
-
-            if (remainingTime <= fadeDuration) {
-                introVideo.style.transition = 'opacity 2s ease-out';
-                introVideo.style.opacity = '0';
+        // Preloader
+        window.addEventListener('load', () => {
+            const preloader = document.querySelector('.preloader');
+            if (preloader) {
+                preloader.classList.add('loaded');
             }
         });
 
-        introVideo.onended = () => {
-            introVideo.remove();
-        };
+        // Intersection Observer for reveal animations
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1 
+        });
 
-        function detectDevice() {
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-        window.location.href = "https://exora.vercel.app/phone.html";
-    } else {
-    }
-}
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
 
-detectDevice(); // Panggil fungsi saat halaman dimuat
+        // Active Nav Link on Scroll & Smooth Scroll
+        const sections = document.querySelectorAll('main section[id]');
+        const navLinks = document.querySelectorAll('header nav ul li a');
+        let headerHeight = document.querySelector('header').offsetHeight;
 
-        window.onload = detectDevice;
+        window.addEventListener('resize', () => {
+            headerHeight = document.querySelector('header').offsetHeight;
+        });
 
-// Floating Tabs
-function createFloatingTabs() {
-  const tabContents = [
-    'Fast and accurate predictions',
-    'Real-time market analysis',
-    'User-friendly interface',
-    'Real-Time Trading Recommendations',
-    'Advanced AI-driven insights',
-    'Supports 1000+ Cryptocurrencies',
-  ];
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - headerHeight - 60) { 
+                    current = section.getAttribute('id');
+                }
+            });
 
-  const existingTabs = [];
+            let foundActive = false;
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && href.substring(1) === current) {
+                    link.classList.add('active');
+                    foundActive = true;
+                }
+            });
+            
+            const firstSection = sections[0];
+            if (firstSection) {
+                const firstSectionTop = firstSection.offsetTop;
+                 if (!foundActive && window.pageYOffset < firstSectionTop - headerHeight - 60) {
+                    const berandaLink = document.querySelector('header nav ul li a[href="#hero"]');
+                    if (berandaLink) berandaLink.classList.add('active');
+                }
+            } else { 
+                 const berandaLink = document.querySelector('header nav ul li a[href="#hero"]');
+                 if (berandaLink) berandaLink.classList.add('active');
+            }
+        });
 
-  // Bagi tab secara merata ke kiri dan kanan
-  const half = Math.ceil(tabContents.length / 2);
-  const leftTabs = tabContents.slice(0, half);
-  const rightTabs = tabContents.slice(half);
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    let scrollToPosition = targetElement.offsetTop - headerHeight;
+                    if (targetId === '#hero') {
+                        scrollToPosition = 0;
+                    }
+                    window.scrollTo({
+                        top: scrollToPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Current Year for Footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-  // Fungsi untuk membuat grup tab di sisi kiri/kanan
-  function generateGroup(tabs, side) {
-    const safeMargin = 150; // Jarak aman dari tepi
-    const baseX = side === 'left' ? safeMargin : window.innerWidth - 250 - safeMargin;
-    const baseY = window.innerHeight / 4; // Mulai dari 1/4 tinggi layar
+        // Handle WhatsApp Form Submission
+        const whatsappForm = document.getElementById('whatsappForm');
+        if (whatsappForm) {
+            whatsappForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Mencegah form submit standar
 
-    const gapY = 120; // Jarak vertikal antar tab
+                // --- GANTI DENGAN NOMOR WHATSAPP TUJUAN ANDA ---
+                const phoneNumber = '6282163345530'; // Contoh: Ganti dengan nomor Anda
+                // Pastikan format internasional tanpa '+' atau spasi.
 
-    tabs.forEach((content, index) => {
-      const tab = document.createElement('div');
-      tab.className = 'floating-tab';
-      tab.innerText = content;
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const serviceType = document.getElementById('service_type').value;
+                const message = document.getElementById('message').value;
 
-      // Posisi tab
-      let x = baseX + Math.random() * 50; // Random kecil biar nggak terlalu kaku
-      let y = baseY + index * gapY + Math.random() * 50;
+                // Format pesan untuk WhatsApp
+                // %0A digunakan untuk baris baru di URL
+                let waMessage = `Halo ORBYTE, saya ingin bertanya.\n\n`;
+                waMessage += `Nama: ${name}\n`;
+                waMessage += `Email: ${email}\n`;
+                if (phone) { // Hanya tambahkan jika nomor telepon diisi
+                    waMessage += `No. Telepon: ${phone}\n`;
+                }
+                waMessage += `Layanan yang Diminati: ${serviceType}\n`;
+                waMessage += `Pesan:\n${message}\n\n`;
+                waMessage += `Mohon informasinya. Terima kasih.`;
 
-      // Simpan posisi tab
-      existingTabs.push({ x, y });
+                // Encode pesan untuk URL
+                const encodedMessage = encodeURIComponent(waMessage);
 
-      // Set posisi tab
-      tab.style.left = `${x}px`;
-      tab.style.top = `${y}px`;
+                // Buat URL WhatsApp
+                const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-      // Efek fade-in
-      tab.style.opacity = '0';
-      tab.style.transition = 'opacity 0.5s ease';
-      setTimeout(() => {
-        tab.style.opacity = '1';
-      }, index * 200);
+                // Buka URL di tab baru
+                window.open(whatsappURL, '_blank');
 
-      document.body.appendChild(tab);
-    });
-  }
-
-  // Generate tab di kiri dan kanan
-  generateGroup(leftTabs, 'left');
-  generateGroup(rightTabs, 'right');
-}
-
-
+                // Optional: Reset form setelah submit
+                // whatsappForm.reset(); 
+                // Atau berikan pesan sukses di halaman
+                // alert('Silakan lanjutkan mengirim pesan di WhatsApp.');
+            });
+        }
 
     </script>
+
 </body>
 </html>
