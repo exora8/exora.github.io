@@ -1,1 +1,76 @@
-
+[
+  {
+    "id": "mlbb_sultan_001",
+    "gameName": "Mobile Legends",
+    "gameIcon": "https://play-lh.googleusercontent.com/QXCVbZd0d71ho4MIYHHxnY6BJFGXI-fzRS5MXJXU1n4n2T-VdQgB1vrdJpydokA34UA",
+    "title": "Akun ML Galih Market MLBB",
+    "description": "Monsep Allkos \n- no minus \n- own reset mailfresh \n- recal tlid",
+    "price": "Rp 400.000",
+    "images": [
+      "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/AccountImages/ML001/IMG-20250522-WA0354.jpg"
+    ],
+    "tags": ["mlbb", "mobile legends", "sultan", "mythic", "collector", "legend skin", "all hero", "max emblem"],
+    "contact": "WhatsApp: 0831-2880-4631 (Admin Store)"
+  },
+  {
+    "id": "valorant_radiant_002",
+    "gameName": "Valorant",
+    "gameIcon": "images/icons/valorant_icon.png",
+    "title": "Akun Valorant Radiant Murah Skin Premium",
+    "description": "Akun Valorant rank Radiant (Episode 7 Act 2).\n- Full Access Data (Email bisa diganti).\n- Skin Premium: Reaver Vandal, Prime Phantom, Glitchpop Odin, RGX Blade.\n- Battle Pass: Selesai beberapa season terakhir.\n- Agen: Semua agen terbuka.\nDijual cepat karena pensiun.",
+    "price": "Rp 1.350.000",
+    "images": [
+      "images/accounts/valorant_002/rank_radiant.png",
+      "images/accounts/valorant_002/reaver_vandal.jpg",
+      "images/accounts/valorant_002/agent_list.jpg"
+    ],
+    "tags": ["valorant", "radiant", "premium skins", "reaver", "prime", "full access", "asia server"],
+    "contact": "Discord: ValoSeller#1234"
+  },
+  {
+    "id": "genshin_ar60_whale_003",
+    "gameName": "Genshin Impact",
+    "gameIcon": "images/icons/genshin_icon.png",
+    "title": "Genshin Impact AR 60 Akun Whale Server Asia",
+    "description": "Akun Genshin Impact super GG, AR 60.\n- Server: Asia\n- Karakter B5 Lengkap: Raiden Shogun C3 + Engulfing R1, Nahida C2 + Signature R1, Yelan C1 + Aqua R1, Hu Tao C1 + Homa R1, Zhongli, Kazuha, Ayaka C0 + Mistsplitter R1, Alhaitham + Signature R1, dan masih banyak lagi.\n- Weapon B5: Penuh, hampir semua signature weapon karakter ada.\n- Artefak: God Tier untuk banyak karakter.\n- Peta Eksplorasi: 100% semua area.\n- Abyss: Selalu 36 Bintang.\nAkun rawatan dari awal, aman dan terpercaya.",
+    "price": "Rp 7.500.000 (Nego)",
+    "images": [
+      "images/accounts/genshin_003/character_overview.jpg",
+      "images/accounts/genshin_003/raiden_build.jpg",
+      "images/accounts/genshin_003/weapon_inventory.jpg",
+      "images/accounts/genshin_003/map_exploration.png"
+    ],
+    "tags": ["genshin impact", "gi", "ar60", "whale account", "asia server", "c6 character", "r5 weapon", "full b5", "god tier artifact"],
+    "contact": "Telegram: @GenshinStoreOfficial"
+  },
+  {
+    "id": "ff_sultan_booyah_004",
+    "gameName": "Free Fire",
+    "gameIcon": "images/icons/ff_icon.png",
+    "title": "Akun Free Fire Sultan Sepuh Old",
+    "description": "Akun FF dari season lama, banyak item langka.\n- Level: 70+\n- Elite Pass: Banyak yang sudah max dari season old.\n- Bundle: Ratusan, termasuk bundle incubator langka.\n- Senjata Evo: Beberapa sudah max level (UMP Booyah Day, AK Blue Flame Draco).\n- Pet & Character: Lengkap.\nLogin via Facebook (data diberikan semua).",
+    "price": "Rp 850.000",
+    "images": [
+      "images/accounts/ff_004/lobby_profile.jpg",
+      "images/accounts/ff_004/vault_bundle.jpg",
+      "images/accounts/ff_004/evo_gun_max.jpg"
+    ],
+    "tags": ["free fire", "ff", "sultan", "akun sepuh", "old account", "elite pass old", "bundle langka", "evo gun max"],
+    "contact": "Instagram DM: @FFStoreTerpercaya"
+  },
+  {
+    "id": "pubgm_conqueror_005",
+    "gameName": "PUBG Mobile",
+    "gameIcon": "images/icons/pubgm_icon.png",
+    "title": "Akun PUBG Mobile Conqueror S20 M4 Glacier Max",
+    "description": "Akun PUBG Mobile siap pakai, pernah Conqueror.\n- Title Conqueror Season 20.\n- M416 Glacier Max Level 7.\n- Outfit Mythic Fashion banyak.\n- Kendaraan skin UAZ & Dacia.\n- Data lengkap, aman.",
+    "price": "Rp 1.800.000",
+    "images": [
+      "images/accounts/pubgm_005/conqueror_title.jpg",
+      "images/accounts/pubgm_005/m4_glacier_max.jpg",
+      "images/accounts/pubgm_005/mythic_fashion_inventory.jpg"
+    ],
+    "tags": ["pubgm", "pubg mobile", "conqueror", "m4 glacier", "mythic fashion", "akun gg"],
+    "contact": "Email: pubgselly@example.com"
+  }
+]
