@@ -28,7 +28,7 @@
             background-color: var(--primary-bg);
             color: var(--text-primary);
             line-height: 1.6;
-            overflow-x: hidden; 
+            overflow-x: hidden; /* Mencegah scroll horizontal karena beberapa animasi */
         }
 
         .container {
@@ -140,7 +140,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            transform-origin: center bottom;
+            transform-origin: center bottom; /* For pop animation */
         }
 
         .filter-button.active,
@@ -265,6 +265,8 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
             display: block;
             margin-top: auto;
+            border: none; /* Pastikan tidak ada border default */
+            cursor: pointer; /* Pastikan cursor pointer */
         }
 
         .account-card .details-button:hover {
@@ -272,6 +274,7 @@
             transform: scale(1.05);
         }
 
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -394,36 +397,36 @@
         }
 
         #modal-body .modal-contact {
-            background-color: transparent; 
-            padding: 15px 0 0 0; 
-            border-left: none; 
-            text-align: center; 
-            margin-top: 20px; 
+            /* Dihapus styling lama untuk diganti tombol */
+            margin-top: 20px; /* Beri jarak untuk tombol */
         }
-
-        .chat-admin-button {
-            display: inline-block;
-            padding: 12px 25px; /* Sedikit lebih besar paddingnya */
-            background-color: #25D366; 
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold; /* Dibuat bold */
-            transition: background-color 0.3s ease, transform 0.2s ease;
+        
+        /* === STYLE BARU UNTUK TOMBOL CHAT ADMIN === */
+        .modal-chat-button {
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            padding: 12px 20px;
             text-align: center;
-            font-size: 1.1em; /* Sedikit lebih besar fontnya */
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600; /* Sedikit lebih tebal */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block; /* Agar bisa diset width 100% */
+            width: 100%;     /* Tombol memenuhi lebar kontainer modal-contact */
+            box-sizing: border-box; /* Agar padding tidak menambah total width */
         }
 
-        .chat-admin-button i {
-            margin-right: 10px; /* Jarak ikon lebih besar */
-            font-size: 1.2em; /* Ikon lebih besar */
+        .modal-chat-button:hover {
+            background-color: var(--accent-color-darker);
+            transform: scale(1.02); /* Sedikit efek zoom saat hover */
         }
 
-        .chat-admin-button:hover {
-            background-color: #1DAE50; 
-            transform: scale(1.05);
-            color: white; 
+        .modal-chat-button .fab.fa-whatsapp {
+            margin-right: 8px; /* Jarak antara ikon dan teks */
         }
+        /* === AKHIR STYLE BARU === */
 
 
         footer {
@@ -491,10 +494,7 @@
             .account-card .details-button { padding: 8px 12px; }
             .filter-buttons { justify-content: center; }
             .modal-content { padding: 20px; }
-            .chat-admin-button { padding: 10px 20px; font-size: 1em;}
-            .chat-admin-button i { font-size: 1.1em; }
         }
-        
     </style>
 </head>
 <body>
@@ -525,7 +525,7 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Nama Toko Anda. Powered by You!</p>
+            <p>© 2024 Nama Toko Anda. Powered by You!</p> 
         </div>
     </footer>
 
@@ -538,266 +538,247 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // ==================================================================
-            // !!!! PENTING: GANTI DENGAN DETAIL ANDA !!!!
-            // ==================================================================
-            const GITHUB_USERNAME = 'exora8'; // <-- GANTI INI
-            const GITHUB_REPONAME = 'exora.github.io';            // <-- GANTI INI
-            const DATA_FILE_PATH = 'data.json'; 
-            const ADMIN_WHATSAPP_NUMBER = '6283128804631'; // <-- GANTI INI JIKA PERLU (format: 62xxxxxxxxxx)
-            // ==================================================================
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const GITHUB_USERNAME = 'exora8'; 
+    const GITHUB_REPONAME = 'exora.github.io';            
+    const DATA_FILE_PATH = 'data.json'; 
 
-            const accountGrid = document.getElementById('account-grid');
-            const searchInput = document.getElementById('searchInput');
-            const searchButton = document.getElementById('searchButton');
-            const modal = document.getElementById('accountModal');
-            const modalBody = document.getElementById('modal-body');
-            const closeButton = document.querySelector('.close-button');
-            const gameFiltersContainer = document.getElementById('game-filters');
+    const accountGrid = document.getElementById('account-grid');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const modal = document.getElementById('accountModal');
+    const modalBody = document.getElementById('modal-body');
+    const closeButton = document.querySelector('.close-button');
+    const gameFiltersContainer = document.getElementById('game-filters');
 
-            let allAccounts = [];
-            let uniqueGameNames = new Set();
+    let allAccounts = [];
+    let uniqueGameNames = new Set();
 
-            function showStatusMessage(type, message) {
-                accountGrid.innerHTML = ''; 
-                const statusContainer = document.createElement('div');
-                statusContainer.classList.add('status-message-container');
+    function showStatusMessage(type, message) {
+        accountGrid.innerHTML = ''; 
+        const statusContainer = document.createElement('div');
+        statusContainer.classList.add('status-message-container');
 
-                if (type === 'loading') {
-                    const spinner = document.createElement('div');
-                    spinner.classList.add('loading-spinner');
-                    statusContainer.appendChild(spinner);
-                }
-                
-                const messageP = document.createElement('p');
-                messageP.textContent = message;
-                statusContainer.appendChild(messageP);
-                
-                accountGrid.appendChild(statusContainer);
+        if (type === 'loading') {
+            const spinner = document.createElement('div');
+            spinner.classList.add('loading-spinner');
+            statusContainer.appendChild(spinner);
+        }
+        
+        const messageP = document.createElement('p');
+        messageP.textContent = message;
+        statusContainer.appendChild(messageP);
+        
+        accountGrid.appendChild(statusContainer);
+    }
+
+    async function fetchAccounts() {
+        showStatusMessage('loading', 'Memuat akun...');
+        const cacheBust = new Date().getTime();
+        const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
+
+        try {
+            if (GITHUB_USERNAME === 'NAMA_PENGGUNA_GITHUB_ANDA' || GITHUB_REPONAME === 'NAMA_REPO_ANDA') {
+                const errorMessage = "Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
+                console.error(errorMessage);
+                showStatusMessage('error', errorMessage);
+                return;
             }
 
-            async function fetchAccounts() {
-                showStatusMessage('loading', 'Memuat akun...');
-
-                const cacheBust = new Date().getTime();
-                const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
-                
-                console.log("Mencoba mengambil dari URL:", dataUrl);
-
-                try {
-                    if (GITHUB_USERNAME === 'exora8' || GITHUB_REPONAME === 'exora.github.io') {
-                        const errorMessage = "Kesalahan Konfigurasi: Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
-                        console.error(errorMessage);
-                        showStatusMessage('error', errorMessage);
-                        return;
-                    }
-
-                    const response = await fetch(dataUrl);
-                    if (!response.ok) {
-                        throw new Error(`Gagal mengambil data akun (HTTP ${response.status}). Pastikan URL benar dan file data.json ada di repositori publik Anda (${dataUrl}).`);
-                    }
-                    const accounts = await response.json();
-                    allAccounts = accounts;
-
-                    if (!Array.isArray(allAccounts)) {
-                        throw new Error("Format data.json tidak valid. Seharusnya berupa array akun.");
-                    }
-                    
-                    if (allAccounts.length === 0) {
-                        showStatusMessage('info', 'Belum ada akun yang tersedia untuk dijual saat ini.');
-                    } else {
-                        populateGameFilters();
-                        displayAccounts(allAccounts);
-                    }
-                } catch (error) {
-                    console.error('Error fetching atau parsing accounts:', error);
-                    showStatusMessage('error', `Gagal memuat data akun: ${error.message}. Cek konsol browser (F12 -> Console) untuk detail lebih lanjut dan pastikan format file data.json sudah benar.`);
-                }
+            const response = await fetch(dataUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} - Saat mengambil dari ${dataUrl}. Pastikan username, reponame, dan path file benar, serta file data.json ada di branch 'main' (atau branch utama Anda) dan repositori bersifat publik.`);
             }
+            const accounts = await response.json();
+            allAccounts = accounts;
 
-            function populateGameFilters() {
-                uniqueGameNames.clear(); 
-                allAccounts.forEach(account => {
-                    if (account && account.gameName) { // Tambah pengecekan
-                        uniqueGameNames.add(account.gameName);
-                    }
-                });
-                
-                gameFiltersContainer.innerHTML = '';
-
-                const allButton = createFilterButton('Semua Game', 'all');
-                allButton.classList.add('active'); 
-                gameFiltersContainer.appendChild(allButton);
-
-                uniqueGameNames.forEach(gameName => {
-                    const button = createFilterButton(gameName, gameName);
-                    gameFiltersContainer.appendChild(button);
-                });
+            if (allAccounts.length === 0) {
+                showStatusMessage('info', 'Tidak ada akun yang tersedia saat ini.');
+            } else {
+                populateGameFilters();
+                displayAccounts(allAccounts);
             }
+        } catch (error) {
+            console.error('Error fetching accounts:', error);
+            showStatusMessage('error', `Gagal memuat akun: ${error.message}. Cek konsol browser (F12 -> Console) untuk detail.`);
+        }
+    }
 
-            function createFilterButton(text, filterValue) {
-                const button = document.createElement('button');
-                button.classList.add('filter-button');
-                button.textContent = text;
-                button.dataset.filter = filterValue;
-                button.addEventListener('click', () => handleFilterClick(button));
-                return button;
+    function populateGameFilters() {
+        uniqueGameNames.clear(); 
+        allAccounts.forEach(account => uniqueGameNames.add(account.gameName));
+        
+        gameFiltersContainer.innerHTML = '';
+
+        const allButton = createFilterButton('Semua Game', 'all');
+        allButton.classList.add('active'); 
+        gameFiltersContainer.appendChild(allButton);
+
+        uniqueGameNames.forEach(gameName => {
+            if(gameName){ 
+                const button = createFilterButton(gameName, gameName);
+                gameFiltersContainer.appendChild(button);
             }
-
-            function handleFilterClick(clickedButton) {
-                document.querySelectorAll('#game-filters .filter-button').forEach(btn => btn.classList.remove('active'));
-                clickedButton.classList.add('active');
-                searchAccounts(); 
-            }
-
-            function displayAccounts(accountsToDisplay) {
-                accountGrid.innerHTML = ''; 
-                if (accountsToDisplay.length === 0) {
-                    showStatusMessage('info', 'Tidak ada akun yang cocok dengan kriteria pencarian atau filter Anda.');
-                    return;
-                }
-                accountsToDisplay.forEach((account, index) => {
-                    if (!account || !account.id) { // Pengecekan dasar untuk validitas objek akun
-                        console.warn("Melewati item akun yang tidak valid:", account);
-                        return; 
-                    }
-
-                    const card = document.createElement('div');
-                    card.classList.add('account-card');
-                    card.style.animationDelay = `${index * 0.08}s`; 
-
-                    const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
-                    const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
-
-                    card.innerHTML = `
-                        <div class="card-image-container">
-                            <img src="${mainImage}" alt="${account.title || 'Gambar Akun'}" loading="lazy">
-                        </div>
-                        <div class="card-content">
-                            <div class="game-info">
-                                <img src="${gameIcon}" alt="${account.gameName || 'Game'}" class="game-icon">
-                                <span>${account.gameName || 'Nama Game Tidak Diketahui'}</span>
-                            </div>
-                            <h3>${account.title || 'Judul Akun Tidak Ada'}</h3>
-                            <p class="description">${account.description || 'Deskripsi tidak tersedia.'}</p>
-                            <p class="price">${account.price || 'Harga tidak ditentukan'}</p>
-                            <button class="details-button" data-id="${account.id}">Lihat Detail</button>
-                        </div>
-                    `;
-                    accountGrid.appendChild(card);
-                    
-                    const detailsButton = card.querySelector('.details-button');
-                    if (detailsButton) {
-                        detailsButton.addEventListener('click', () => openModal(account.id));
-                    }
-                });
-            }
-
-            function openModal(accountId) {
-                const account = allAccounts.find(acc => acc && acc.id === accountId);
-                if (!account) {
-                    console.error("Akun tidak ditemukan untuk ID:", accountId);
-                    return;
-                }
-
-                let imageGalleryHTML = '';
-                const modalMainImageSrc = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/700x300.png?text=No+Image';
-
-                if (account.images && account.images.length > 1) { 
-                     imageGalleryHTML = account.images.map((imgSrc, index) => 
-                        `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title || 'akun'}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
-                    ).join('');
-                }
-
-                const prefillText = encodeURIComponent(`Halo Admin, saya tertarik dengan akun: ${account.title || 'ini'} (ID: ${account.id})`);
-                const whatsappLink = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${prefillText}`;
-
-                modalBody.innerHTML = `
-                    <img src="${modalMainImageSrc}" alt="${account.title || 'Detail Akun'}" class="modal-main-image" id="modalMainImage">
-                    ${imageGalleryHTML ? `<div class="modal-image-gallery">${imageGalleryHTML}</div>` : ''}
-                    <h2>${account.title || 'Judul Akun Tidak Ada'}</h2>
-                    <p class="modal-price">${account.price || 'Harga tidak ditentukan'}</p>
-                    <p class="modal-game"><strong>Game:</strong> ${account.gameName || 'N/A'}</p>
-                    <p class="modal-description"><strong>Deskripsi:</strong><br>${(account.description || 'Deskripsi tidak tersedia.').replace(/\n/g, '<br>')}</p>
-                    <div class="modal-contact">
-                        <a href="${whatsappLink}" class="chat-admin-button" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-whatsapp"></i> Chat Admin
-                        </a>
-                    </div>
-                `;
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden'; 
-            }
-
-            window.changeModalMainImage = function(thumbElement, newImageSrc) {
-                const mainImg = document.getElementById('modalMainImage');
-                if(mainImg) {
-                    mainImg.style.opacity = 0; 
-                    setTimeout(() => {
-                        mainImg.src = newImageSrc;
-                        mainImg.onload = () => { mainImg.style.opacity = 1; }; 
-                    }, 200); 
-                }
-                
-                const gallery = thumbElement.closest('.modal-image-gallery');
-                if (gallery) {
-                    gallery.querySelectorAll('img').forEach(img => img.classList.remove('active-thumb'));
-                    thumbElement.classList.add('active-thumb');
-                }
-            }
-
-            function closeModal() {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-
-            function searchAccounts() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                const activeFilterButton = document.querySelector('#game-filters .filter-button.active');
-                const activeFilterValue = activeFilterButton ? activeFilterButton.dataset.filter : 'all';
-
-                if (!allAccounts || allAccounts.length === 0) {
-                    displayAccounts([]); 
-                    return;
-                }
-
-                const filteredAccounts = allAccounts.filter(account => {
-                    if (!account) return false; // Lewati jika objek akun null atau undefined
-
-                    const titleMatch = account.title && account.title.toLowerCase().includes(searchTerm);
-                    const gameNameMatch = account.gameName && account.gameName.toLowerCase().includes(searchTerm);
-                    const descriptionMatch = account.description && account.description.toLowerCase().includes(searchTerm);
-                    const tagsMatch = account.tags && Array.isArray(account.tags) && account.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm));
-                    
-                    const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; 
-                    const matchesFilter = (activeFilterValue === 'all' || (account.gameName && account.gameName === activeFilterValue));
-                    
-                    return matchesSearch && matchesFilter;
-                });
-                displayAccounts(filteredAccounts);
-            }
-
-            if (searchButton) searchButton.addEventListener('click', searchAccounts);
-            if (searchInput) {
-                searchInput.addEventListener('input', searchAccounts); // 'input' event lebih responsif
-            }
-            if (closeButton) closeButton.addEventListener('click', closeModal);
-            
-            window.addEventListener('click', (event) => {
-                if (event.target == modal) {
-                    closeModal();
-                }
-            });
-            window.addEventListener('keydown', (event) => {
-                if (event.key === "Escape" && modal.style.display === 'block') {
-                    closeModal();
-                }
-            });
-
-            fetchAccounts();
         });
-    </script>
+    }
+
+    function createFilterButton(text, filterValue) {
+        const button = document.createElement('button');
+        button.classList.add('filter-button');
+        button.textContent = text;
+        button.dataset.filter = filterValue;
+        button.addEventListener('click', () => handleFilterClick(button));
+        return button;
+    }
+
+    function handleFilterClick(clickedButton) {
+        document.querySelectorAll('#game-filters .filter-button').forEach(btn => btn.classList.remove('active'));
+        clickedButton.classList.add('active');
+        searchAccounts(); 
+    }
+
+    function displayAccounts(accountsToDisplay) {
+        accountGrid.innerHTML = ''; 
+        if (accountsToDisplay.length === 0) {
+            showStatusMessage('info', 'Tidak ada akun yang cocok dengan kriteria.');
+            return;
+        }
+        accountsToDisplay.forEach((account, index) => {
+            const card = document.createElement('div');
+            card.classList.add('account-card');
+            card.style.animationDelay = `${index * 0.08}s`; 
+
+            const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
+            const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
+
+            card.innerHTML = `
+                <div class="card-image-container">
+                    <img src="${mainImage}" alt="${account.title || 'Gambar Akun'}" loading="lazy">
+                </div>
+                <div class="card-content">
+                    <div class="game-info">
+                        <img src="${gameIcon}" alt="${account.gameName || 'Game'}" class="game-icon">
+                        <span>${account.gameName || 'Nama Game Tidak Diketahui'}</span>
+                    </div>
+                    <h3>${account.title || 'Judul Akun Tidak Ada'}</h3>
+                    <p class="description">${account.description || 'Deskripsi tidak tersedia.'}</p>
+                    <p class="price">${account.price || 'Harga tidak ditentukan'}</p>
+                    <button class="details-button" data-id="${account.id}">Lihat Detail</button>
+                </div>
+            `;
+            accountGrid.appendChild(card);
+            
+            const detailsButton = card.querySelector('.details-button');
+            if (detailsButton) {
+                detailsButton.addEventListener('click', () => openModal(account.id));
+            }
+        });
+    }
+
+    function openModal(accountId) {
+        const account = allAccounts.find(acc => acc.id === accountId);
+        if (!account) return;
+
+        let imageGalleryHTML = '';
+        const modalMainImageSrc = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/700x300.png?text=No+Image';
+
+        if (account.images && account.images.length > 1) { 
+             imageGalleryHTML = account.images.map((imgSrc, index) => 
+                `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
+            ).join('');
+        }
+
+        // === MODIFIKASI BAGIAN KONTAK DI SINI ===
+        const whatsappNumber = '6283128804631'; // Nomor WA dengan kode negara, tanpa 0 di depan
+        const whatsappLink = `https://wa.me/${whatsappNumber}`;
+
+        modalBody.innerHTML = `
+            <img src="${modalMainImageSrc}" alt="${account.title || 'Detail Akun'}" class="modal-main-image" id="modalMainImage">
+            ${imageGalleryHTML ? `<div class="modal-image-gallery">${imageGalleryHTML}</div>` : ''}
+            <h2>${account.title || 'Judul Akun Tidak Ada'}</h2>
+            <p class="modal-price">${account.price || 'Harga tidak ditentukan'}</p>
+            <p class="modal-game"><strong>Game:</strong> ${account.gameName || 'N/A'}</p>
+            <p class="modal-description"><strong>Deskripsi:</strong><br>${(account.description || 'Deskripsi tidak tersedia.').replace(/\n/g, '<br>')}</p>
+            <div class="modal-contact">
+                <button onclick="window.open('${whatsappLink}', '_blank')" class="modal-chat-button">
+                    <i class="fab fa-whatsapp"></i> Chat Admin
+                </button>
+            </div>
+        `;
+        // === AKHIR MODIFIKASI ===
+
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; 
+    }
+
+    window.changeModalMainImage = function(thumbElement, newImageSrc) {
+        const mainImg = document.getElementById('modalMainImage');
+        if(mainImg) {
+            mainImg.style.opacity = 0; 
+            setTimeout(() => {
+                mainImg.src = newImageSrc;
+                mainImg.onload = () => { mainImg.style.opacity = 1; }; 
+            }, 200); 
+        }
+        
+        const gallery = thumbElement.closest('.modal-image-gallery');
+        if (gallery) {
+            gallery.querySelectorAll('img').forEach(img => img.classList.remove('active-thumb'));
+            thumbElement.classList.add('active-thumb');
+        }
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function searchAccounts() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const activeFilterButton = document.querySelector('#game-filters .filter-button.active');
+        const activeFilterValue = activeFilterButton ? activeFilterButton.dataset.filter : 'all';
+
+        if (!allAccounts || allAccounts.length === 0) {
+            displayAccounts([]); 
+            return;
+        }
+
+        const filteredAccounts = allAccounts.filter(account => {
+            const titleMatch = account.title && account.title.toLowerCase().includes(searchTerm);
+            const gameNameMatch = account.gameName && account.gameName.toLowerCase().includes(searchTerm);
+            const descriptionMatch = account.description && account.description.toLowerCase().includes(searchTerm);
+            const tagsMatch = account.tags && account.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+            
+            const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; 
+            const matchesFilter = (activeFilterValue === 'all' || (account.gameName && account.gameName === activeFilterValue));
+            
+            return matchesSearch && matchesFilter;
+        });
+        displayAccounts(filteredAccounts);
+    }
+
+    if (searchButton) searchButton.addEventListener('click', searchAccounts);
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (event) => {
+            searchAccounts();
+        });
+    }
+    if (closeButton) closeButton.addEventListener('click', closeModal);
+    
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            closeModal();
+        }
+    });
+    window.addEventListener('keydown', (event) => {
+        if (event.key === "Escape" && modal.style.display === 'block') {
+            closeModal();
+        }
+    });
+
+    fetchAccounts();
+});
+</script>
 </body>
 </html>
