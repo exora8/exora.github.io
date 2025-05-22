@@ -13,7 +13,8 @@
             --card-bg: #2a2a2a;
             --text-primary: #e0e0e0;
             --text-secondary: #b0b0b0;
-            --accent-color: #00c853; /* Warna hijau terang untuk aksen */
+            --accent-color: #00e676; /* Warna hijau lebih cerah */
+            --accent-color-darker: #00c853;
             --border-color: #424242;
             --white-glow: #ffffff;
             --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -27,6 +28,7 @@
             background-color: var(--primary-bg);
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden; /* Mencegah scroll horizontal karena beberapa animasi */
         }
 
         .container {
@@ -44,14 +46,20 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            animation: slideDownNav 0.7s ease-out;
         }
+        @keyframes slideDownNav {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
 
         header h1 {
             margin: 0;
             font-size: 2em;
             color: var(--white-glow);
             text-align: center;
-            animation: fadeInDown 0.8s ease-out;
+            /* animation: fadeInDown 0.8s ease-out; Dihapus, diganti header animation */
         }
 
         header h1 .fa-store {
@@ -75,11 +83,11 @@
             color: var(--text-primary);
             font-size: 1em;
             outline: none;
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
 
         #searchInput:focus {
-            box-shadow: 0 0 8px var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
             border-color: var(--accent-color);
         }
 
@@ -95,7 +103,7 @@
         }
 
         #searchButton:hover {
-            background-color: #00a746; /* Warna hijau sedikit lebih gelap saat hover */
+            background-color: var(--accent-color-darker);
             transform: scale(1.05);
         }
         
@@ -105,7 +113,14 @@
             background-color: var(--secondary-bg);
             border-radius: 8px;
             box-shadow: var(--box-shadow);
+            animation: fadeInFromLeft 0.8s 0.2s ease-out forwards;
+            opacity: 0;
         }
+        @keyframes fadeInFromLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
 
         #filter-section h2 {
             margin-top: 0;
@@ -128,6 +143,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
+            transform-origin: center bottom; /* For pop animation */
         }
 
         .filter-button.active,
@@ -135,16 +151,25 @@
             background-color: var(--accent-color);
             color: var(--primary-bg);
             border-color: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-            transform: translateY(-2px);
+            box-shadow: 0 0 10px var(--accent-color);
+            transform: translateY(-3px) scale(1.05);
         }
+        .filter-button.active {
+            animation: popUp 0.3s ease-out;
+        }
+        @keyframes popUp {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.1); }
+            100% { transform: translateY(-3px) scale(1.05); }
+        }
+
 
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
-            animation: fadeInUp 1s ease-out forwards;
-            opacity: 0; /* Start hidden for animation */
+            /* animation: fadeInUp 1s ease-out forwards; Removed, cards will animate individually */
+            /* opacity: 0; Removed */
         }
 
         .account-card {
@@ -152,33 +177,43 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: var(--box-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-color); /* Garis putih tipis */
+            border: 1px solid var(--border-color);
+            opacity: 0; /* Start hidden for individual animation */
+            transform: translateY(30px); /* Start slightly lower for animation */
+            animation: cardFadeInUp 0.5s ease-out forwards;
         }
+        @keyframes cardFadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
 
         .account-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--box-shadow-hover), var(--border-glow); /* Glow effect on hover */
+            box-shadow: var(--box-shadow-hover), var(--border-glow);
             border-color: var(--white-glow);
         }
 
         .account-card .card-image-container {
             width: 100%;
-            height: 180px; /* Fixed height for image container */
+            height: 180px;
             overflow: hidden;
         }
 
         .account-card .card-image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures image covers the area, might crop */
+            object-fit: cover;
             transition: transform 0.4s ease;
         }
 
         .account-card:hover .card-image-container img {
-            transform: scale(1.1); /* Zoom effect on image */
+            transform: scale(1.1);
         }
 
         .account-card .card-content {
@@ -211,11 +246,11 @@
             font-size: 0.9em;
             color: var(--text-secondary);
             margin-bottom: 15px;
-            flex-grow: 1; /* Makes description take available space */
+            flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 3; /* Limit to 3 lines */
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
         }
 
@@ -235,12 +270,12 @@
             text-decoration: none;
             font-weight: 500;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            display: block; /* Make it a block to take full width of its container */
-            margin-top: auto; /* Pushes button to the bottom */
+            display: block;
+            margin-top: auto;
         }
 
         .account-card .details-button:hover {
-            background-color: #00a746;
+            background-color: var(--accent-color-darker);
             transform: scale(1.05);
         }
 
@@ -254,8 +289,12 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-            animation: fadeIn 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.85); /* Slightly darker backdrop */
+            animation: fadeInBackdrop 0.3s ease;
+        }
+        @keyframes fadeInBackdrop {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
@@ -268,8 +307,17 @@
             max-width: 700px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5), var(--border-glow);
             position: relative;
-            animation: slideInUp 0.5s ease-out;
+            animation: scaleUpModal 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            transform: scale(0.95); /* Start slightly smaller for scaleUp animation */
+            opacity: 0; /* Start transparent for scaleUp animation */
         }
+        @keyframes scaleUpModal {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
 
         .close-button {
             color: var(--text-secondary);
@@ -278,7 +326,7 @@
             right: 25px;
             font-size: 30px;
             font-weight: bold;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
 
         .close-button:hover,
@@ -286,6 +334,7 @@
             color: var(--white-glow);
             text-decoration: none;
             cursor: pointer;
+            transform: rotate(90deg);
         }
 
         #modal-body img.modal-main-image {
@@ -295,13 +344,15 @@
             border-radius: 8px;
             margin-bottom: 20px;
             border: 2px solid var(--border-color);
+            transition: opacity 0.3s ease-in-out; /* For image change */
         }
         
         #modal-body .modal-image-gallery {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            overflow-x: auto; /* For many images */
+            overflow-x: auto;
+            padding-bottom: 5px; /* Space for scrollbar if needed */
         }
 
         #modal-body .modal-image-gallery img {
@@ -311,13 +362,15 @@
             border-radius: 4px;
             cursor: pointer;
             border: 2px solid var(--border-color);
-            transition: border-color 0.3s, transform 0.3s;
+            transition: border-color 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 0.7;
         }
 
         #modal-body .modal-image-gallery img:hover,
         #modal-body .modal-image-gallery img.active-thumb {
             border-color: var(--accent-color);
             transform: scale(1.1);
+            opacity: 1;
         }
 
         #modal-body h2 {
@@ -343,7 +396,7 @@
         #modal-body .modal-description {
             margin-bottom: 20px;
             color: var(--text-secondary);
-            white-space: pre-wrap; /* Preserve line breaks from JSON */
+            white-space: pre-wrap;
         }
         #modal-body .modal-description strong {
             color: var(--text-primary);
@@ -367,28 +420,45 @@
             padding: 20px 0;
             margin-top: 40px;
             border-top: 1px solid var(--border-color);
+            animation: fadeInUpFooter 0.8s 0.5s ease-out forwards;
+            opacity: 0;
         }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
+        @keyframes fadeInUpFooter {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Loading Spinner and Messages */
+        .status-message-container {
+            grid-column: 1 / -1; /* Span all columns */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            min-height: 200px; /* Ensure it has some height */
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .loading-spinner {
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .status-message-container p {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            text-align: center;
         }
+
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -413,13 +483,6 @@
             .modal-content { padding: 20px; }
         }
         
-        #loading-message, #no-results-message {
-            grid-column: 1 / -1; /* Span all columns */
-            text-align: center;
-            font-size: 1.2em;
-            padding: 20px;
-            color: var(--text-secondary);
-        }
     </style>
 </head>
 <body>
@@ -443,15 +506,14 @@
         <section id="account-listings">
             <h2>Daftar Akun</h2>
             <div id="account-grid" class="grid-container">
-                <!-- Account cards will be populated by JS -->
-                <p id="loading-message">Memuat akun...</p>
+                <!-- Initial status message (loading/error) will be injected here by JS -->
             </div>
         </section>
     </main>
 
     <footer>
         <div class="container">
-            <p>© 2023 Nama Toko Anda. Powered by You!</p>
+            <p>© 2024 Nama Toko Anda. Powered by You!</p> <!-- Tahun diupdate -->
         </div>
     </footer>
 
@@ -470,16 +532,10 @@
             // ==================================================================
             // !!!! PENTING: GANTI DENGAN USERNAME DAN NAMA REPO GITHUB ANDA !!!!
             // ==================================================================
-            const GITHUB_USERNAME = 'exora8'; 
-            const GITHUB_REPONAME = 'exora.github.io';            
-            // ==================================================================
-            // Pastikan file data.json ada di root folder branch 'main' (atau branch utama Anda)
-            // Contoh: https://raw.githubusercontent.com/USERNAME/REPONAME/main/data.json
+            const GITHUB_USERNAME = 'NAMA_PENGGUNA_GITHUB_ANDA'; 
+            const GITHUB_REPONAME = 'NAMA_REPO_ANDA';            
             // ==================================================================
             const DATA_FILE_PATH = 'data.json'; 
-
-            const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}`;
-            // Jika branch utama Anda bukan 'main', ganti 'main' dengan nama branch Anda (misal: 'master')
 
             const accountGrid = document.getElementById('account-grid');
             const searchInput = document.getElementById('searchInput');
@@ -487,19 +543,42 @@
             const modal = document.getElementById('accountModal');
             const modalBody = document.getElementById('modal-body');
             const closeButton = document.querySelector('.close-button');
-            const loadingMessage = document.getElementById('loading-message');
             const gameFiltersContainer = document.getElementById('game-filters');
 
             let allAccounts = [];
             let uniqueGameNames = new Set();
 
+            function showStatusMessage(type, message) {
+                accountGrid.innerHTML = ''; // Clear previous content
+                const statusContainer = document.createElement('div');
+                statusContainer.classList.add('status-message-container');
+
+                if (type === 'loading') {
+                    const spinner = document.createElement('div');
+                    spinner.classList.add('loading-spinner');
+                    statusContainer.appendChild(spinner);
+                }
+                
+                const messageP = document.createElement('p');
+                messageP.textContent = message;
+                statusContainer.appendChild(messageP);
+                
+                accountGrid.appendChild(statusContainer);
+            }
+
+
             async function fetchAccounts() {
+                showStatusMessage('loading', 'Memuat akun...');
+
+                // Cache Busting: Tambahkan timestamp ke URL untuk memastikan data selalu baru
+                const cacheBust = new Date().getTime();
+                const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
+
                 try {
                     if (GITHUB_USERNAME === 'NAMA_PENGGUNA_GITHUB_ANDA' || GITHUB_REPONAME === 'NAMA_REPO_ANDA') {
-                         const errorMessage = "Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
+                        const errorMessage = "Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
                         console.error(errorMessage);
-                        if (loadingMessage) loadingMessage.textContent = errorMessage;
-                        accountGrid.innerHTML = `<p id="no-results-message">${errorMessage}</p>`;
+                        showStatusMessage('error', errorMessage);
                         return;
                     }
 
@@ -509,29 +588,34 @@
                     }
                     const accounts = await response.json();
                     allAccounts = accounts;
-                    populateGameFilters();
-                    displayAccounts(allAccounts);
-                    if (loadingMessage) loadingMessage.style.display = 'none';
+
+                    if (allAccounts.length === 0) {
+                        showStatusMessage('info', 'Tidak ada akun yang tersedia saat ini.');
+                    } else {
+                        populateGameFilters();
+                        displayAccounts(allAccounts); // Tampilkan semua akun dulu
+                    }
                 } catch (error) {
                     console.error('Error fetching accounts:', error);
-                    if (loadingMessage) loadingMessage.textContent = `Gagal memuat akun: ${error.message}`;
-                     accountGrid.innerHTML = `<p id="no-results-message">Tidak dapat memuat data akun. Cek konsol browser (F12 -> Console) untuk detail error.</p>`;
+                    showStatusMessage('error', `Gagal memuat akun: ${error.message}. Cek konsol browser (F12 -> Console) untuk detail.`);
                 }
             }
 
             function populateGameFilters() {
-                uniqueGameNames.clear(); // Bersihkan set sebelum mengisi ulang
+                uniqueGameNames.clear(); 
                 allAccounts.forEach(account => uniqueGameNames.add(account.gameName));
                 
-                gameFiltersContainer.innerHTML = ''; // Bersihkan filter lama
+                gameFiltersContainer.innerHTML = '';
 
                 const allButton = createFilterButton('Semua Game', 'all');
-                allButton.classList.add('active'); // 'Semua Game' aktif secara default
+                allButton.classList.add('active'); 
                 gameFiltersContainer.appendChild(allButton);
 
                 uniqueGameNames.forEach(gameName => {
-                    const button = createFilterButton(gameName, gameName);
-                    gameFiltersContainer.appendChild(button);
+                    if(gameName){ // Pastikan gameName ada
+                        const button = createFilterButton(gameName, gameName);
+                        gameFiltersContainer.appendChild(button);
+                    }
                 });
             }
 
@@ -540,34 +624,34 @@
                 button.classList.add('filter-button');
                 button.textContent = text;
                 button.dataset.filter = filterValue;
-                button.addEventListener('click', () => handleFilterClick(button, filterValue));
+                button.addEventListener('click', () => handleFilterClick(button));
                 return button;
             }
 
-            function handleFilterClick(clickedButton, filterValue) {
+            function handleFilterClick(clickedButton) {
                 document.querySelectorAll('#game-filters .filter-button').forEach(btn => btn.classList.remove('active'));
                 clickedButton.classList.add('active');
-                searchAccounts(); // Panggil searchAccounts agar filter diterapkan bersamaan dengan pencarian
+                searchAccounts(); 
             }
 
             function displayAccounts(accountsToDisplay) {
                 accountGrid.innerHTML = ''; 
                 if (accountsToDisplay.length === 0) {
-                    accountGrid.innerHTML = `<p id="no-results-message">Tidak ada akun yang cocok dengan kriteria.</p>`;
+                    showStatusMessage('info', 'Tidak ada akun yang cocok dengan kriteria.');
                     return;
                 }
-                accountsToDisplay.forEach(account => {
+                accountsToDisplay.forEach((account, index) => {
                     const card = document.createElement('div');
                     card.classList.add('account-card');
-                    // Sediakan gambar placeholder jika gambar utama tidak ada
-                    const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
-                    // Sediakan ikon placeholder jika ikon game tidak ada
-                    const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
+                    // Staggered animation delay
+                    card.style.animationDelay = `${index * 0.08}s`; // Lebih cepat sedikit delay nya
 
+                    const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
+                    const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
 
                     card.innerHTML = `
                         <div class="card-image-container">
-                            <img src="${mainImage}" alt="${account.title}" loading="lazy">
+                            <img src="${mainImage}" alt="${account.title || 'Gambar Akun'}" loading="lazy">
                         </div>
                         <div class="card-content">
                             <div class="game-info">
@@ -587,9 +671,6 @@
                         detailsButton.addEventListener('click', () => openModal(account.id));
                     }
                 });
-                accountGrid.style.opacity = '0'; 
-                void accountGrid.offsetWidth; 
-                accountGrid.style.opacity = '1';
             }
 
             function openModal(accountId) {
@@ -597,19 +678,17 @@
                 if (!account) return;
 
                 let imageGalleryHTML = '';
-                // Sediakan gambar placeholder jika gambar utama tidak ada
                 const modalMainImageSrc = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/700x300.png?text=No+Image';
 
-                if (account.images && account.images.length > 0) { // Tampilkan galeri hanya jika ada gambar
+                if (account.images && account.images.length > 1) { // Tampilkan galeri hanya jika ada LEBIH DARI 1 gambar
                      imageGalleryHTML = account.images.map((imgSrc, index) => 
                         `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
                     ).join('');
                 }
 
-
                 modalBody.innerHTML = `
                     <img src="${modalMainImageSrc}" alt="${account.title || 'Detail Akun'}" class="modal-main-image" id="modalMainImage">
-                    ${account.images && account.images.length > 1 ? `<div class="modal-image-gallery">${imageGalleryHTML}</div>` : ''}
+                    ${imageGalleryHTML ? `<div class="modal-image-gallery">${imageGalleryHTML}</div>` : ''}
                     <h2>${account.title || 'Judul Akun Tidak Ada'}</h2>
                     <p class="modal-price">${account.price || 'Harga tidak ditentukan'}</p>
                     <p class="modal-game"><strong>Game:</strong> ${account.gameName || 'N/A'}</p>
@@ -624,7 +703,13 @@
 
             window.changeModalMainImage = function(thumbElement, newImageSrc) {
                 const mainImg = document.getElementById('modalMainImage');
-                if(mainImg) mainImg.src = newImageSrc;
+                if(mainImg) {
+                    mainImg.style.opacity = 0; // Mulai fade out
+                    setTimeout(() => {
+                        mainImg.src = newImageSrc;
+                        mainImg.onload = () => { mainImg.style.opacity = 1; }; // Fade in setelah load
+                    }, 200); // Waktu untuk fade out
+                }
                 
                 const gallery = thumbElement.closest('.modal-image-gallery');
                 if (gallery) {
@@ -643,13 +728,18 @@
                 const activeFilterButton = document.querySelector('#game-filters .filter-button.active');
                 const activeFilterValue = activeFilterButton ? activeFilterButton.dataset.filter : 'all';
 
+                if (!allAccounts || allAccounts.length === 0) {
+                    displayAccounts([]); // Tampilkan pesan "tidak ada akun" jika allAccounts kosong
+                    return;
+                }
+
                 const filteredAccounts = allAccounts.filter(account => {
                     const titleMatch = account.title && account.title.toLowerCase().includes(searchTerm);
                     const gameNameMatch = account.gameName && account.gameName.toLowerCase().includes(searchTerm);
                     const descriptionMatch = account.description && account.description.toLowerCase().includes(searchTerm);
                     const tagsMatch = account.tags && account.tags.some(tag => tag.toLowerCase().includes(searchTerm));
                     
-                    const matchesSearch = titleMatch || gameNameMatch || descriptionMatch || tagsMatch;
+                    const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; // Jika search kosong, anggap semua cocok search
                     const matchesFilter = (activeFilterValue === 'all' || (account.gameName && account.gameName === activeFilterValue));
                     
                     return matchesSearch && matchesFilter;
@@ -660,11 +750,8 @@
             if (searchButton) searchButton.addEventListener('click', searchAccounts);
             if (searchInput) {
                 searchInput.addEventListener('keyup', (event) => {
-                    if (event.key === "Enter") {
-                        searchAccounts();
-                    } else { // Pencarian live saat mengetik
-                        searchAccounts();
-                    }
+                    // Tidak perlu Enter lagi, pencarian live
+                    searchAccounts();
                 });
             }
             if (closeButton) closeButton.addEventListener('click', closeModal);
