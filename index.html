@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbyte Account Store</title>
+    <title>Orbyte Account Store - Auto GG, Anti Ribet!</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -113,7 +113,7 @@
             padding: 14px 25px;
             border-radius: 0 30px 30px 0;
             border: 1px solid var(--accent-color);
-            border-left: none; /* Agar menyatu dengan input */
+            border-left: none; 
             background-color: var(--accent-color);
             color: var(--primary-bg);
             font-size: 1em;
@@ -563,6 +563,46 @@
             text-align: center;
         }
 
+        /* === FLOATING ACTION BUTTON (FAB) STYLE === */
+        #sellAccountFab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 255, 132, 0.4), 0 2px 6px rgba(0,0,0,0.3);
+            font-size: 1.5em; /* Ukuran ikon di dalam FAB */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999; /* Di atas konten, di bawah modal */
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: scale(0.5) translateY(20px);
+            animation: fabFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s forwards; /* Delay 1s */
+        }
+        @keyframes fabFadeInUp {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        #sellAccountFab:hover {
+            background-color: var(--accent-color-darker);
+            transform: scale(1.1);
+            box-shadow: 0 6px 18px rgba(0, 255, 132, 0.6), 0 3px 8px rgba(0,0,0,0.4);
+        }
+        #sellAccountFab:active {
+            transform: scale(0.95);
+        }
+
+
         /* === MEDIA QUERIES - PENYESUAIAN RESPONSIVE === */
 
         @media (max-width: 768px) {
@@ -575,7 +615,7 @@
                 max-width: none; 
             }
              #searchButton {
-                width: 30%; /* Lebar tombol disesuaikan agar pas */
+                width: 30%; 
             }
             .grid-container { 
                 grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
@@ -588,6 +628,14 @@
             }
             .account-card h3 { font-size: 1.4em; }
             .account-card .price { font-size: 1.3em; }
+
+            #sellAccountFab {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3em;
+                bottom: 20px;
+                right: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -602,44 +650,41 @@
                 padding: 15px 0; 
             }
             header h1 { 
-                font-size: 1.6em; /* Ukuran font judul lebih kecil */
+                font-size: 1.6em; 
                 margin-bottom: 15px; 
             }
 
-            /* Search Bar di Mobile */
             .search-container { 
-                flex-direction: row; /* Kembali ke baris */
-                gap: 0; /* Tidak ada gap */
+                flex-direction: row; 
+                gap: 0; 
                 align-items: stretch; 
                 margin-top: 10px;
-                /* Penambahan untuk memastikan kontainer tidak lebih lebar dari parent */
                 max-width: 100%; 
-                padding: 0 5px; /* Sedikit padding jika diperlukan untuk menghindari sentuhan tepi */
+                padding: 0 5px; 
                 box-sizing: border-box;
             }
             #searchInput { 
-                flex-grow: 1; /* Input mengambil sisa ruang */
-                width: auto; /* Hapus width eksplisit agar flex-grow bekerja */
+                flex-grow: 1; 
+                width: auto; 
                 max-width: none; 
-                border-radius: 20px 0 0 20px; /* Radius asli desktop disesuaikan */
-                padding: 10px 15px;  /* Padding lebih kecil */
-                font-size: 0.9em; /* Font lebih kecil */
-                min-width: 0; /* Penting untuk flex item */
+                border-radius: 20px 0 0 20px; 
+                padding: 10px 15px;  
+                font-size: 0.9em; 
+                min-width: 0; 
             }
             #searchButton { 
-                flex-shrink: 0; /* Tombol tidak mengecil */
-                width: auto; /* Lebar otomatis berdasarkan padding & content */
-                border-radius: 0 20px 20px 0; /* Radius asli desktop disesuaikan */
-                padding: 10px 15px; /* Padding lebih kecil */
-                font-size: 0.9em; /* Font lebih kecil */
+                flex-shrink: 0; 
+                width: auto; 
+                border-radius: 0 20px 20px 0; 
+                padding: 10px 15px; 
+                font-size: 0.9em; 
             }
             #searchButton .fa-search {
-                 font-size: 1em; /* Ukuran ikon search di tombol */
+                 font-size: 1em; 
             }
 
-
             #filter-section { 
-                padding: 15px 10px; /* Padding lebih kecil */
+                padding: 15px 10px; 
                 margin-bottom: 25px;
             }
             #filter-section h2 { 
@@ -650,8 +695,8 @@
                 justify-content: flex-start; 
             }
             .filter-button { 
-                padding: 7px 12px; /* Padding tombol filter lebih kecil */
-                font-size: 0.85em; /* Font tombol filter lebih kecil */
+                padding: 7px 12px; 
+                font-size: 0.85em; 
             }
 
             .grid-container { 
@@ -659,24 +704,24 @@
                 grid-template-columns: 1fr; 
             }
             .account-card { 
-                border-radius: 8px; /* Radius kartu sedikit lebih kecil */
+                border-radius: 8px; 
             }
             .account-card .card-image-container { 
-                height: 160px; /* Tinggi gambar kartu lebih kecil */
+                height: 160px; 
             }
             .account-card .card-content { 
-                padding: 15px; /* Padding konten kartu lebih kecil */
+                padding: 15px; 
             }
             .account-card .game-icon {
                 width: 26px;
                 height: 26px;
             }
             .account-card h3 { 
-                font-size: 1.15em; /* Font judul kartu lebih kecil */
+                font-size: 1.15em; 
             }
             .account-card .description {
                 font-size: 0.85em; 
-                -webkit-line-clamp: 2; /* Batas baris deskripsi dikurangi */
+                -webkit-line-clamp: 2; 
             }
             .account-card .price { 
                 font-size: 1.1em; 
@@ -686,15 +731,14 @@
                 font-size: 0.9em;
             }
             
-            /* Modal di Mobile */
             .modal-content { 
-                padding: 15px; /* Padding modal lebih kecil */
-                max-width: calc(100% - 30px); /* Margin modal dari tepi layar */
+                padding: 15px; 
+                max-width: calc(100% - 30px); 
                 margin: 8% auto; 
                 border-radius: 10px;
             }
              #modal-body img.modal-main-image {
-                max-height: 180px; /* Tinggi gambar utama modal lebih kecil */
+                max-height: 180px; 
                 margin-bottom: 12px;
                 border-radius: 6px;
             }
@@ -709,21 +753,21 @@
                 border-radius: 4px;
             }
             #modal-body h2 { 
-                font-size: 1.3em; /* Font judul modal lebih kecil */
+                font-size: 1.3em; 
                 margin-bottom: 6px;
             }
             #modal-body .modal-price { 
-                font-size: 1.4em; /* Font harga modal lebih kecil */
+                font-size: 1.4em; 
                 margin-bottom: 10px;
             }
             #modal-body .modal-game,
             #modal-body .modal-description {
-                font-size: 0.9em; /* Font teks detail modal lebih kecil */
-                line-height: 1.5; /* Line height disesuaikan */
+                font-size: 0.9em; 
+                line-height: 1.5; 
                 margin-bottom: 10px;
             }
              #modal-body .modal-description strong {
-                display: block; /* Agar strong tidak membuat baris baru aneh */
+                display: block; 
                 margin-bottom: 3px;
             }
             .modal-chat-button { 
@@ -744,6 +788,14 @@
                 padding: 15px 10px; 
                 font-size: 0.85em; 
                 margin-top: 25px;
+            }
+
+            #sellAccountFab { /* FAB untuk mobile */
+                width: 50px;
+                height: 50px;
+                font-size: 1.2em;
+                bottom: 15px;
+                right: 15px;
             }
         }
 
@@ -808,6 +860,11 @@
         </div>
     </div>
 
+    <!-- Tombol Jual Akun (FAB) -->
+    <button id="sellAccountFab" title="Jual Akun Anda">
+        <i class="fas fa-hand-holding-dollar"></i>
+    </button>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const GITHUB_USERNAME = 'exora8'; 
@@ -821,9 +878,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalBody = document.getElementById('modal-body');
     const closeButton = document.querySelector('.close-button');
     const gameFiltersContainer = document.getElementById('game-filters');
+    const sellAccountFab = document.getElementById('sellAccountFab'); // Ambil elemen FAB
 
     let allAccounts = [];
     let uniqueGameNames = new Set();
+
+    // Nomor WhatsApp Admin (sudah ada)
+    const whatsappNumber = '6283128804631'; 
 
     function showStatusMessage(type, message) {
         accountGrid.innerHTML = ''; 
@@ -958,9 +1019,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
             ).join('');
         }
-
-        const whatsappNumber = '6283128804631'; 
-        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Halo, saya tertarik dengan akun: ' + (account.title || 'Akun Game') + '. Mohon info lebih lanjut.')}`;
+        
+        const buyMessage = `Halo, saya tertarik dengan akun: ${account.title || 'Akun Game'}. Mohon info lebih lanjut.`;
+        const whatsappLinkBuy = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(buyMessage)}`;
 
 
         modalBody.innerHTML = `
@@ -971,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="modal-game"><strong>Game:</strong> ${account.gameName || 'N/A'}</p>
             <p class="modal-description"><strong>Deskripsi:</strong><br>${(account.description || 'Deskripsi tidak tersedia.').replace(/\n/g, '<br>')}</p>
             <div class="modal-contact">
-                <button onclick="window.open('${whatsappLink}', '_blank')" class="modal-chat-button">
+                <button onclick="window.open('${whatsappLinkBuy}', '_blank')" class="modal-chat-button">
                     <i class="fab fa-whatsapp"></i> Chat Admin
                 </button>
             </div>
@@ -1027,11 +1088,27 @@ document.addEventListener('DOMContentLoaded', () => {
         displayAccounts(filteredAccounts);
     }
 
+    // Event listener untuk FAB Jual Akun
+    if (sellAccountFab) {
+        sellAccountFab.addEventListener('click', () => {
+            const sellMessage = "Halo Admin, saya ingin menjual akun game saya. Mohon informasinya.";
+            const whatsappLinkSell = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(sellMessage)}`;
+            window.open(whatsappLinkSell, '_blank');
+        });
+    }
+
     if (searchButton) searchButton.addEventListener('click', searchAccounts);
     if (searchInput) {
         searchInput.addEventListener('keyup', (event) => {
-            searchAccounts();
+            if (event.key === "Enter") { // Opsional: trigger search on enter
+                 searchAccounts();
+            }
         });
+        // Jika ingin live search (setiap ketikan langsung cari), hapus kondisi if (event.key === "Enter")
+        // dan biarkan searchAccounts(); di luar. Tapi bisa jadi berat jika data banyak.
+        // Untuk sekarang, saya akan biarkan search hanya dengan tombol atau Enter.
+        // Jika ingin live search, uncomment baris di bawah dan comment/remove yang di atas:
+        // searchInput.addEventListener('input', searchAccounts); 
     }
     if (closeButton) closeButton.addEventListener('click', closeModal);
     
