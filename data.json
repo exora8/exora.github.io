@@ -46,31 +46,14 @@
   {
     "id": "ff_sultan_booyah_004",
     "gameName": "Free Fire",
-    "gameIcon": "images/icons/ff_icon.png",
-    "title": "Akun Free Fire Sultan Sepuh Old",
-    "description": "Akun FF dari season lama, banyak item langka.\n- Level: 70+\n- Elite Pass: Banyak yang sudah max dari season old.\n- Bundle: Ratusan, termasuk bundle incubator langka.\n- Senjata Evo: Beberapa sudah max level (UMP Booyah Day, AK Blue Flame Draco).\n- Pet & Character: Lengkap.\nLogin via Facebook (data diberikan semua).",
-    "price": "Rp 850.000",
+    "gameIcon": "https://o.qoo-img.com/ggpht/sKh_B4ZLfu0jzqx9z98b2APe2rxDb8dIW-QqFHyS3cpzDK2Qq8tAbRAz3rXzOFtdAw",
+    "title": "Akun Free Fire Farrel",
+    "description": "spek GG \n- max 2 (scar sama ump) \n- SG 10 rasa \n- vault 500+ \n- bundle cobra + booyah day on \n- animasi 2 \n- tinju 2 \n- Genji hitam sama putih on \n- Jordan on \n- angle biru on \n- jengot bnl on",
+    "price": "Rp 1.200.000",
     "images": [
-      "images/accounts/ff_004/lobby_profile.jpg",
-      "images/accounts/ff_004/vault_bundle.jpg",
-      "images/accounts/ff_004/evo_gun_max.jpg"
+      "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/AccountImages/FF001/IMG-20250508-WA0116.jpg"
     ],
     "tags": ["free fire", "ff", "sultan", "akun sepuh", "old account", "elite pass old", "bundle langka", "evo gun max"],
     "contact": "Instagram DM: @FFStoreTerpercaya"
-  },
-  {
-    "id": "pubgm_conqueror_005",
-    "gameName": "PUBG Mobile",
-    "gameIcon": "images/icons/pubgm_icon.png",
-    "title": "Akun PUBG Mobile Conqueror S20 M4 Glacier Max",
-    "description": "Akun PUBG Mobile siap pakai, pernah Conqueror.\n- Title Conqueror Season 20.\n- M416 Glacier Max Level 7.\n- Outfit Mythic Fashion banyak.\n- Kendaraan skin UAZ & Dacia.\n- Data lengkap, aman.",
-    "price": "Rp 1.800.000",
-    "images": [
-      "images/accounts/pubgm_005/conqueror_title.jpg",
-      "images/accounts/pubgm_005/m4_glacier_max.jpg",
-      "images/accounts/pubgm_005/mythic_fashion_inventory.jpg"
-    ],
-    "tags": ["pubgm", "pubg mobile", "conqueror", "m4 glacier", "mythic fashion", "akun gg"],
-    "contact": "Email: pubgselly@example.com"
   }
 ]
