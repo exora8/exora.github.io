@@ -576,10 +576,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAccounts() {
         showStatusMessage('loading', 'Memuat akun...');
         const cacheBust = new Date().getTime();
-        const dataUrl = `https://raw.githubusercontent.com/exora8/exora.github.io/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
+        const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
 
         try {
-            if (GITHUB_USERNAME === 'exora8' || GITHUB_REPONAME === 'exora.github.io') {
+            if (GITHUB_USERNAME === 'NAMA_PENGGUNA_GITHUB_ANDA' || GITHUB_REPONAME === 'NAMA_REPO_ANDA') {
                 const errorMessage = "Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
                 console.error(errorMessage);
                 showStatusMessage('error', errorMessage);
