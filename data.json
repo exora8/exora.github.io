@@ -1,0 +1,60 @@
+[
+  {
+    "id": "mlbb001",
+    "gameName": "Mobile Legends",
+    "gameIcon": "images/mlbb_icon.png",
+    "title": "Akun MLBB Sultan Mythical Glory",
+    "description": "Akun Mobile Legends siap tempur!\n- Rank: Mythical Glory 700pts\n- Hero: Semua Hero Terbuka\n- Skin: 300+ (Legend Gusion & Granger, Collector Aldous, banyak Epic Limited)\n- Emblem: Max Semua\n- Cocok untuk yang serius ngejar rank tertinggi atau ikut turnamen.",
+    "price": "Rp 2.850.000",
+    "images": [
+      "images/mlbb_akun_001_main.jpg",
+      "images/mlbb_akun_001_hero_list.jpg",
+      "images/mlbb_akun_001_skin_legend.jpg"
+    ],
+    "tags": ["mlbb", "sultan", "mythical glory", "skin lengkap", "all hero"],
+    "contact": "WhatsApp: 0812-1111-2222"
+  },
+  {
+    "id": "valo002",
+    "gameName": "Valorant",
+    "gameIcon": "images/valorant_icon.png",
+    "title": "Akun Valorant Immortal Full Skin Bundle",
+    "description": "Akun Valorant rank Immortal 2.\n- Skin: Bundle Reaver, Prime, Glitchpop, Elderflame Vandal & Phantom.\n- Battle Pass: Selalu max dari Episode 1.\n- Agen: Semua agen terbuka.\n- Siap untuk main kompetitif atau sekadar pamer skin.",
+    "price": "Rp 1.500.000",
+    "images": [
+      "images/valo_akun_002_inventory.jpg",
+      "images/valo_akun_002_rank.png"
+    ],
+    "tags": ["valorant", "immortal", "skin bundle", "competitive", "asia server"],
+    "contact": "Discord: GamerPro#5678"
+  },
+  {
+    "id": "gi003",
+    "gameName": "Genshin Impact",
+    "gameIcon": "images/genshin_icon.png",
+    "title": "Akun Genshin Impact AR 59 Server Asia",
+    "description": "Akun Genshin Impact Adventure Rank 59.\n- Server: Asia\n- Karakter B5: Raiden Shogun C2 + Engulfing, Yelan C1 + Aqua, Nahida + Signature, Zhongli, Kazuha, Ayaka, Hu Tao.\n- Weapon B5: Banyak (Engulfing Lightning, Aqua Simulacra, Mistsplitter, Staff of Homa, dll)\n- Artefak: Sudah jadi untuk karakter-karakter utama.\n- Eksplorasi: Map sudah 100% kecuali beberapa area baru.\n- Blessing Welkin aktif.",
+    "price": "Rp 3.200.000 (Nego Tipis)",
+    "images": [
+      "images/genshin_akun_003_char_list.jpg",
+      "images/genshin_akun_003_raiden.jpg",
+      "images/genshin_akun_003_weapon.jpg"
+    ],
+    "tags": ["genshin impact", "ar59", "asia server", "b5 banyak", "whale account"],
+    "contact": "Telegram: @AkunGenshinMantap"
+  },
+  {
+    "id": "coc004",
+    "gameName": "Clash of Clans",
+    "gameIcon": "images/coc_icon.png",
+    "title": "Akun CoC TH 15 Max Defense",
+    "description": "Akun Clash of Clans Town Hall 15.\n- Defense: Max semua (Inferno, Eagle, Scattershot, dll)\n- Troops & Spell: Max untuk strategi populer.\n- Hero: Barbarian King Lv.85, Archer Queen Lv.85, Grand Warden Lv.60, Royal Champion Lv.35.\n- Builder Base: BH9 Max.\n- CN (Change Name): Masih bisa.",
+    "price": "Rp 950.000",
+    "images": [
+      "images/coc_akun_004_base.jpg",
+      "images/coc_akun_004_profile.jpg"
+    ],
+    "tags": ["coc", "clash of clans", "th15", "max defense", "akun tua"],
+    "contact": "Line ID: cocseller123"
+  }
+]
