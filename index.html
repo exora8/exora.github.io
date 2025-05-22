@@ -3,50 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Account Store</title>
+    <title>Orbyte Account Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --primary-bg: #121212;
-            --secondary-bg: #1e1e1e;
-            --card-bg: #2a2a2a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --accent-color: #00e676; /* Warna hijau lebih cerah */
-            --accent-color-darker: #00c853;
-            --border-color: #424242;
-            --white-glow: #ffffff;
-            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            --box-shadow-hover: 0 6px 25px rgba(0, 0, 0, 0.5);
-            --border-glow: 0 0 8px var(--white-glow), 0 0 12px var(--white-glow), 0 0 16px var(--white-glow);
+            --primary-bg: #0f0f12; /* Lebih gelap sedikit */
+            --secondary-bg: #1a1a1d; /* Sedikit lebih gelap dan berbeda */
+            --card-bg: #232326; /* Background kartu */
+            --text-primary: #f0f0f0; /* Putih keabu-abuan */
+            --text-secondary: #a0a0a0; /* Abu-abu lebih lembut */
+            --accent-color: #00ff84; /* Hijau neon yang lebih vibrant */
+            --accent-color-darker: #00d970;
+            --border-color: #333336; /* Border lebih subtle */
+            --white-glow: #00ff84; /* Glow mengikuti warna aksen (sekarang hijau) */
+            --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); /* Shadow lebih lembut dan menyebar */
+            --box-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.6);
+            --border-glow: 0 0 8px var(--accent-color), 0 0 12px var(--accent-color), 0 0 16px var(--accent-color);
+            --font-main: 'Roboto', sans-serif;
         }
 
+        /* Efek gradien halus untuk background body */
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: var(--font-main);
             margin: 0;
-            background-color: var(--primary-bg);
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1f 100%); /* Gradien halus */
             color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden; /* Mencegah scroll horizontal karena beberapa animasi */
+            line-height: 1.7; /* Sedikit lebih lega */
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased; /* Font lebih halus */
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px 0;
+            padding: 25px 0; /* Padding sedikit lebih besar */
         }
 
         header {
-            background-color: var(--secondary-bg);
-            padding: 15px 0;
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: var(--box-shadow);
+            background-color: rgba(26, 26, 29, 0.85); /* secondary-bg dengan sedikit transparansi */
+            backdrop-filter: blur(10px); /* Efek frosted glass */
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color); /* Border lebih tipis */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); /* Shadow header lebih subtle */
             position: sticky;
             top: 0;
             z-index: 1000;
-            animation: slideDownNav 0.7s ease-out;
+            animation: slideDownNav 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes slideDownNav {
             from { transform: translateY(-100%); opacity: 0; }
@@ -55,129 +61,158 @@
 
         header h1 {
             margin: 0;
-            font-size: 2em;
-            color: var(--white-glow);
+            font-size: 2.2em; /* Sedikit lebih besar */
+            font-weight: 700; /* Lebih tebal */
+            color: var(--text-primary);
             text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 132, 0.3); /* Shadow teks halus dengan warna aksen */
+            animation: textFocusIn 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.2s both;
+        }
+        /* Animasi untuk teks */
+        @keyframes textFocusIn {
+            0% { filter: blur(12px); opacity: 0; }
+            100% { filter: blur(0px); opacity: 1; }
         }
 
+
         header h1 .fa-store {
-            margin-right: 10px;
+            margin-right: 12px;
             color: var(--accent-color);
+            /* animation: iconPulse 2s infinite ease-in-out; */ /* Animasi subtle untuk ikon DIHAPUS */
         }
+        /* @keyframes iconPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: var(--accent-color-darker); }
+            100% { transform: scale(1); }
+        } */ /* Keyframes iconPulse DIHAPUS karena animasi tidak lagi digunakan */
+
 
         .search-container {
             display: flex;
-            margin-top: 15px;
+            margin-top: 20px;
             justify-content: center;
+            animation: fadeInFromBottom 0.7s ease-out 0.5s forwards; /* Animasi untuk search */
+            opacity: 0;
         }
+        @keyframes fadeInFromBottom {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
 
         #searchInput {
             width: 60%;
-            max-width: 400px;
-            padding: 12px 18px;
-            border-radius: 25px 0 0 25px;
+            max-width: 450px; /* Sedikit lebih lebar */
+            padding: 14px 22px;
+            border-radius: 30px 0 0 30px;
             border: 1px solid var(--border-color);
             background-color: var(--card-bg);
             color: var(--text-primary);
             font-size: 1em;
             outline: none;
-            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+            transition: box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
         }
 
         #searchInput:focus {
-            box-shadow: 0 0 10px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
             border-color: var(--accent-color);
+            background-color: var(--secondary-bg); /* Background berubah saat fokus */
         }
 
         #searchButton {
-            padding: 12px 20px;
-            border-radius: 0 25px 25px 0;
+            padding: 14px 25px;
+            border-radius: 0 30px 30px 0;
             border: 1px solid var(--accent-color);
             background-color: var(--accent-color);
             color: var(--primary-bg);
             font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
         }
 
         #searchButton:hover {
             background-color: var(--accent-color-darker);
             transform: scale(1.05);
+            box-shadow: 0 0 12px var(--accent-color-darker); /* Glow pada tombol saat hover */
         }
         
         #filter-section {
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 35px; /* Jarak lebih */
+            padding: 25px;
             background-color: var(--secondary-bg);
-            border-radius: 8px;
+            border-radius: 12px; /* Radius lebih besar */
             box-shadow: var(--box-shadow);
-            animation: fadeInFromLeft 0.8s 0.2s ease-out forwards;
+            animation: fadeInFromLeft 0.8s 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             opacity: 0;
+            border-left: 4px solid var(--accent-color); /* Aksen border kiri */
         }
         @keyframes fadeInFromLeft {
-            from { opacity: 0; transform: translateX(-30px); }
+            from { opacity: 0; transform: translateX(-40px); } /* Sedikit lebih jauh */
             to { opacity: 1; transform: translateX(0); }
         }
 
         #filter-section h2 {
             margin-top: 0;
+            margin-bottom: 15px; /* Jarak bawah */
             border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             display: inline-block;
+            color: var(--text-primary); /* Warna teks lebih jelas */
         }
 
         .filter-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px; /* Jarak antar tombol */
         }
 
         .filter-button {
-            padding: 8px 15px;
+            padding: 10px 20px; /* Padding lebih */
             background-color: var(--card-bg);
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
+            border-radius: 25px; /* Lebih bulat */
             cursor: pointer;
-            transition: all 0.3s ease;
-            transform-origin: center bottom; /* For pop animation */
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transisi lebih bouncy */
+            font-weight: 500; /* Font lebih tebal */
+            text-transform: capitalize; 
         }
-
+        
         .filter-button.active,
         .filter-button:hover {
             background-color: var(--accent-color);
             color: var(--primary-bg);
             border-color: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
-            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 12px var(--accent-color);
+            transform: translateY(-4px) scale(1.08); /* Efek hover lebih menonjol */
         }
-        .filter-button.active {
+        .filter-button.active { 
             animation: popUp 0.3s ease-out;
         }
         @keyframes popUp {
             0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-5px) scale(1.1); }
-            100% { transform: translateY(-3px) scale(1.05); }
+            50% { transform: translateY(-6px) scale(1.12); }
+            100% { transform: translateY(-4px) scale(1.08); }
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); /* Ukuran kartu sedikit lebih besar */
+            gap: 30px; /* Jarak antar kartu lebih besar */
         }
 
         .account-card {
             background-color: var(--card-bg);
-            border-radius: 10px;
+            border-radius: 12px; /* Radius lebih besar */
             overflow: hidden;
             box-shadow: var(--box-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-image 0.35s ease, border-color 0.35s ease; /* Tambahkan transisi border-image */
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-color);
+            border: 1px solid transparent; /* Border awal transparan */
             opacity: 0; 
-            transform: translateY(30px); 
-            animation: cardFadeInUp 0.5s ease-out forwards;
+            transform: translateY(35px); /* Mulai sedikit lebih bawah */
+            animation: cardFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes cardFadeInUp {
             to {
@@ -185,60 +220,96 @@
                 transform: translateY(0);
             }
         }
-
+        
         .account-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--box-shadow-hover), var(--border-glow);
-            border-color: var(--white-glow);
+            transform: translateY(-10px) scale(1.03); /* Hover lebih terasa */
+            box-shadow: var(--box-shadow-hover), 0 0 15px rgba(0, 255, 132, 0.5); /* Shadow aksen */
+            border-image: linear-gradient(to right, var(--accent-color), var(--accent-color-darker)) 1; 
+            border-width: 1px; /* Pastikan border-width diset */
+            border-style: solid; /* Pastikan border-style diset */
         }
+
 
         .account-card .card-image-container {
             width: 100%;
-            height: 180px;
+            height: 200px; /* Gambar sedikit lebih tinggi */
             overflow: hidden;
+            position: relative; /* Untuk pseudo-element overlay */
         }
+        
+        .account-card .card-image-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(35, 35, 38, 0.7), transparent); /* card-bg to transparent */
+            z-index: 1;
+            transition: opacity 0.3s ease; /* Transisi untuk overlay */
+            opacity: 1;
+        }
+        .account-card:hover .card-image-container::after {
+            opacity: 0.5; /* Overlay sedikit berkurang saat hover agar gambar lebih jelas */
+        }
+
 
         .account-card .card-image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.4s ease;
+            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transisi zoom lebih smooth */
         }
 
         .account-card:hover .card-image-container img {
-            transform: scale(1.1);
+            transform: scale(1.15); /* Zoom lebih besar */
         }
 
         .account-card .card-content {
-            padding: 20px;
+            padding: 22px; /* Padding lebih */
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            position: relative; 
+            z-index: 2; /* Di atas overlay gambar */
         }
 
         .account-card .game-info {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
         }
 
         .account-card .game-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            border-radius: 5px;
+            width: 32px; /* Ikon lebih besar */
+            height: 32px;
+            margin-right: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow untuk ikon */
+            transition: transform 0.3s ease;
+        }
+        .account-card:hover .game-icon {
+            transform: rotate(-10deg) scale(1.1); /* Animasi ikon saat card dihover */
         }
 
         .account-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.4em;
+            margin: 0 0 12px 0;
+            font-size: 1.5em; /* Judul lebih besar */
+            font-weight: 600; /* Sedikit lebih tebal */
             color: var(--text-primary);
+            line-height: 1.3; /* Line height untuk judul */
+            transition: color 0.3s ease;
+        }
+        .account-card:hover h3 {
+            color: var(--accent-color); /* Judul berubah warna saat hover */
         }
 
         .account-card .description {
-            font-size: 0.9em;
+            font-size: 0.95em; /* Deskripsi sedikit lebih besar */
             color: var(--text-secondary);
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -248,34 +319,37 @@
         }
 
         .account-card .price {
-            font-size: 1.3em;
-            font-weight: bold;
+            font-size: 1.4em; /* Harga lebih besar */
+            font-weight: 700; /* Harga lebih tebal */
             color: var(--accent-color);
-            margin-bottom: 15px;
+            margin-bottom: 18px;
+            text-shadow: 0 0 8px rgba(0, 255, 132, 0.4); /* Shadow teks harga */
         }
 
         .account-card .details-button {
-            background-color: var(--accent-color);
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); /* Gradien untuk tombol */
             color: var(--primary-bg);
-            padding: 10px 15px;
+            padding: 12px 18px; /* Padding lebih */
             text-align: center;
-            border-radius: 5px;
+            border-radius: 8px; /* Radius lebih besar */
             text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600; /* Font lebih tebal */
+            transition: all 0.3s ease; /* Transisi semua properti */
             display: block;
             margin-top: auto;
-            border: none; /* Pastikan tidak ada border default */
-            cursor: pointer; /* Pastikan cursor pointer */
+            border: none; 
+            cursor: pointer; 
+            box-shadow: 0 2px 8px rgba(0, 255, 132, 0.3); /* Shadow untuk tombol */
         }
 
         .account-card .details-button:hover {
-            background-color: var(--accent-color-darker);
-            transform: scale(1.05);
+            background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%); /* Gradien dibalik */
+            transform: scale(1.05) translateY(-2px); /* Efek hover lebih dinamis */
+            box-shadow: 0 4px 12px rgba(0, 255, 132, 0.5);
         }
 
         /* Modal Styles */
-        .modal {
+        .modal { 
             display: none;
             position: fixed;
             z-index: 1001;
@@ -284,163 +358,191 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.85); 
-            animation: fadeInBackdrop 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.9); /* Backdrop lebih gelap */
+            animation: fadeInBackdrop 0.4s ease-out;
         }
         @keyframes fadeInBackdrop {
             from { opacity: 0; }
             to { opacity: 1; }
         }
 
-        .modal-content {
+        .modal-content { 
             background-color: var(--secondary-bg);
-            margin: 5% auto;
-            padding: 30px;
+            margin: 4% auto; /* Margin atas lebih kecil */
+            padding: 35px; /* Padding lebih besar */
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 15px; /* Radius lebih besar */
             width: 80%;
-            max-width: 700px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5), var(--border-glow);
+            max-width: 750px; /* Max-width lebih besar */
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px var(--accent-color); /* Shadow lebih kuat dengan glow */
             position: relative;
-            animation: scaleUpModal 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-            transform: scale(0.95); 
+            animation: scaleUpModal 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) 0.1s forwards; /* Delay kecil */
+            transform: scale(0.9); 
             opacity: 0; 
         }
         @keyframes scaleUpModal {
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0% { transform: scale(0.9) translateY(20px); opacity: 0; } /* Mulai dari bawah sedikit */
+            100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
         .close-button {
             color: var(--text-secondary);
             position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 30px;
+            top: 20px; /* Posisi disesuaikan */
+            right: 30px;
+            font-size: 35px; /* Lebih besar */
             font-weight: bold;
-            transition: color 0.3s ease, transform 0.3s ease;
+            transition: color 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transisi lebih bouncy */
         }
 
         .close-button:hover,
         .close-button:focus {
-            color: var(--white-glow);
+            color: var(--accent-color); /* Glow saat hover */
             text-decoration: none;
             cursor: pointer;
-            transform: rotate(90deg);
+            transform: rotate(180deg) scale(1.2); /* Rotasi lebih banyak dan membesar */
         }
 
         #modal-body img.modal-main-image {
             width: 100%;
-            max-height: 300px;
+            max-height: 350px; /* Max-height lebih besar */
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 10px; /* Radius lebih besar */
+            margin-bottom: 25px;
             border: 2px solid var(--border-color);
-            transition: opacity 0.3s ease-in-out; 
+            transition: opacity 0.4s ease-in-out, box-shadow 0.3s ease; /* Transisi opacity dan shadow */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        #modal-body img.modal-main-image:hover {
+            box-shadow: 0 0 15px var(--accent-color); /* Glow pada gambar utama saat hover */
         }
         
         #modal-body .modal-image-gallery {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px; /* Jarak antar thumbnail */
+            margin-bottom: 25px;
             overflow-x: auto;
-            padding-bottom: 5px; 
+            padding-bottom: 8px; 
+        }
+        #modal-body .modal-image-gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+        #modal-body .modal-image-gallery::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+            border-radius: 4px;
+        }
+        #modal-body .modal-image-gallery::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+        #modal-body .modal-image-gallery::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color-darker);
         }
 
+
         #modal-body .modal-image-gallery img {
-            width: 80px;
-            height: 80px;
+            width: 90px; /* Thumbnail lebih besar */
+            height: 90px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 6px; /* Radius lebih besar */
             cursor: pointer;
             border: 2px solid var(--border-color);
-            transition: border-color 0.3s, transform 0.3s, opacity 0.3s;
-            opacity: 0.7;
+            transition: border-color 0.3s, transform 0.3s, opacity 0.3s, box-shadow 0.3s;
+            opacity: 0.6; /* Opacity awal lebih rendah */
         }
 
         #modal-body .modal-image-gallery img:hover,
         #modal-body .modal-image-gallery img.active-thumb {
             border-color: var(--accent-color);
-            transform: scale(1.1);
+            transform: scale(1.12); /* Zoom lebih */
             opacity: 1;
+            box-shadow: 0 0 10px var(--accent-color); /* Glow pada thumbnail aktif/hover */
         }
 
         #modal-body h2 {
-            color: var(--white-glow);
+            color: var(--text-primary); /* Warna lebih cerah */
             margin-top: 0;
+            font-size: 1.8em; /* Lebih besar */
+            margin-bottom: 10px; /* Jarak bawah */
         }
 
         #modal-body .modal-price {
-            font-size: 1.8em;
+            font-size: 2em; /* Lebih besar */
             color: var(--accent-color);
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-weight: 700; /* Lebih tebal */
+            margin-bottom: 18px;
+            text-shadow: 0 0 10px rgba(0, 255, 132, 0.5); /* Shadow harga modal */
         }
         
         #modal-body .modal-game {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: var(--text-secondary);
+            font-size: 1.1em; /* Sedikit lebih besar */
         }
         #modal-body .modal-game strong {
             color: var(--text-primary);
         }
 
         #modal-body .modal-description {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: var(--text-secondary);
             white-space: pre-wrap;
+            line-height: 1.7; /* Line height lebih */
+            font-size: 1.05em; /* Sedikit lebih besar */
         }
         #modal-body .modal-description strong {
             color: var(--text-primary);
         }
 
         #modal-body .modal-contact {
-            /* Dihapus styling lama untuk diganti tombol */
-            margin-top: 20px; /* Beri jarak untuk tombol */
+            margin-top: 25px; 
         }
         
-        /* === STYLE BARU UNTUK TOMBOL CHAT ADMIN === */
         .modal-chat-button {
-            background-color: var(--accent-color);
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); /* Gradien untuk tombol chat */
             color: var(--primary-bg);
-            padding: 12px 20px;
+            padding: 14px 22px; /* Padding lebih */
             text-align: center;
-            border-radius: 5px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 600; /* Sedikit lebih tebal */
+            font-weight: 600; 
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            display: block; /* Agar bisa diset width 100% */
-            width: 100%;     /* Tombol memenuhi lebar kontainer modal-contact */
-            box-sizing: border-box; /* Agar padding tidak menambah total width */
+            transition: all 0.3s ease;
+            display: flex; /* Untuk ikon dan teks sejajar */
+            align-items: center;
+            justify-content: center;
+            width: 100%;    
+            box-sizing: border-box; 
+            font-size: 1.1em; /* Sedikit lebih besar */
+            box-shadow: 0 2px 10px rgba(0, 255, 132, 0.4);
         }
 
         .modal-chat-button:hover {
-            background-color: var(--accent-color-darker);
-            transform: scale(1.02); /* Sedikit efek zoom saat hover */
+            background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%);
+            transform: scale(1.03) translateY(-2px); /* Efek hover dinamis */
+            box-shadow: 0 4px 15px rgba(0, 255, 132, 0.6);
         }
 
         .modal-chat-button .fab.fa-whatsapp {
-            margin-right: 8px; /* Jarak antara ikon dan teks */
+            margin-right: 10px; /* Jarak ikon dan teks lebih */
+            font-size: 1.2em; /* Ikon sedikit lebih besar */
         }
-        /* === AKHIR STYLE BARU === */
 
 
         footer {
             background-color: var(--secondary-bg);
             color: var(--text-secondary);
             text-align: center;
-            padding: 20px 0;
-            margin-top: 40px;
+            padding: 25px 0; /* Padding lebih */
+            margin-top: 50px; /* Margin atas lebih */
             border-top: 1px solid var(--border-color);
-            animation: fadeInUpFooter 0.8s 0.5s ease-out forwards;
+            animation: fadeInUpFooter 0.9s 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             opacity: 0;
+            font-size: 0.95em; /* Font footer */
         }
         @keyframes fadeInUpFooter {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -450,18 +552,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
-            min-height: 200px; 
+            padding: 50px 20px; /* Padding lebih */
+            min-height: 250px; 
         }
 
-        .loading-spinner {
-            border: 5px solid var(--border-color);
-            border-top: 5px solid var(--accent-color);
+        .loading-spinner { 
+            border: 6px solid var(--border-color); /* Border lebih tebal */
+            border-top: 6px solid var(--accent-color);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px; /* Spinner lebih besar */
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -469,38 +571,90 @@
         }
 
         .status-message-container p {
-            font-size: 1.2em;
+            font-size: 1.3em; /* Teks status lebih besar */
             color: var(--text-secondary);
             text-align: center;
         }
 
+        /* Penyesuaian Responsif Tambahan */
         @media (max-width: 768px) {
-            header h1 { font-size: 1.8em; }
+            header h1 { font-size: 2em; }
             #searchInput { width: 70%; }
-            .grid-container { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-            .modal-content { width: 90%; margin: 10% auto; }
+            .grid-container { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+            .modal-content { width: 90%; margin: 8% auto; padding: 25px; }
+            .account-card h3 { font-size: 1.4em; }
+            .account-card .price { font-size: 1.3em; }
         }
 
         @media (max-width: 480px) {
-            .container { width: 95%; }
-            header h1 { font-size: 1.5em; }
-            #searchInput { width: 100%; }
-            #searchButton { padding: 10px 15px; }
-            .search-container { flex-direction: column; gap: 5px; }
-            #searchInput, #searchButton { border-radius: 15px; width: calc(100% - 30px); margin: 0 auto;}
+            body { line-height: 1.6; }
+            .container { width: 95%; padding: 15px 0; }
+            header { padding: 15px 0; }
+            header h1 { font-size: 1.6em; }
+            .search-container { margin-top: 15px; }
+            #searchInput { width: calc(100% - 36px); padding: 12px 18px; } /* Mengurangi padding horizontal agar pas */
+            #searchButton { padding: 12px 18px; } /* Samakan padding dengan search input */
+            /* Pastikan search input dan button di tengah */
+            #searchInput, #searchButton { 
+                border-radius: 15px; 
+                width: calc(100% - 40px); /* Sesuaikan width dan margin agar terpusat jika diperlukan */
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .search-container { 
+                flex-direction: column; 
+                gap: 8px; /* Beri jarak antar input dan tombol */
+                align-items: center; /* Pusatkan item */
+            }
+            #searchInput { border-radius: 15px; } /* Atur radius jika keduanya jadi full width */
+            #searchButton { border-radius: 15px; }
 
-            .account-card h3 { font-size: 1.2em; }
-            .account-card .price { font-size: 1.1em; }
-            .account-card .details-button { padding: 8px 12px; }
-            .filter-buttons { justify-content: center; }
-            .modal-content { padding: 20px; }
+
+            #filter-section { padding: 20px; margin-bottom: 25px;}
+            #filter-section h2 { font-size: 1.3em; }
+            .filter-button { padding: 8px 15px; font-size: 0.9em;}
+
+            .grid-container { gap: 15px; grid-template-columns: 1fr; /* Kartu jadi 1 kolom di mobile */ }
+            .account-card { border-radius: 10px; }
+            .account-card .card-image-container { height: 180px; }
+            .account-card .card-content { padding: 18px; }
+            .account-card h3 { font-size: 1.3em; }
+            .account-card .price { font-size: 1.2em; }
+            .account-card .details-button { padding: 10px 15px; font-size: 0.95em; }
+            
+            .modal-content { padding: 20px; max-width: 95%; margin: 5% auto; }
+            #modal-body h2 { font-size: 1.5em; }
+            #modal-body .modal-price { font-size: 1.6em; }
+            .modal-chat-button { padding: 12px 18px; font-size: 1em; }
+            footer { padding: 20px 0; font-size: 0.9em; }
         }
+
+        /* Tambahan untuk scrollbar halus secara global (opsional) */
+        html {
+            scrollbar-width: thin; /* Untuk Firefox */
+            scrollbar-color: var(--accent-color) var(--primary-bg); /* Untuk Firefox */
+        }
+        body::-webkit-scrollbar {
+            width: 10px; /* Lebar scrollbar */
+        }
+        body::-webkit-scrollbar-track {
+            background: var(--primary-bg); /* Warna track */
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color); /* Warna thumb */
+            border-radius: 20px; /* Radius thumb */
+            border: 2px solid var(--primary-bg); /* Border di sekitar thumb */
+        }
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: var(--accent-color-darker); /* Warna thumb saat hover */
+        }
+
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1><i class="fas fa-store"></i> Game Account Store</h1>
+            <h1><i class="fas fa-store"></i> Orbyte Account Store</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Cari akun game...">
                 <button id="searchButton"><i class="fas fa-search"></i></button>
@@ -689,9 +843,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ).join('');
         }
 
-        // === MODIFIKASI BAGIAN KONTAK DI SINI ===
-        const whatsappNumber = '6283128804631'; // Nomor WA dengan kode negara, tanpa 0 di depan
-        const whatsappLink = `https://wa.me/${whatsappNumber}`;
+        const whatsappNumber = '6283128804631'; 
+        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Halo, saya tertarik dengan akun: ' + (account.title || 'Akun Game') + '. Mohon info lebih lanjut.')}`;
+
 
         modalBody.innerHTML = `
             <img src="${modalMainImageSrc}" alt="${account.title || 'Detail Akun'}" class="modal-main-image" id="modalMainImage">
@@ -706,8 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `;
-        // === AKHIR MODIFIKASI ===
-
+        
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden'; 
     }
