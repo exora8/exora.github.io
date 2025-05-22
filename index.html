@@ -8,30 +8,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --primary-bg: #0f0f12; /* Lebih gelap sedikit */
-            --secondary-bg: #1a1a1d; /* Sedikit lebih gelap dan berbeda */
-            --card-bg: #232326; /* Background kartu */
-            --text-primary: #f0f0f0; /* Putih keabu-abuan */
-            --text-secondary: #a0a0a0; /* Abu-abu lebih lembut */
-            --accent-color: #00ff84; /* Hijau neon yang lebih vibrant */
+            --primary-bg: #0f0f12; 
+            --secondary-bg: #1a1a1d; 
+            --card-bg: #232326; 
+            --text-primary: #f0f0f0; 
+            --text-secondary: #a0a0a0; 
+            --accent-color: #00ff84; 
             --accent-color-darker: #00d970;
-            --border-color: #333336; /* Border lebih subtle */
-            --white-glow: #00ff84; /* Glow mengikuti warna aksen (sekarang hijau) */
-            --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); /* Shadow lebih lembut dan menyebar */
+            --border-color: #333336; 
+            --white-glow: #00ff84; 
+            --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); 
             --box-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.6);
             --border-glow: 0 0 8px var(--accent-color), 0 0 12px var(--accent-color), 0 0 16px var(--accent-color);
             --font-main: 'Roboto', sans-serif;
         }
 
-        /* Efek gradien halus untuk background body */
         body {
             font-family: var(--font-main);
             margin: 0;
-            background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1f 100%); /* Gradien halus */
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1f 100%); 
             color: var(--text-primary);
-            line-height: 1.7; /* Sedikit lebih lega */
+            line-height: 1.7; 
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased; /* Font lebih halus */
+            -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale;
         }
 
@@ -39,16 +38,16 @@
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 25px 0; /* Padding sedikit lebih besar */
+            padding: 25px 0; 
         }
 
         header {
-            background-color: rgba(26, 26, 29, 0.85); /* secondary-bg dengan sedikit transparansi */
-            backdrop-filter: blur(10px); /* Efek frosted glass */
+            background-color: rgba(26, 26, 29, 0.85); 
+            backdrop-filter: blur(10px); 
             -webkit-backdrop-filter: blur(10px);
             padding: 20px 0;
-            border-bottom: 1px solid var(--border-color); /* Border lebih tipis */
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3); /* Shadow header lebih subtle */
+            border-bottom: 1px solid var(--border-color); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -61,37 +60,28 @@
 
         header h1 {
             margin: 0;
-            font-size: 2.2em; /* Sedikit lebih besar */
-            font-weight: 700; /* Lebih tebal */
+            font-size: 2.2em; 
+            font-weight: 700; 
             color: var(--text-primary);
             text-align: center;
-            text-shadow: 0 0 10px rgba(0, 255, 132, 0.3); /* Shadow teks halus dengan warna aksen */
+            text-shadow: 0 0 10px rgba(0, 255, 132, 0.3); 
             animation: textFocusIn 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.2s both;
         }
-        /* Animasi untuk teks */
         @keyframes textFocusIn {
             0% { filter: blur(12px); opacity: 0; }
             100% { filter: blur(0px); opacity: 1; }
         }
 
-
         header h1 .fa-store {
             margin-right: 12px;
             color: var(--accent-color);
-            /* animation: iconPulse 2s infinite ease-in-out; */ /* Animasi subtle untuk ikon DIHAPUS */
         }
-        /* @keyframes iconPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); color: var(--accent-color-darker); }
-            100% { transform: scale(1); }
-        } */ /* Keyframes iconPulse DIHAPUS karena animasi tidak lagi digunakan */
-
 
         .search-container {
             display: flex;
             margin-top: 20px;
             justify-content: center;
-            animation: fadeInFromBottom 0.7s ease-out 0.5s forwards; /* Animasi untuk search */
+            animation: fadeInFromBottom 0.7s ease-out 0.5s forwards; 
             opacity: 0;
         }
         @keyframes fadeInFromBottom {
@@ -99,10 +89,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-
         #searchInput {
             width: 60%;
-            max-width: 450px; /* Sedikit lebih lebar */
+            max-width: 450px; 
             padding: 14px 22px;
             border-radius: 30px 0 0 30px;
             border: 1px solid var(--border-color);
@@ -110,71 +99,74 @@
             color: var(--text-primary);
             font-size: 1em;
             outline: none;
+            box-sizing: border-box; 
             transition: box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
         }
 
         #searchInput:focus {
             box-shadow: 0 0 15px var(--accent-color);
             border-color: var(--accent-color);
-            background-color: var(--secondary-bg); /* Background berubah saat fokus */
+            background-color: var(--secondary-bg); 
         }
 
         #searchButton {
             padding: 14px 25px;
             border-radius: 0 30px 30px 0;
             border: 1px solid var(--accent-color);
+            border-left: none; /* Agar menyatu dengan input */
             background-color: var(--accent-color);
             color: var(--primary-bg);
             font-size: 1em;
             cursor: pointer;
+            box-sizing: border-box;
             transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
         }
 
         #searchButton:hover {
             background-color: var(--accent-color-darker);
             transform: scale(1.05);
-            box-shadow: 0 0 12px var(--accent-color-darker); /* Glow pada tombol saat hover */
+            box-shadow: 0 0 12px var(--accent-color-darker); 
         }
         
         #filter-section {
-            margin-bottom: 35px; /* Jarak lebih */
+            margin-bottom: 35px; 
             padding: 25px;
             background-color: var(--secondary-bg);
-            border-radius: 12px; /* Radius lebih besar */
+            border-radius: 12px; 
             box-shadow: var(--box-shadow);
             animation: fadeInFromLeft 0.8s 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             opacity: 0;
-            border-left: 4px solid var(--accent-color); /* Aksen border kiri */
+            border-left: 4px solid var(--accent-color); 
         }
         @keyframes fadeInFromLeft {
-            from { opacity: 0; transform: translateX(-40px); } /* Sedikit lebih jauh */
+            from { opacity: 0; transform: translateX(-40px); } 
             to { opacity: 1; transform: translateX(0); }
         }
 
         #filter-section h2 {
             margin-top: 0;
-            margin-bottom: 15px; /* Jarak bawah */
+            margin-bottom: 15px; 
             border-bottom: 2px solid var(--accent-color);
             padding-bottom: 12px;
             display: inline-block;
-            color: var(--text-primary); /* Warna teks lebih jelas */
+            color: var(--text-primary); 
         }
 
         .filter-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px; /* Jarak antar tombol */
+            gap: 12px; 
         }
 
         .filter-button {
-            padding: 10px 20px; /* Padding lebih */
+            padding: 10px 20px; 
             background-color: var(--card-bg);
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 25px; /* Lebih bulat */
+            border-radius: 25px; 
             cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transisi lebih bouncy */
-            font-weight: 500; /* Font lebih tebal */
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-weight: 500; 
             text-transform: capitalize; 
         }
         
@@ -184,7 +176,7 @@
             color: var(--primary-bg);
             border-color: var(--accent-color);
             box-shadow: 0 0 12px var(--accent-color);
-            transform: translateY(-4px) scale(1.08); /* Efek hover lebih menonjol */
+            transform: translateY(-4px) scale(1.08); 
         }
         .filter-button.active { 
             animation: popUp 0.3s ease-out;
@@ -197,21 +189,21 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); /* Ukuran kartu sedikit lebih besar */
-            gap: 30px; /* Jarak antar kartu lebih besar */
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); 
+            gap: 30px; 
         }
 
         .account-card {
             background-color: var(--card-bg);
-            border-radius: 12px; /* Radius lebih besar */
+            border-radius: 12px; 
             overflow: hidden;
             box-shadow: var(--box-shadow);
-            transition: transform 0.35s ease, box-shadow 0.35s ease, border-image 0.35s ease, border-color 0.35s ease; /* Tambahkan transisi border-image */
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-image 0.35s ease, border-color 0.35s ease; 
             display: flex;
             flex-direction: column;
-            border: 1px solid transparent; /* Border awal transparan */
+            border: 1px solid transparent; 
             opacity: 0; 
-            transform: translateY(35px); /* Mulai sedikit lebih bawah */
+            transform: translateY(35px); 
             animation: cardFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes cardFadeInUp {
@@ -222,19 +214,18 @@
         }
         
         .account-card:hover {
-            transform: translateY(-10px) scale(1.03); /* Hover lebih terasa */
-            box-shadow: var(--box-shadow-hover), 0 0 15px rgba(0, 255, 132, 0.5); /* Shadow aksen */
+            transform: translateY(-10px) scale(1.03); 
+            box-shadow: var(--box-shadow-hover), 0 0 15px rgba(0, 255, 132, 0.5); 
             border-image: linear-gradient(to right, var(--accent-color), var(--accent-color-darker)) 1; 
-            border-width: 1px; /* Pastikan border-width diset */
-            border-style: solid; /* Pastikan border-style diset */
+            border-width: 1px; 
+            border-style: solid; 
         }
-
 
         .account-card .card-image-container {
             width: 100%;
-            height: 200px; /* Gambar sedikit lebih tinggi */
+            height: 200px; 
             overflow: hidden;
-            position: relative; /* Untuk pseudo-element overlay */
+            position: relative; 
         }
         
         .account-card .card-image-container::after {
@@ -244,34 +235,33 @@
             left: 0;
             width: 100%;
             height: 50%;
-            background: linear-gradient(to top, rgba(35, 35, 38, 0.7), transparent); /* card-bg to transparent */
+            background: linear-gradient(to top, rgba(35, 35, 38, 0.7), transparent); 
             z-index: 1;
-            transition: opacity 0.3s ease; /* Transisi untuk overlay */
+            transition: opacity 0.3s ease; 
             opacity: 1;
         }
         .account-card:hover .card-image-container::after {
-            opacity: 0.5; /* Overlay sedikit berkurang saat hover agar gambar lebih jelas */
+            opacity: 0.5; 
         }
-
 
         .account-card .card-image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transisi zoom lebih smooth */
+            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
         }
 
         .account-card:hover .card-image-container img {
-            transform: scale(1.15); /* Zoom lebih besar */
+            transform: scale(1.15); 
         }
 
         .account-card .card-content {
-            padding: 22px; /* Padding lebih */
+            padding: 22px; 
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             position: relative; 
-            z-index: 2; /* Di atas overlay gambar */
+            z-index: 2; 
         }
 
         .account-card .game-info {
@@ -283,31 +273,31 @@
         }
 
         .account-card .game-icon {
-            width: 32px; /* Ikon lebih besar */
+            width: 32px; 
             height: 32px;
             margin-right: 12px;
             border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow untuk ikon */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
             transition: transform 0.3s ease;
         }
         .account-card:hover .game-icon {
-            transform: rotate(-10deg) scale(1.1); /* Animasi ikon saat card dihover */
+            transform: rotate(-10deg) scale(1.1); 
         }
 
         .account-card h3 {
             margin: 0 0 12px 0;
-            font-size: 1.5em; /* Judul lebih besar */
-            font-weight: 600; /* Sedikit lebih tebal */
+            font-size: 1.5em; 
+            font-weight: 600; 
             color: var(--text-primary);
-            line-height: 1.3; /* Line height untuk judul */
+            line-height: 1.3; 
             transition: color 0.3s ease;
         }
         .account-card:hover h3 {
-            color: var(--accent-color); /* Judul berubah warna saat hover */
+            color: var(--accent-color); 
         }
 
         .account-card .description {
-            font-size: 0.95em; /* Deskripsi sedikit lebih besar */
+            font-size: 0.95em; 
             color: var(--text-secondary);
             margin-bottom: 18px;
             flex-grow: 1;
@@ -319,36 +309,35 @@
         }
 
         .account-card .price {
-            font-size: 1.4em; /* Harga lebih besar */
-            font-weight: 700; /* Harga lebih tebal */
+            font-size: 1.4em; 
+            font-weight: 700; 
             color: var(--accent-color);
             margin-bottom: 18px;
-            text-shadow: 0 0 8px rgba(0, 255, 132, 0.4); /* Shadow teks harga */
+            text-shadow: 0 0 8px rgba(0, 255, 132, 0.4); 
         }
 
         .account-card .details-button {
-            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); /* Gradien untuk tombol */
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); 
             color: var(--primary-bg);
-            padding: 12px 18px; /* Padding lebih */
+            padding: 12px 18px; 
             text-align: center;
-            border-radius: 8px; /* Radius lebih besar */
+            border-radius: 8px; 
             text-decoration: none;
-            font-weight: 600; /* Font lebih tebal */
-            transition: all 0.3s ease; /* Transisi semua properti */
+            font-weight: 600; 
+            transition: all 0.3s ease; 
             display: block;
             margin-top: auto;
             border: none; 
             cursor: pointer; 
-            box-shadow: 0 2px 8px rgba(0, 255, 132, 0.3); /* Shadow untuk tombol */
+            box-shadow: 0 2px 8px rgba(0, 255, 132, 0.3); 
         }
 
         .account-card .details-button:hover {
-            background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%); /* Gradien dibalik */
-            transform: scale(1.05) translateY(-2px); /* Efek hover lebih dinamis */
+            background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%); 
+            transform: scale(1.05) translateY(-2px); 
             box-shadow: 0 4px 12px rgba(0, 255, 132, 0.5);
         }
 
-        /* Modal Styles */
         .modal { 
             display: none;
             position: fixed;
@@ -358,7 +347,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9); /* Backdrop lebih gelap */
+            background-color: rgba(0, 0, 0, 0.9); 
             animation: fadeInBackdrop 0.4s ease-out;
         }
         @keyframes fadeInBackdrop {
@@ -368,58 +357,58 @@
 
         .modal-content { 
             background-color: var(--secondary-bg);
-            margin: 4% auto; /* Margin atas lebih kecil */
-            padding: 35px; /* Padding lebih besar */
+            margin: 4% auto; 
+            padding: 35px; 
             border: 1px solid var(--border-color);
-            border-radius: 15px; /* Radius lebih besar */
+            border-radius: 15px; 
             width: 80%;
-            max-width: 750px; /* Max-width lebih besar */
-            box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px var(--accent-color); /* Shadow lebih kuat dengan glow */
+            max-width: 750px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px var(--accent-color); 
             position: relative;
-            animation: scaleUpModal 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) 0.1s forwards; /* Delay kecil */
+            animation: scaleUpModal 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) 0.1s forwards; 
             transform: scale(0.9); 
             opacity: 0; 
         }
         @keyframes scaleUpModal {
-            0% { transform: scale(0.9) translateY(20px); opacity: 0; } /* Mulai dari bawah sedikit */
+            0% { transform: scale(0.9) translateY(20px); opacity: 0; } 
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
         .close-button {
             color: var(--text-secondary);
             position: absolute;
-            top: 20px; /* Posisi disesuaikan */
+            top: 20px; 
             right: 30px;
-            font-size: 35px; /* Lebih besar */
+            font-size: 35px; 
             font-weight: bold;
-            transition: color 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transisi lebih bouncy */
+            transition: color 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
 
         .close-button:hover,
         .close-button:focus {
-            color: var(--accent-color); /* Glow saat hover */
+            color: var(--accent-color); 
             text-decoration: none;
             cursor: pointer;
-            transform: rotate(180deg) scale(1.2); /* Rotasi lebih banyak dan membesar */
+            transform: rotate(180deg) scale(1.2); 
         }
 
         #modal-body img.modal-main-image {
             width: 100%;
-            max-height: 350px; /* Max-height lebih besar */
+            max-height: 350px; 
             object-fit: cover;
-            border-radius: 10px; /* Radius lebih besar */
+            border-radius: 10px; 
             margin-bottom: 25px;
             border: 2px solid var(--border-color);
-            transition: opacity 0.4s ease-in-out, box-shadow 0.3s ease; /* Transisi opacity dan shadow */
+            transition: opacity 0.4s ease-in-out, box-shadow 0.3s ease; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         #modal-body img.modal-main-image:hover {
-            box-shadow: 0 0 15px var(--accent-color); /* Glow pada gambar utama saat hover */
+            box-shadow: 0 0 15px var(--accent-color); 
         }
         
         #modal-body .modal-image-gallery {
             display: flex;
-            gap: 12px; /* Jarak antar thumbnail */
+            gap: 12px; 
             margin-bottom: 25px;
             overflow-x: auto;
             padding-bottom: 8px; 
@@ -439,45 +428,44 @@
             background: var(--accent-color-darker);
         }
 
-
         #modal-body .modal-image-gallery img {
-            width: 90px; /* Thumbnail lebih besar */
+            width: 90px; 
             height: 90px;
             object-fit: cover;
-            border-radius: 6px; /* Radius lebih besar */
+            border-radius: 6px; 
             cursor: pointer;
             border: 2px solid var(--border-color);
             transition: border-color 0.3s, transform 0.3s, opacity 0.3s, box-shadow 0.3s;
-            opacity: 0.6; /* Opacity awal lebih rendah */
+            opacity: 0.6; 
         }
 
         #modal-body .modal-image-gallery img:hover,
         #modal-body .modal-image-gallery img.active-thumb {
             border-color: var(--accent-color);
-            transform: scale(1.12); /* Zoom lebih */
+            transform: scale(1.12); 
             opacity: 1;
-            box-shadow: 0 0 10px var(--accent-color); /* Glow pada thumbnail aktif/hover */
+            box-shadow: 0 0 10px var(--accent-color); 
         }
 
         #modal-body h2 {
-            color: var(--text-primary); /* Warna lebih cerah */
+            color: var(--text-primary); 
             margin-top: 0;
-            font-size: 1.8em; /* Lebih besar */
-            margin-bottom: 10px; /* Jarak bawah */
+            font-size: 1.8em; 
+            margin-bottom: 10px; 
         }
 
         #modal-body .modal-price {
-            font-size: 2em; /* Lebih besar */
+            font-size: 2em; 
             color: var(--accent-color);
-            font-weight: 700; /* Lebih tebal */
+            font-weight: 700; 
             margin-bottom: 18px;
-            text-shadow: 0 0 10px rgba(0, 255, 132, 0.5); /* Shadow harga modal */
+            text-shadow: 0 0 10px rgba(0, 255, 132, 0.5); 
         }
         
         #modal-body .modal-game {
             margin-bottom: 12px;
             color: var(--text-secondary);
-            font-size: 1.1em; /* Sedikit lebih besar */
+            font-size: 1.1em; 
         }
         #modal-body .modal-game strong {
             color: var(--text-primary);
@@ -487,8 +475,8 @@
             margin-bottom: 25px;
             color: var(--text-secondary);
             white-space: pre-wrap;
-            line-height: 1.7; /* Line height lebih */
-            font-size: 1.05em; /* Sedikit lebih besar */
+            line-height: 1.7; 
+            font-size: 1.05em; 
         }
         #modal-body .modal-description strong {
             color: var(--text-primary);
@@ -499,9 +487,9 @@
         }
         
         .modal-chat-button {
-            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); /* Gradien untuk tombol chat */
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-darker) 100%); 
             color: var(--primary-bg);
-            padding: 14px 22px; /* Padding lebih */
+            padding: 14px 22px; 
             text-align: center;
             border-radius: 8px;
             text-decoration: none;
@@ -509,37 +497,36 @@
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex; /* Untuk ikon dan teks sejajar */
+            display: flex; 
             align-items: center;
             justify-content: center;
             width: 100%;    
             box-sizing: border-box; 
-            font-size: 1.1em; /* Sedikit lebih besar */
+            font-size: 1.1em; 
             box-shadow: 0 2px 10px rgba(0, 255, 132, 0.4);
         }
 
         .modal-chat-button:hover {
             background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%);
-            transform: scale(1.03) translateY(-2px); /* Efek hover dinamis */
+            transform: scale(1.03) translateY(-2px); 
             box-shadow: 0 4px 15px rgba(0, 255, 132, 0.6);
         }
 
         .modal-chat-button .fab.fa-whatsapp {
-            margin-right: 10px; /* Jarak ikon dan teks lebih */
-            font-size: 1.2em; /* Ikon sedikit lebih besar */
+            margin-right: 10px; 
+            font-size: 1.2em; 
         }
-
 
         footer {
             background-color: var(--secondary-bg);
             color: var(--text-secondary);
             text-align: center;
-            padding: 25px 0; /* Padding lebih */
-            margin-top: 50px; /* Margin atas lebih */
+            padding: 25px 0; 
+            margin-top: 50px; 
             border-top: 1px solid var(--border-color);
             animation: fadeInUpFooter 0.9s 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             opacity: 0;
-            font-size: 0.95em; /* Font footer */
+            font-size: 0.95em; 
         }
         @keyframes fadeInUpFooter {
             from { opacity: 0; transform: translateY(25px); }
@@ -552,15 +539,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 50px 20px; /* Padding lebih */
+            padding: 50px 20px; 
             min-height: 250px; 
         }
 
         .loading-spinner { 
-            border: 6px solid var(--border-color); /* Border lebih tebal */
+            border: 6px solid var(--border-color); 
             border-top: 6px solid var(--accent-color);
             border-radius: 50%;
-            width: 60px; /* Spinner lebih besar */
+            width: 60px; 
             height: 60px;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
@@ -571,84 +558,213 @@
         }
 
         .status-message-container p {
-            font-size: 1.3em; /* Teks status lebih besar */
+            font-size: 1.3em; 
             color: var(--text-secondary);
             text-align: center;
         }
 
-        /* Penyesuaian Responsif Tambahan */
+        /* === MEDIA QUERIES - PENYESUAIAN RESPONSIVE === */
+
         @media (max-width: 768px) {
+            .container {
+                width: 92%; 
+            }
             header h1 { font-size: 2em; }
-            #searchInput { width: 70%; }
-            .grid-container { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-            .modal-content { width: 90%; margin: 8% auto; padding: 25px; }
+            #searchInput { 
+                width: 70%; 
+                max-width: none; 
+            }
+             #searchButton {
+                width: 30%; /* Lebar tombol disesuaikan agar pas */
+            }
+            .grid-container { 
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+                gap: 20px; 
+            }
+            .modal-content { 
+                width: 90%; 
+                margin: 8% auto; 
+                padding: 25px; 
+            }
             .account-card h3 { font-size: 1.4em; }
             .account-card .price { font-size: 1.3em; }
         }
 
         @media (max-width: 480px) {
-            body { line-height: 1.6; }
-            .container { width: 95%; padding: 15px 0; }
-            header { padding: 15px 0; }
-            header h1 { font-size: 1.6em; }
-            .search-container { margin-top: 15px; }
-            #searchInput { width: calc(100% - 36px); padding: 12px 18px; } /* Mengurangi padding horizontal agar pas */
-            #searchButton { padding: 12px 18px; } /* Samakan padding dengan search input */
-            /* Pastikan search input dan button di tengah */
-            #searchInput, #searchButton { 
-                border-radius: 15px; 
-                width: calc(100% - 40px); /* Sesuaikan width dan margin agar terpusat jika diperlukan */
-                margin-left: auto;
-                margin-right: auto;
+            body { 
+                line-height: 1.6; 
             }
+            .container { 
+                width: 95%; 
+                padding: 20px 10px; 
+            }
+            header { 
+                padding: 15px 0; 
+            }
+            header h1 { 
+                font-size: 1.6em; /* Ukuran font judul lebih kecil */
+                margin-bottom: 15px; 
+            }
+
+            /* Search Bar di Mobile */
             .search-container { 
-                flex-direction: column; 
-                gap: 8px; /* Beri jarak antar input dan tombol */
-                align-items: center; /* Pusatkan item */
+                flex-direction: row; /* Kembali ke baris */
+                gap: 0; /* Tidak ada gap */
+                align-items: stretch; 
+                margin-top: 10px;
+                /* Penambahan untuk memastikan kontainer tidak lebih lebar dari parent */
+                max-width: 100%; 
+                padding: 0 5px; /* Sedikit padding jika diperlukan untuk menghindari sentuhan tepi */
+                box-sizing: border-box;
             }
-            #searchInput { border-radius: 15px; } /* Atur radius jika keduanya jadi full width */
-            #searchButton { border-radius: 15px; }
+            #searchInput { 
+                flex-grow: 1; /* Input mengambil sisa ruang */
+                width: auto; /* Hapus width eksplisit agar flex-grow bekerja */
+                max-width: none; 
+                border-radius: 20px 0 0 20px; /* Radius asli desktop disesuaikan */
+                padding: 10px 15px;  /* Padding lebih kecil */
+                font-size: 0.9em; /* Font lebih kecil */
+                min-width: 0; /* Penting untuk flex item */
+            }
+            #searchButton { 
+                flex-shrink: 0; /* Tombol tidak mengecil */
+                width: auto; /* Lebar otomatis berdasarkan padding & content */
+                border-radius: 0 20px 20px 0; /* Radius asli desktop disesuaikan */
+                padding: 10px 15px; /* Padding lebih kecil */
+                font-size: 0.9em; /* Font lebih kecil */
+            }
+            #searchButton .fa-search {
+                 font-size: 1em; /* Ukuran ikon search di tombol */
+            }
 
 
-            #filter-section { padding: 20px; margin-bottom: 25px;}
-            #filter-section h2 { font-size: 1.3em; }
-            .filter-button { padding: 8px 15px; font-size: 0.9em;}
+            #filter-section { 
+                padding: 15px 10px; /* Padding lebih kecil */
+                margin-bottom: 25px;
+            }
+            #filter-section h2 { 
+                font-size: 1.3em; 
+            }
+            .filter-buttons { 
+                gap: 8px; 
+                justify-content: flex-start; 
+            }
+            .filter-button { 
+                padding: 7px 12px; /* Padding tombol filter lebih kecil */
+                font-size: 0.85em; /* Font tombol filter lebih kecil */
+            }
 
-            .grid-container { gap: 15px; grid-template-columns: 1fr; /* Kartu jadi 1 kolom di mobile */ }
-            .account-card { border-radius: 10px; }
-            .account-card .card-image-container { height: 180px; }
-            .account-card .card-content { padding: 18px; }
-            .account-card h3 { font-size: 1.3em; }
-            .account-card .price { font-size: 1.2em; }
-            .account-card .details-button { padding: 10px 15px; font-size: 0.95em; }
+            .grid-container { 
+                gap: 15px; 
+                grid-template-columns: 1fr; 
+            }
+            .account-card { 
+                border-radius: 8px; /* Radius kartu sedikit lebih kecil */
+            }
+            .account-card .card-image-container { 
+                height: 160px; /* Tinggi gambar kartu lebih kecil */
+            }
+            .account-card .card-content { 
+                padding: 15px; /* Padding konten kartu lebih kecil */
+            }
+            .account-card .game-icon {
+                width: 26px;
+                height: 26px;
+            }
+            .account-card h3 { 
+                font-size: 1.15em; /* Font judul kartu lebih kecil */
+            }
+            .account-card .description {
+                font-size: 0.85em; 
+                -webkit-line-clamp: 2; /* Batas baris deskripsi dikurangi */
+            }
+            .account-card .price { 
+                font-size: 1.1em; 
+            }
+            .account-card .details-button { 
+                padding: 8px 12px; 
+                font-size: 0.9em;
+            }
             
-            .modal-content { padding: 20px; max-width: 95%; margin: 5% auto; }
-            #modal-body h2 { font-size: 1.5em; }
-            #modal-body .modal-price { font-size: 1.6em; }
-            .modal-chat-button { padding: 12px 18px; font-size: 1em; }
-            footer { padding: 20px 0; font-size: 0.9em; }
+            /* Modal di Mobile */
+            .modal-content { 
+                padding: 15px; /* Padding modal lebih kecil */
+                max-width: calc(100% - 30px); /* Margin modal dari tepi layar */
+                margin: 8% auto; 
+                border-radius: 10px;
+            }
+             #modal-body img.modal-main-image {
+                max-height: 180px; /* Tinggi gambar utama modal lebih kecil */
+                margin-bottom: 12px;
+                border-radius: 6px;
+            }
+            #modal-body .modal-image-gallery {
+                gap: 6px;
+                margin-bottom: 12px;
+                padding-bottom: 5px;
+            }
+            #modal-body .modal-image-gallery img {
+                width: 60px;
+                height: 60px;
+                border-radius: 4px;
+            }
+            #modal-body h2 { 
+                font-size: 1.3em; /* Font judul modal lebih kecil */
+                margin-bottom: 6px;
+            }
+            #modal-body .modal-price { 
+                font-size: 1.4em; /* Font harga modal lebih kecil */
+                margin-bottom: 10px;
+            }
+            #modal-body .modal-game,
+            #modal-body .modal-description {
+                font-size: 0.9em; /* Font teks detail modal lebih kecil */
+                line-height: 1.5; /* Line height disesuaikan */
+                margin-bottom: 10px;
+            }
+             #modal-body .modal-description strong {
+                display: block; /* Agar strong tidak membuat baris baru aneh */
+                margin-bottom: 3px;
+            }
+            .modal-chat-button { 
+                padding: 10px 15px; 
+                font-size: 0.95em; 
+                border-radius: 6px;
+            }
+            .modal-chat-button .fab.fa-whatsapp {
+                font-size: 1em;
+            }
+            .close-button {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+            }
+
+            footer { 
+                padding: 15px 10px; 
+                font-size: 0.85em; 
+                margin-top: 25px;
+            }
         }
 
-        /* Tambahan untuk scrollbar halus secara global (opsional) */
         html {
-            scrollbar-width: thin; /* Untuk Firefox */
-            scrollbar-color: var(--accent-color) var(--primary-bg); /* Untuk Firefox */
+            scrollbar-width: thin; 
+            scrollbar-color: var(--accent-color) var(--primary-bg); 
         }
         body::-webkit-scrollbar {
-            width: 10px; /* Lebar scrollbar */
+            width: 10px; 
         }
         body::-webkit-scrollbar-track {
-            background: var(--primary-bg); /* Warna track */
+            background: var(--primary-bg); 
         }
         body::-webkit-scrollbar-thumb {
-            background-color: var(--accent-color); /* Warna thumb */
-            border-radius: 20px; /* Radius thumb */
-            border: 2px solid var(--primary-bg); /* Border di sekitar thumb */
+            background-color: var(--accent-color); 
+            border-radius: 20px; 
+            border: 2px solid var(--primary-bg); 
         }
         body::-webkit-scrollbar-thumb:hover {
-            background-color: var(--accent-color-darker); /* Warna thumb saat hover */
+            background-color: var(--accent-color-darker); 
         }
-
     </style>
 </head>
 <body>
