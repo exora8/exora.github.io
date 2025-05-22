@@ -28,7 +28,7 @@
             background-color: var(--primary-bg);
             color: var(--text-primary);
             line-height: 1.6;
-            overflow-x: hidden; /* Mencegah scroll horizontal karena beberapa animasi */
+            overflow-x: hidden; 
         }
 
         .container {
@@ -53,13 +53,11 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-
         header h1 {
             margin: 0;
             font-size: 2em;
             color: var(--white-glow);
             text-align: center;
-            /* animation: fadeInDown 0.8s ease-out; Dihapus, diganti header animation */
         }
 
         header h1 .fa-store {
@@ -121,7 +119,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-
         #filter-section h2 {
             margin-top: 0;
             border-bottom: 2px solid var(--accent-color);
@@ -143,7 +140,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            transform-origin: center bottom; /* For pop animation */
+            transform-origin: center bottom;
         }
 
         .filter-button.active,
@@ -163,13 +160,10 @@
             100% { transform: translateY(-3px) scale(1.05); }
         }
 
-
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
-            /* animation: fadeInUp 1s ease-out forwards; Removed, cards will animate individually */
-            /* opacity: 0; Removed */
         }
 
         .account-card {
@@ -181,8 +175,8 @@
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border-color);
-            opacity: 0; /* Start hidden for individual animation */
-            transform: translateY(30px); /* Start slightly lower for animation */
+            opacity: 0; 
+            transform: translateY(30px); 
             animation: cardFadeInUp 0.5s ease-out forwards;
         }
         @keyframes cardFadeInUp {
@@ -191,7 +185,6 @@
                 transform: translateY(0);
             }
         }
-
 
         .account-card:hover {
             transform: translateY(-8px) scale(1.02);
@@ -279,7 +272,6 @@
             transform: scale(1.05);
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -289,7 +281,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.85); /* Slightly darker backdrop */
+            background-color: rgba(0, 0, 0, 0.85); 
             animation: fadeInBackdrop 0.3s ease;
         }
         @keyframes fadeInBackdrop {
@@ -308,8 +300,8 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.5), var(--border-glow);
             position: relative;
             animation: scaleUpModal 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-            transform: scale(0.95); /* Start slightly smaller for scaleUp animation */
-            opacity: 0; /* Start transparent for scaleUp animation */
+            transform: scale(0.95); 
+            opacity: 0; 
         }
         @keyframes scaleUpModal {
             to {
@@ -317,7 +309,6 @@
                 opacity: 1;
             }
         }
-
 
         .close-button {
             color: var(--text-secondary);
@@ -344,7 +335,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             border: 2px solid var(--border-color);
-            transition: opacity 0.3s ease-in-out; /* For image change */
+            transition: opacity 0.3s ease-in-out; 
         }
         
         #modal-body .modal-image-gallery {
@@ -352,7 +343,7 @@
             gap: 10px;
             margin-bottom: 20px;
             overflow-x: auto;
-            padding-bottom: 5px; /* Space for scrollbar if needed */
+            padding-bottom: 5px; 
         }
 
         #modal-body .modal-image-gallery img {
@@ -403,15 +394,37 @@
         }
 
         #modal-body .modal-contact {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid var(--accent-color);
+            background-color: transparent; 
+            padding: 15px 0 0 0; 
+            border-left: none; 
+            text-align: center; 
+            margin-top: 20px; 
         }
 
-        #modal-body .modal-contact strong {
-            color: var(--text-primary);
+        .chat-admin-button {
+            display: inline-block;
+            padding: 12px 25px; /* Sedikit lebih besar paddingnya */
+            background-color: #25D366; 
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold; /* Dibuat bold */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+            font-size: 1.1em; /* Sedikit lebih besar fontnya */
         }
+
+        .chat-admin-button i {
+            margin-right: 10px; /* Jarak ikon lebih besar */
+            font-size: 1.2em; /* Ikon lebih besar */
+        }
+
+        .chat-admin-button:hover {
+            background-color: #1DAE50; 
+            transform: scale(1.05);
+            color: white; 
+        }
+
 
         footer {
             background-color: var(--secondary-bg);
@@ -428,15 +441,14 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Loading Spinner and Messages */
         .status-message-container {
-            grid-column: 1 / -1; /* Span all columns */
+            grid-column: 1 / -1; 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
-            min-height: 200px; /* Ensure it has some height */
+            min-height: 200px; 
         }
 
         .loading-spinner {
@@ -459,8 +471,6 @@
             text-align: center;
         }
 
-
-        /* Responsive */
         @media (max-width: 768px) {
             header h1 { font-size: 1.8em; }
             #searchInput { width: 70%; }
@@ -481,6 +491,8 @@
             .account-card .details-button { padding: 8px 12px; }
             .filter-buttons { justify-content: center; }
             .modal-content { padding: 20px; }
+            .chat-admin-button { padding: 10px 20px; font-size: 1em;}
+            .chat-admin-button i { font-size: 1.1em; }
         }
         
     </style>
@@ -513,11 +525,10 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Nama Toko Anda. Powered by You!</p> <!-- Tahun diupdate -->
+            <p>© 2024 Nama Toko Anda. Powered by You!</p>
         </div>
     </footer>
 
-    <!-- Modal Structure -->
     <div id="accountModal" class="modal">
         <div class="modal-content">
             <span class="close-button">×</span>
@@ -530,12 +541,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // ==================================================================
-            // !!!! PENTING: GANTI DENGAN USERNAME DAN NAMA REPO GITHUB ANDA !!!!
+            // !!!! PENTING: GANTI DENGAN DETAIL ANDA !!!!
             // ==================================================================
-            const GITHUB_USERNAME = 'exora8'; 
-            const GITHUB_REPONAME = 'exora.github.io';            
-            // ==================================================================
+            const GITHUB_USERNAME = 'NAMA_PENGGUNA_GITHUB_ANDA'; // <-- GANTI INI
+            const GITHUB_REPONAME = 'NAMA_REPO_ANDA';            // <-- GANTI INI
             const DATA_FILE_PATH = 'data.json'; 
+            const ADMIN_WHATSAPP_NUMBER = '6283128804631'; // <-- GANTI INI JIKA PERLU (format: 62xxxxxxxxxx)
+            // ==================================================================
 
             const accountGrid = document.getElementById('account-grid');
             const searchInput = document.getElementById('searchInput');
@@ -549,7 +561,7 @@
             let uniqueGameNames = new Set();
 
             function showStatusMessage(type, message) {
-                accountGrid.innerHTML = ''; // Clear previous content
+                accountGrid.innerHTML = ''; 
                 const statusContainer = document.createElement('div');
                 statusContainer.classList.add('status-message-container');
 
@@ -566,17 +578,17 @@
                 accountGrid.appendChild(statusContainer);
             }
 
-
             async function fetchAccounts() {
                 showStatusMessage('loading', 'Memuat akun...');
 
-                // Cache Busting: Tambahkan timestamp ke URL untuk memastikan data selalu baru
                 const cacheBust = new Date().getTime();
                 const dataUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPONAME}/main/${DATA_FILE_PATH}?_cacheBust=${cacheBust}`;
+                
+                console.log("Mencoba mengambil dari URL:", dataUrl);
 
                 try {
                     if (GITHUB_USERNAME === 'NAMA_PENGGUNA_GITHUB_ANDA' || GITHUB_REPONAME === 'NAMA_REPO_ANDA') {
-                        const errorMessage = "Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
+                        const errorMessage = "Kesalahan Konfigurasi: Harap ganti 'NAMA_PENGGUNA_GITHUB_ANDA' dan 'NAMA_REPO_ANDA' di dalam script JavaScript dengan username dan nama repositori GitHub Anda yang sebenarnya.";
                         console.error(errorMessage);
                         showStatusMessage('error', errorMessage);
                         return;
@@ -584,26 +596,34 @@
 
                     const response = await fetch(dataUrl);
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status} - Saat mengambil dari ${dataUrl}. Pastikan username, reponame, dan path file benar, serta file data.json ada di branch 'main' (atau branch utama Anda) dan repositori bersifat publik.`);
+                        throw new Error(`Gagal mengambil data akun (HTTP ${response.status}). Pastikan URL benar dan file data.json ada di repositori publik Anda (${dataUrl}).`);
                     }
                     const accounts = await response.json();
                     allAccounts = accounts;
 
+                    if (!Array.isArray(allAccounts)) {
+                        throw new Error("Format data.json tidak valid. Seharusnya berupa array akun.");
+                    }
+                    
                     if (allAccounts.length === 0) {
-                        showStatusMessage('info', 'Tidak ada akun yang tersedia saat ini.');
+                        showStatusMessage('info', 'Belum ada akun yang tersedia untuk dijual saat ini.');
                     } else {
                         populateGameFilters();
-                        displayAccounts(allAccounts); // Tampilkan semua akun dulu
+                        displayAccounts(allAccounts);
                     }
                 } catch (error) {
-                    console.error('Error fetching accounts:', error);
-                    showStatusMessage('error', `Gagal memuat akun: ${error.message}. Cek konsol browser (F12 -> Console) untuk detail.`);
+                    console.error('Error fetching atau parsing accounts:', error);
+                    showStatusMessage('error', `Gagal memuat data akun: ${error.message}. Cek konsol browser (F12 -> Console) untuk detail lebih lanjut dan pastikan format file data.json sudah benar.`);
                 }
             }
 
             function populateGameFilters() {
                 uniqueGameNames.clear(); 
-                allAccounts.forEach(account => uniqueGameNames.add(account.gameName));
+                allAccounts.forEach(account => {
+                    if (account && account.gameName) { // Tambah pengecekan
+                        uniqueGameNames.add(account.gameName);
+                    }
+                });
                 
                 gameFiltersContainer.innerHTML = '';
 
@@ -612,10 +632,8 @@
                 gameFiltersContainer.appendChild(allButton);
 
                 uniqueGameNames.forEach(gameName => {
-                    if(gameName){ // Pastikan gameName ada
-                        const button = createFilterButton(gameName, gameName);
-                        gameFiltersContainer.appendChild(button);
-                    }
+                    const button = createFilterButton(gameName, gameName);
+                    gameFiltersContainer.appendChild(button);
                 });
             }
 
@@ -637,14 +655,18 @@
             function displayAccounts(accountsToDisplay) {
                 accountGrid.innerHTML = ''; 
                 if (accountsToDisplay.length === 0) {
-                    showStatusMessage('info', 'Tidak ada akun yang cocok dengan kriteria.');
+                    showStatusMessage('info', 'Tidak ada akun yang cocok dengan kriteria pencarian atau filter Anda.');
                     return;
                 }
                 accountsToDisplay.forEach((account, index) => {
+                    if (!account || !account.id) { // Pengecekan dasar untuk validitas objek akun
+                        console.warn("Melewati item akun yang tidak valid:", account);
+                        return; 
+                    }
+
                     const card = document.createElement('div');
                     card.classList.add('account-card');
-                    // Staggered animation delay
-                    card.style.animationDelay = `${index * 0.08}s`; // Lebih cepat sedikit delay nya
+                    card.style.animationDelay = `${index * 0.08}s`; 
 
                     const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
                     const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
@@ -674,17 +696,23 @@
             }
 
             function openModal(accountId) {
-                const account = allAccounts.find(acc => acc.id === accountId);
-                if (!account) return;
+                const account = allAccounts.find(acc => acc && acc.id === accountId);
+                if (!account) {
+                    console.error("Akun tidak ditemukan untuk ID:", accountId);
+                    return;
+                }
 
                 let imageGalleryHTML = '';
                 const modalMainImageSrc = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/700x300.png?text=No+Image';
 
-                if (account.images && account.images.length > 1) { // Tampilkan galeri hanya jika ada LEBIH DARI 1 gambar
+                if (account.images && account.images.length > 1) { 
                      imageGalleryHTML = account.images.map((imgSrc, index) => 
-                        `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
+                        `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title || 'akun'}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
                     ).join('');
                 }
+
+                const prefillText = encodeURIComponent(`Halo Admin, saya tertarik dengan akun: ${account.title || 'ini'} (ID: ${account.id})`);
+                const whatsappLink = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${prefillText}`;
 
                 modalBody.innerHTML = `
                     <img src="${modalMainImageSrc}" alt="${account.title || 'Detail Akun'}" class="modal-main-image" id="modalMainImage">
@@ -694,7 +722,9 @@
                     <p class="modal-game"><strong>Game:</strong> ${account.gameName || 'N/A'}</p>
                     <p class="modal-description"><strong>Deskripsi:</strong><br>${(account.description || 'Deskripsi tidak tersedia.').replace(/\n/g, '<br>')}</p>
                     <div class="modal-contact">
-                        <strong>Kontak Pembelian:</strong> ${account.contact || 'Kontak tidak tersedia'}
+                        <a href="${whatsappLink}" class="chat-admin-button" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp"></i> Chat Admin
+                        </a>
                     </div>
                 `;
                 modal.style.display = 'block';
@@ -704,11 +734,11 @@
             window.changeModalMainImage = function(thumbElement, newImageSrc) {
                 const mainImg = document.getElementById('modalMainImage');
                 if(mainImg) {
-                    mainImg.style.opacity = 0; // Mulai fade out
+                    mainImg.style.opacity = 0; 
                     setTimeout(() => {
                         mainImg.src = newImageSrc;
-                        mainImg.onload = () => { mainImg.style.opacity = 1; }; // Fade in setelah load
-                    }, 200); // Waktu untuk fade out
+                        mainImg.onload = () => { mainImg.style.opacity = 1; }; 
+                    }, 200); 
                 }
                 
                 const gallery = thumbElement.closest('.modal-image-gallery');
@@ -729,17 +759,19 @@
                 const activeFilterValue = activeFilterButton ? activeFilterButton.dataset.filter : 'all';
 
                 if (!allAccounts || allAccounts.length === 0) {
-                    displayAccounts([]); // Tampilkan pesan "tidak ada akun" jika allAccounts kosong
+                    displayAccounts([]); 
                     return;
                 }
 
                 const filteredAccounts = allAccounts.filter(account => {
+                    if (!account) return false; // Lewati jika objek akun null atau undefined
+
                     const titleMatch = account.title && account.title.toLowerCase().includes(searchTerm);
                     const gameNameMatch = account.gameName && account.gameName.toLowerCase().includes(searchTerm);
                     const descriptionMatch = account.description && account.description.toLowerCase().includes(searchTerm);
-                    const tagsMatch = account.tags && account.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                    const tagsMatch = account.tags && Array.isArray(account.tags) && account.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(searchTerm));
                     
-                    const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; // Jika search kosong, anggap semua cocok search
+                    const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; 
                     const matchesFilter = (activeFilterValue === 'all' || (account.gameName && account.gameName === activeFilterValue));
                     
                     return matchesSearch && matchesFilter;
@@ -749,10 +781,7 @@
 
             if (searchButton) searchButton.addEventListener('click', searchAccounts);
             if (searchInput) {
-                searchInput.addEventListener('keyup', (event) => {
-                    // Tidak perlu Enter lagi, pencarian live
-                    searchAccounts();
-                });
+                searchInput.addEventListener('input', searchAccounts); // 'input' event lebih responsif
             }
             if (closeButton) closeButton.addEventListener('click', closeModal);
             
