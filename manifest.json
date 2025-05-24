@@ -1,44 +1,24 @@
 {
-  "packageId": "app.vercel.orbyte8",
-  "host": "orbyte8.vercel.app",
   "name": "Orbyte",
-  "launcherName": "Orbyte",
+  "short_name": "Orbyte",
+  "description": "Orbyte Account Store - Beli dan jual akun game.",
+  "start_url": "/",
   "display": "standalone",
-  "themeColor": "#000000",
-  "themeColorDark": "#000000",
-  "navigationColor": "#000000",
-  "navigationColorDark": "#000000",
-  "navigationDividerColor": "#000000",
-  "navigationDividerColorDark": "#000000",
-  "backgroundColor": "#000000",
-  "enableNotifications": false,
-  "startUrl": "/",
-  "iconUrl": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-512x512.png",
-  "maskableIconUrl": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-512x512.png",
-  "monochromeIconUrl": "",
-  "splashScreenFadeOutDuration": 300,
-  "signingKey": {
-    "path": "./signing-key.keystore",
-    "alias": "orbyte"
-  },
-  "appVersionName": "orbyte",
-  "appVersionCode": 4,
-  "shortcuts": [],
-  "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://orbyte8.vercel.app/manifest.json",
-  "fallbackType": "customtabs",
-  "features": {},
-  "alphaDependencies": {
-    "enabled": false
-  },
-  "enableSiteSettingsShortcut": false,
-  "isChromeOSOnly": false,
-  "isMetaQuest": false,
-  "fullScopeUrl": "https://orbyte8.vercel.app/",
-  "minSdkVersion": 23,
-  "orientation": "default",
-  "fingerprints": [],
-  "additionalTrustedOrigins": [],
-  "retainedBundles": [],
-  "appVersion": "orbyte"
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+    // Tambahkan ikon ukuran lain jika tersedia, misal 144x144, 96x96, dll.
+  ]
 }
