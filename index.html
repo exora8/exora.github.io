@@ -52,6 +52,10 @@
             top: 0;
             z-index: 1000;
             animation: slideDownNav 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transition: box-shadow 0.3s ease; /* Animasi shadow saat scroll */
+        }
+        header.scrolled { /* Tambahan class untuk header saat discroll */
+             box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 10px var(--accent-color-darker);
         }
         @keyframes slideDownNav {
             from { transform: translateY(-100%); opacity: 0; }
@@ -75,7 +79,12 @@
         header h1 .fa-store {
             margin-right: 12px;
             color: var(--accent-color);
+            transition: transform 0.4s ease-in-out; /* Animasi untuk ikon toko */
         }
+        header h1:hover .fa-store {
+            transform: rotateY(180deg) scale(1.1); /* Animasi ikon toko saat hover judul */
+        }
+
 
         .search-container {
             display: flex;
@@ -100,13 +109,14 @@
             font-size: 1em;
             outline: none;
             box-sizing: border-box; 
-            transition: box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+            transition: box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.4s ease, transform 0.3s ease; /* Tambah transform */
         }
 
         #searchInput:focus {
-            box-shadow: 0 0 15px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color), 0 0 5px var(--accent-color) inset; /* Tambah inset shadow */
             border-color: var(--accent-color);
             background-color: var(--secondary-bg); 
+            transform: translateX(-5px); /* Sedikit geser saat focus */
         }
 
         #searchButton {
@@ -124,8 +134,11 @@
 
         #searchButton:hover {
             background-color: var(--accent-color-darker);
-            transform: scale(1.05);
+            transform: scale(1.05) translateX(5px); /* Geser sedikit ke kanan saat hover */
             box-shadow: 0 0 12px var(--accent-color-darker); 
+        }
+        #searchButton:active { /* Animasi saat tombol diklik */
+            transform: scale(0.95) translateX(2px);
         }
         
         #filter-section {
@@ -137,7 +150,33 @@
             animation: fadeInFromLeft 0.8s 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             opacity: 0;
             border-left: 4px solid var(--accent-color); 
+            position: relative; /* Untuk animasi glow */
+            overflow: hidden; /* Untuk animasi glow */
         }
+        /* Animasi glow pada filter section */
+        #filter-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 132, 0.15) 0%, transparent 40%);
+            transform: rotate(0deg);
+            transition: transform 1s ease-out, opacity 0.5s ease-out;
+            opacity: 0;
+            pointer-events: none;
+            animation: filterGlowSpin 20s linear infinite paused; /* paused initially */
+        }
+        #filter-section:hover::before {
+            opacity: 1;
+            animation-play-state: running; /* start animation on hover */
+        }
+        @keyframes filterGlowSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes fadeInFromLeft {
             from { opacity: 0; transform: translateX(-40px); } 
             to { opacity: 1; transform: translateX(0); }
@@ -168,6 +207,28 @@
             transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             font-weight: 500; 
             text-transform: capitalize; 
+            position: relative; /* Untuk ::after pseudo-element */
+            overflow: hidden; /* Untuk ::after pseudo-element */
+        }
+        /* Efek shine pada filter button */
+        .filter-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -150%; /* Mulai dari luar kiri */
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.7s ease-in-out;
+        }
+        .filter-button:hover::after {
+            left: 150%; /* Bergerak ke kanan saat hover */
         }
         
         .filter-button.active,
@@ -204,9 +265,15 @@
             border: 1px solid transparent; 
             opacity: 0; 
             transform: translateY(35px); 
-            animation: cardFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            /* animation: cardFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; */ /* Dihapus agar JS bisa kontrol */
         }
-        @keyframes cardFadeInUp {
+        /* Akan ditambahkan class 'visible' oleh JS untuk trigger animasi */
+        .account-card.visible {
+            animation: cardFadeInUpStaggered 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation-delay: var(--card-delay, 0s); /* Variabel CSS untuk delay */
+        }
+
+        @keyframes cardFadeInUpStaggered {
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -237,11 +304,12 @@
             height: 50%;
             background: linear-gradient(to top, rgba(35, 35, 38, 0.7), transparent); 
             z-index: 1;
-            transition: opacity 0.3s ease; 
+            transition: opacity 0.3s ease, height 0.4s ease; /* Tambah transisi height */
             opacity: 1;
         }
         .account-card:hover .card-image-container::after {
-            opacity: 0.5; 
+            opacity: 0.3; 
+            height: 30%; /* Kurangi tinggi gradient saat hover */
         }
 
         .account-card .card-image-container img {
@@ -278,10 +346,11 @@
             margin-right: 12px;
             border-radius: 6px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Tambah transisi box-shadow */
         }
         .account-card:hover .game-icon {
             transform: rotate(-10deg) scale(1.1); 
+            box-shadow: 0 0 8px var(--accent-color); /* Glow pada ikon game saat card hover */
         }
 
         .account-card h3 {
@@ -290,10 +359,11 @@
             font-weight: 600; 
             color: var(--text-primary);
             line-height: 1.3; 
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, text-shadow 0.3s ease; /* Tambah transisi text-shadow */
         }
         .account-card:hover h3 {
             color: var(--accent-color); 
+            text-shadow: 0 0 5px var(--accent-color); /* Efek glow pada judul saat card hover */
         }
 
         .account-card .description {
@@ -314,6 +384,10 @@
             color: var(--accent-color);
             margin-bottom: 18px;
             text-shadow: 0 0 8px rgba(0, 255, 132, 0.4); 
+            transition: transform 0.3s ease; /* Animasi pada harga */
+        }
+        .account-card:hover .price {
+            transform: scale(1.05); /* Sedikit membesar saat card hover */
         }
 
         .account-card .details-button {
@@ -330,7 +404,31 @@
             border: none; 
             cursor: pointer; 
             box-shadow: 0 2px 8px rgba(0, 255, 132, 0.3); 
+            position: relative; /* Untuk animasi ripple */
+            overflow: hidden;   /* Untuk animasi ripple */
         }
+        /* Animasi ripple pada tombol detail */
+        .details-button::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+        }
+        .details-button:active::before {
+            width: 200%; /* Sesuaikan agar menutupi tombol */
+            padding-bottom: 200%; /* Menjaga rasio aspek lingkaran */
+            height: auto;
+            opacity: 1;
+            transition: width 0s, height 0s, opacity 0s; /* Reset transisi saat aktif */
+        }
+
 
         .account-card .details-button:hover {
             background: linear-gradient(90deg, var(--accent-color-darker) 0%, var(--accent-color) 100%); 
@@ -399,11 +497,12 @@
             border-radius: 10px; 
             margin-bottom: 25px;
             border: 2px solid var(--border-color);
-            transition: opacity 0.4s ease-in-out, box-shadow 0.3s ease; 
+            transition: opacity 0.4s ease-in-out, box-shadow 0.3s ease, transform 0.3s ease; /* Tambah transform */
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         #modal-body img.modal-main-image:hover {
             box-shadow: 0 0 15px var(--accent-color); 
+            transform: scale(1.02); /* Sedikit zoom pada gambar utama modal */
         }
         
         #modal-body .modal-image-gallery {
@@ -437,7 +536,13 @@
             border: 2px solid var(--border-color);
             transition: border-color 0.3s, transform 0.3s, opacity 0.3s, box-shadow 0.3s;
             opacity: 0.6; 
+            animation: galleryThumbPopIn 0.5s ease-out backwards; /* Animasi thumbnail muncul */
         }
+        @keyframes galleryThumbPopIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 0.6; transform: scale(1); }
+        }
+        /* Tambahkan delay berbeda untuk setiap thumbnail via JS jika mau lebih keren */
 
         #modal-body .modal-image-gallery img:hover,
         #modal-body .modal-image-gallery img.active-thumb {
@@ -452,6 +557,7 @@
             margin-top: 0;
             font-size: 1.8em; 
             margin-bottom: 10px; 
+            animation: modalTextSlideUp 0.5s 0.2s ease-out forwards; opacity: 0; /* Animasi untuk teks modal */
         }
 
         #modal-body .modal-price {
@@ -460,12 +566,14 @@
             font-weight: 700; 
             margin-bottom: 18px;
             text-shadow: 0 0 10px rgba(0, 255, 132, 0.5); 
+            animation: modalTextSlideUp 0.5s 0.3s ease-out forwards; opacity: 0; /* Animasi untuk teks modal */
         }
         
         #modal-body .modal-game {
             margin-bottom: 12px;
             color: var(--text-secondary);
             font-size: 1.1em; 
+            animation: modalTextSlideUp 0.5s 0.4s ease-out forwards; opacity: 0; /* Animasi untuk teks modal */
         }
         #modal-body .modal-game strong {
             color: var(--text-primary);
@@ -477,6 +585,11 @@
             white-space: pre-wrap;
             line-height: 1.7; 
             font-size: 1.05em; 
+            animation: modalTextSlideUp 0.5s 0.5s ease-out forwards; opacity: 0; /* Animasi untuk teks modal */
+        }
+        @keyframes modalTextSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         #modal-body .modal-description strong {
             color: var(--text-primary);
@@ -484,6 +597,7 @@
 
         #modal-body .modal-contact {
             margin-top: 25px; 
+            animation: modalTextSlideUp 0.5s 0.6s ease-out forwards; opacity: 0; /* Animasi untuk teks modal */
         }
         
         .modal-chat-button {
@@ -511,10 +625,18 @@
             transform: scale(1.03) translateY(-2px); 
             box-shadow: 0 4px 15px rgba(0, 255, 132, 0.6);
         }
+        .modal-chat-button:active { /* Animasi saat tombol chat diklik */
+            transform: scale(0.98) translateY(0px);
+            box-shadow: 0 2px 8px rgba(0, 255, 132, 0.3);
+        }
 
         .modal-chat-button .fab.fa-whatsapp {
             margin-right: 10px; 
             font-size: 1.2em; 
+            transition: transform 0.3s ease; /* Animasi ikon WA */
+        }
+        .modal-chat-button:hover .fab.fa-whatsapp {
+            transform: rotate(15deg) scale(1.1); /* Ikon WA bergerak saat tombol hover */
         }
 
         footer {
@@ -532,6 +654,13 @@
             from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Animasi tambahan untuk footer text */
+        footer p {
+            transition: color 0.3s ease;
+        }
+        footer p:hover {
+            color: var(--accent-color);
+        }
 
         .status-message-container {
             grid-column: 1 / -1; 
@@ -541,7 +670,13 @@
             justify-content: center;
             padding: 50px 20px; 
             min-height: 250px; 
+            animation: statusFadeIn 0.5s ease-out; /* Animasi untuk status message */
         }
+        @keyframes statusFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
 
         .loading-spinner { 
             border: 6px solid var(--border-color); 
@@ -549,13 +684,18 @@
             border-radius: 50%;
             width: 60px; 
             height: 60px;
-            animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite, pulseSpinner 1.5s ease-in-out infinite alternate; /* Tambah animasi pulse */
             margin-bottom: 20px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        @keyframes pulseSpinner { /* Animasi pulse untuk spinner */
+            from { box-shadow: 0 0 0 0 rgba(0, 255, 132, 0.4); }
+            to { box-shadow: 0 0 0 15px rgba(0, 255, 132, 0); }
+        }
+
 
         .status-message-container p {
             font-size: 1.3em; 
@@ -575,16 +715,16 @@
             border-radius: 50%;
             border: none;
             box-shadow: 0 4px 12px rgba(0, 255, 132, 0.4), 0 2px 6px rgba(0,0,0,0.3);
-            font-size: 1.5em; /* Ukuran ikon di dalam FAB */
+            font-size: 1.5em; 
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 999; /* Di atas konten, di bawah modal */
-            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            z-index: 999; 
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, box-shadow 0.3s ease; /* Ubah easing untuk efek 'bouncy' */
             opacity: 0;
             transform: scale(0.5) translateY(20px);
-            animation: fabFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s forwards; /* Delay 1s */
+            animation: fabFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s forwards; 
         }
         @keyframes fabFadeInUp {
             to {
@@ -595,11 +735,11 @@
 
         #sellAccountFab:hover {
             background-color: var(--accent-color-darker);
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(10deg); /* Lebih 'playful' saat hover */
             box-shadow: 0 6px 18px rgba(0, 255, 132, 0.6), 0 3px 8px rgba(0,0,0,0.4);
         }
         #sellAccountFab:active {
-            transform: scale(0.95);
+            transform: scale(0.90) rotate(-5deg); /* Efek tekan yang lebih jelas */
         }
 
 
@@ -618,7 +758,8 @@
                 width: 30%; 
             }
             .grid-container { 
-                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+                /* Penyesuaian untuk katalog sedikit lebih kecil di tablet */
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Sedikit lebih kecil dari 260px */
                 gap: 20px; 
             }
             .modal-content { 
@@ -638,19 +779,20 @@
             }
         }
 
+        /* === PENYESUAIAN UNTUK ANDROID (max-width: 480px) === */
         @media (max-width: 480px) {
             body { 
                 line-height: 1.6; 
             }
             .container { 
                 width: 95%; 
-                padding: 20px 10px; 
+                padding: 20px 10px; /* Sedikit padding di container */
             }
             header { 
                 padding: 15px 0; 
             }
             header h1 { 
-                font-size: 1.6em; 
+                font-size: 1.6em; /* Ukuran judul dikecilkan */
                 margin-bottom: 15px; 
             }
 
@@ -660,7 +802,7 @@
                 align-items: stretch; 
                 margin-top: 10px;
                 max-width: 100%; 
-                padding: 0 5px; 
+                padding: 0 5px; /* Menyesuaikan dengan padding container */
                 box-sizing: border-box;
             }
             #searchInput { 
@@ -668,73 +810,103 @@
                 width: auto; 
                 max-width: none; 
                 border-radius: 20px 0 0 20px; 
-                padding: 10px 15px;  
-                font-size: 0.9em; 
+                padding: 10px 15px; /* Padding input dikecilkan */
+                font-size: 0.9em; /* Font input dikecilkan */
                 min-width: 0; 
             }
             #searchButton { 
                 flex-shrink: 0; 
                 width: auto; 
                 border-radius: 0 20px 20px 0; 
-                padding: 10px 15px; 
-                font-size: 0.9em; 
+                padding: 10px 15px; /* Padding tombol dikecilkan */
+                font-size: 0.9em; /* Font tombol dikecilkan */
             }
             #searchButton .fa-search {
                  font-size: 1em; 
             }
+             /* Nonaktifkan animasi geser search input di mobile agar tidak aneh */
+            #searchInput:focus {
+                transform: none;
+            }
+            #searchButton:hover {
+                transform: scale(1.05); /* Hilangkan translateX di mobile */
+            }
+
 
             #filter-section { 
-                padding: 15px 10px; 
+                padding: 15px 10px; /* Padding filter dikecilkan */
                 margin-bottom: 25px;
             }
             #filter-section h2 { 
-                font-size: 1.3em; 
+                font-size: 1.2em; /* Judul filter dikecilkan */
             }
             .filter-buttons { 
-                gap: 8px; 
+                gap: 8px; /* Jarak antar tombol filter */
                 justify-content: flex-start; 
             }
             .filter-button { 
-                padding: 7px 12px; 
-                font-size: 0.85em; 
+                padding: 6px 10px; /* Tombol filter lebih kecil */
+                font-size: 0.8em; /* Font tombol filter lebih kecil */
+            }
+            .filter-button:hover { /* Sesuaikan animasi hover tombol filter di mobile */
+                transform: translateY(-2px) scale(1.05);
+            }
+            .filter-button.active {
+                 animation: popUpMobile 0.3s ease-out;
+            }
+             @keyframes popUpMobile { /* Animasi pop up yang lebih subtle untuk mobile */
+                0% { transform: translateY(0) scale(1); }
+                50% { transform: translateY(-3px) scale(1.06); }
+                100% { transform: translateY(-2px) scale(1.05); }
             }
 
+
             .grid-container { 
-                gap: 15px; 
-                grid-template-columns: 1fr; 
+                gap: 12px; /* Jarak antar card lebih kecil */
+                grid-template-columns: 1fr; /* Tetap 1 kolom */
             }
             .account-card { 
-                border-radius: 8px; 
+                border-radius: 8px; /* Border radius card lebih kecil */
             }
             .account-card .card-image-container { 
-                height: 160px; 
+                height: 150px; /* Tinggi gambar card dikurangi */
             }
             .account-card .card-content { 
-                padding: 15px; 
+                padding: 12px; /* Padding konten card dikurangi */
             }
             .account-card .game-icon {
-                width: 26px;
-                height: 26px;
+                width: 24px; /* Ikon game lebih kecil */
+                height: 24px;
+                margin-right: 8px;
             }
             .account-card h3 { 
-                font-size: 1.15em; 
+                font-size: 1.1em; /* Judul card lebih kecil */
+                margin-bottom: 8px;
             }
             .account-card .description {
-                font-size: 0.85em; 
-                -webkit-line-clamp: 2; 
+                font-size: 0.8em; /* Deskripsi card lebih kecil */
+                -webkit-line-clamp: 2; /* Batasi 2 baris deskripsi */
+                margin-bottom: 12px;
             }
             .account-card .price { 
-                font-size: 1.1em; 
+                font-size: 1.05em; /* Harga card lebih kecil */
+                margin-bottom: 12px;
             }
             .account-card .details-button { 
-                padding: 8px 12px; 
-                font-size: 0.9em;
+                padding: 7px 10px; /* Tombol detail lebih kecil */
+                font-size: 0.85em; /* Font tombol detail lebih kecil */
+                border-radius: 6px;
             }
+            .account-card:hover { /* Animasi hover card yang lebih subtle di mobile */
+                 transform: translateY(-5px) scale(1.01);
+                 box-shadow: var(--box-shadow-hover), 0 0 10px rgba(0, 255, 132, 0.4);
+            }
+
             
             .modal-content { 
                 padding: 15px; 
                 max-width: calc(100% - 30px); 
-                margin: 8% auto; 
+                margin: 5% auto; /* Margin modal sedikit dikurangi */
                 border-radius: 10px;
             }
              #modal-body img.modal-main-image {
@@ -797,6 +969,9 @@
                 bottom: 15px;
                 right: 15px;
             }
+            #sellAccountFab:hover { /* Hover FAB yang lebih subtle di mobile */
+                transform: scale(1.1) rotate(5deg);
+            }
         }
 
         html {
@@ -847,7 +1022,7 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Nama Toko Anda. Powered by You!</p> 
+            <p>© 2024 Orbyte Store. Powered by You!</p> <!-- Ganti Nama Toko Anda -->
         </div>
     </footer>
 
@@ -878,13 +1053,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalBody = document.getElementById('modal-body');
     const closeButton = document.querySelector('.close-button');
     const gameFiltersContainer = document.getElementById('game-filters');
-    const sellAccountFab = document.getElementById('sellAccountFab'); // Ambil elemen FAB
+    const sellAccountFab = document.getElementById('sellAccountFab');
+    const header = document.querySelector('header'); // Ambil elemen header
 
     let allAccounts = [];
     let uniqueGameNames = new Set();
-
-    // Nomor WhatsApp Admin (sudah ada)
     const whatsappNumber = '6283128804631'; 
+
+    // Fungsi untuk header saat scroll (animasi shadow)
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
 
     function showStatusMessage(type, message) {
         accountGrid.innerHTML = ''; 
@@ -978,7 +1162,8 @@ document.addEventListener('DOMContentLoaded', () => {
         accountsToDisplay.forEach((account, index) => {
             const card = document.createElement('div');
             card.classList.add('account-card');
-            card.style.animationDelay = `${index * 0.08}s`; 
+            // Set CSS variable untuk delay animasi stagger
+            card.style.setProperty('--card-delay', `${index * 0.07}s`); // Kurangi delay sedikit
 
             const mainImage = account.images && account.images.length > 0 ? account.images[0] : 'https://via.placeholder.com/300x180.png?text=No+Image';
             const gameIcon = account.gameIcon ? account.gameIcon : 'https://via.placeholder.com/30.png?text=G';
@@ -1000,6 +1185,12 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             accountGrid.appendChild(card);
             
+            // Trigger animasi dengan menambahkan class 'visible' setelah elemen ada di DOM
+            // Menggunakan requestAnimationFrame untuk memastikan browser siap merender
+            requestAnimationFrame(() => {
+                card.classList.add('visible');
+            });
+
             const detailsButton = card.querySelector('.details-button');
             if (detailsButton) {
                 detailsButton.addEventListener('click', () => openModal(account.id));
@@ -1016,11 +1207,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (account.images && account.images.length > 1) { 
              imageGalleryHTML = account.images.map((imgSrc, index) => 
-                `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')">`
+                // Tambahkan style untuk delay animasi thumbnail galeri
+                `<img src="${imgSrc}" alt="Gambar ${index + 1} untuk ${account.title}" class="${index === 0 ? 'active-thumb' : ''}" onclick="changeModalMainImage(this, '${imgSrc}')" style="animation-delay: ${index * 0.05}s">`
             ).join('');
         }
         
-        const buyMessage = `Halo, saya tertarik dengan akun: ${account.title || 'Akun Game'}. Mohon info lebih lanjut.`;
+        const buyMessage = `Halo, saya tertarik dengan akun: ${account.title || 'Akun Game'} (${account.price || 'N/A'}). Mohon info lebih lanjut. ID: ${account.id}`; // Tambah harga dan ID untuk referensi admin
         const whatsappLinkBuy = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(buyMessage)}`;
 
 
@@ -1040,6 +1232,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden'; 
+        // Re-trigger animasi pada modal content jika dibuka lagi
+        const modalContent = modal.querySelector('.modal-content');
+        modalContent.style.animation = 'none';
+        modalContent.offsetHeight; /* Trigger reflow */
+        modalContent.style.animation = ''; 
     }
 
     window.changeModalMainImage = function(thumbElement, newImageSrc) {
@@ -1060,9 +1257,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closeModal() {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        const modalContent = modal.querySelector('.modal-content');
+        // Tambahkan animasi fade out untuk modal content sebelum modalnya di-hide
+        modalContent.style.animation = 'scaleDownModal 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards';
+        modal.style.animation = 'fadeOutBackdrop 0.4s 0.1s ease-out forwards'; // Backdrop fade out setelah konten
+
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Reset animasi agar bisa jalan lagi nanti
+            modalContent.style.animation = '';
+            modal.style.animation = '';
+        }, 400); // Sesuaikan dengan durasi animasi terpanjang (scaleDownModal)
     }
+    // Tambahkan keyframes untuk animasi keluar modal
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = `
+        @keyframes scaleDownModal {
+            from { transform: scale(1) translateY(0); opacity: 1; }
+            to { transform: scale(0.9) translateY(20px); opacity: 0; }
+        }
+        @keyframes fadeOutBackdrop {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
 
     function searchAccounts() {
         const searchTerm = searchInput.value.toLowerCase().trim();
@@ -1078,7 +1300,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const titleMatch = account.title && account.title.toLowerCase().includes(searchTerm);
             const gameNameMatch = account.gameName && account.gameName.toLowerCase().includes(searchTerm);
             const descriptionMatch = account.description && account.description.toLowerCase().includes(searchTerm);
-            const tagsMatch = account.tags && account.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+            // Perbaiki pencarian tags: pastikan account.tags ada dan merupakan array
+            const tagsMatch = account.tags && Array.isArray(account.tags) && account.tags.some(tag => tag.toLowerCase().includes(searchTerm));
             
             const matchesSearch = searchTerm === '' || titleMatch || gameNameMatch || descriptionMatch || tagsMatch; 
             const matchesFilter = (activeFilterValue === 'all' || (account.gameName && account.gameName === activeFilterValue));
@@ -1088,10 +1311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         displayAccounts(filteredAccounts);
     }
 
-    // Event listener untuk FAB Jual Akun
     if (sellAccountFab) {
         sellAccountFab.addEventListener('click', () => {
-            const sellMessage = "Halo Admin, saya ingin menjual akun game saya. Mohon informasinya.";
+            const sellMessage = "Halo Admin Orbyte Store, saya ingin menjual akun game saya. Mohon informasinya."; // Update nama toko
             const whatsappLinkSell = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(sellMessage)}`;
             window.open(whatsappLinkSell, '_blank');
         });
@@ -1100,15 +1322,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchButton) searchButton.addEventListener('click', searchAccounts);
     if (searchInput) {
         searchInput.addEventListener('keyup', (event) => {
-            if (event.key === "Enter") { // Opsional: trigger search on enter
+            if (event.key === "Enter") { 
                  searchAccounts();
             }
         });
-        // Jika ingin live search (setiap ketikan langsung cari), hapus kondisi if (event.key === "Enter")
-        // dan biarkan searchAccounts(); di luar. Tapi bisa jadi berat jika data banyak.
-        // Untuk sekarang, saya akan biarkan search hanya dengan tombol atau Enter.
-        // Jika ingin live search, uncomment baris di bawah dan comment/remove yang di atas:
-        // searchInput.addEventListener('input', searchAccounts); 
+        // Implementasi live search dengan debounce (optional, jika ingin)
+        let searchTimeout;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchAccounts();
+            }, 300); // Delay 300ms sebelum melakukan pencarian
+        });
     }
     if (closeButton) closeButton.addEventListener('click', closeModal);
     
