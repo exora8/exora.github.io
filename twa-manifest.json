@@ -24,7 +24,7 @@
   "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://orbyte8.vercel.app/manifest.json",
+  "webManifestUrl": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/twa-manifest.json",
   "fallbackType": "customtabs",
   "features": {},
   "alphaDependencies": {
