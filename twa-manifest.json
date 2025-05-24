@@ -1,0 +1,41 @@
+{
+  "packageId": "app.vercel.orbyte8",
+  "host": "orbyte8.vercel.app",
+  "name": "Orbyte",
+  "launcherName": "Orbyte",
+  "display": "standalone",
+  "themeColor": "#1A202C",
+  "navigationColor": "#1A202C",
+  "navigationColorDark": "#1A202C",
+  "navigationDividerColor": "#2D3748",
+  "navigationDividerColorDark": "#2D3748",
+  "backgroundColor": "#1A202C",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-512x512.png",
+  "maskableIconUrl": "https://raw.githubusercontent.com/exora8/exora.github.io/refs/heads/main/icon-512x512.png",
+  "monochromeIconUrl": "",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./signing-key.keystore",
+    "alias": "orbyte"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://orbyte8.vercel.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://orbyte8.vercel.app/",
+  "minSdkVersion": 23,
+  "orientation": "default",
+  "fingerprints": [],
+  "languages": ["en-US"]
+}
