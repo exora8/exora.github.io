@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "app.vercel.orbyte8",
+      "package_name": "app.vercel.orbyte8", // <-- Pastikan ini app.vercel.orbyte8!
       "sha256_cert_fingerprints": [
-        "248D1FBCE94AE39B1B1FF538D418CCF872BEEFD8DE1C128F6BA4DE4085B21AC0"
+        "7E5EF9A1169CFAF931276918D48AE738266F1D8CE15D94BD4AFD06C57A974107"
       ]
     }
   }
