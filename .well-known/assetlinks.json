@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "orbyte8.vercel.app",
+      "sha256_cert_fingerprints": [
+        "248D1FBCE94AE39B1B1FF538D418CCF872BEEFD8DE1C128F6BA4DE4085B21AC0"
+      ]
+    }
+  }
+]
